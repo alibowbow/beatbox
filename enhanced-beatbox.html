@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥁 프로페셔널 드럼머신</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                border-radius: 15px;
+            }
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 15px;
+            }
+        }
+
+        .mode-selector {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 30px;
+            margin: 0 10px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            border-color: #ff6b6b;
+            transform: scale(1.05);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .control-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: #fff;
+            font-size: 1.2rem;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .generate-btn {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            font-size: 16px;
+            padding: 15px 25px;
+        }
+
+        .play-btn {
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            color: #333;
+        }
+
+        .fill-btn {
+            background: linear-gradient(45deg, #ffd89b, #19547b);
+        }
+
+        .pattern-display {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            min-height: 150px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .beat-grid {
+            display: grid;
+            grid-template-columns: 120px repeat(16, 1fr);
+            gap: 2px;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            max-width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .beat-grid {
+                grid-template-columns: 80px repeat(16, 40px);
+                gap: 1px;
+                padding: 10px;
+                margin: 10px 0;
+            }
+        }
+
+        .sound-label {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (max-width: 768px) {
+            .sound-label {
+                font-size: 10px;
+                padding-right: 5px;
+            }
+        }
+
+        .beat-cell {
+            aspect-ratio: 1;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            position: relative;
+            min-width: 40px;
+            min-height: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .beat-cell {
+                border-width: 1px;
+                font-size: 8px;
+                min-width: 35px;
+                min-height: 35px;
+            }
+        }
+
+        .beat-cell:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .beat-cell.active {
+            background: var(--sound-color);
+            border-color: var(--sound-color);
+            box-shadow: 0 0 10px var(--sound-color);
+        }
+
+        .beat-cell.playing {
+            animation: pulse 0.3s ease;
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.3);
+        }
+
+        /* 드럼 사운드별 색상 */
+        .sound-kick { --sound-color: #ff6b6b; }
+        .sound-snare { --sound-color: #4ecdc4; }
+        .sound-hihat { --sound-color: #a8edea; }
+        .sound-openhat { --sound-color: #ffd93d; }
+        .sound-crash { --sound-color: #ff6b9d; }
+        .sound-ride { --sound-color: #c7f0db; }
+        .sound-tom1 { --sound-color: #ffa502; }
+        .sound-tom2 { --sound-color: #ff7675; }
+        .sound-floortom { --sound-color: #d63031; }
+        .sound-clap { --sound-color: #dfe6e9; }
+        .sound-cowbell { --sound-color: #fdcb6e; }
+
+        .slider-group {
+            margin: 15px 0;
+        }
+
+        .slider-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            cursor: pointer;
+        }
+
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #4ecdc4;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sound-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+        }
+
+        .sound-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .sound-item {
+                padding: 10px;
+                font-size: 12px;
+            }
+            
+            .sound-item div:first-child {
+                font-size: 18px !important;
+            }
+        }
+
+        .sound-item:hover {
+            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .genre-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .genre-selector {
+                gap: 5px;
+                margin-bottom: 10px;
+            }
+        }
+
+        .genre-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            padding: 8px 15px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .genre-btn {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .keyboard-hints {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .custom-sound-form {
+            display: none;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .custom-mode-only {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥁 프로페셔널 드럼머신</h1>
+        
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="setMode('normal')">🥁 일반 드럼 모드</button>
+            <button class="mode-btn" onclick="setMode('custom')">🎤 커스텀 비트박스 모드</button>
+        </div>
+
+        <div class="main-grid">
+            <div class="control-section">
+                <h3>🎵 비트 & 리듬 컨트롤</h3>
+                <div class="button-row">
+                    <button class="generate-btn" onclick="generateBeat()">🎲 랜덤 비트</button>
+                    <button class="fill-btn" onclick="generateFillIn()">🥁 필인 생성</button>
+                    <button onclick="clearBeat()">🗑️ 초기화</button>
+                </div>
+                
+                <div class="genre-selector">
+                    <button class="genre-btn" onclick="loadGenrePattern('rock')">🎸 록</button>
+                    <button class="genre-btn" onclick="loadGenrePattern('jazz')">🎷 재즈</button>
+                    <button class="genre-btn" onclick="loadGenrePattern('funk')">🎺 펑크</button>
+                    <button class="genre-btn" onclick="loadGenrePattern('latin')">🪇 라틴</button>
+                    <button class="genre-btn" onclick="loadGenrePattern('hiphop')">🎤 힙합</button>
+                    <button class="genre-btn" onclick="loadGenrePattern('edm')">🎧 EDM</button>
+                    <button class="genre-btn" onclick="loadGenrePattern('reggae')">🌴 레게</button>
+                    <button class="genre-btn" onclick="loadGenrePattern('metal')">🤘 메탈</button>
+                </div>
+
+                <div class="button-row">
+                    <button class="play-btn" onclick="togglePlayback()">▶️ 재생/정지</button>
+                    <button onclick="exportPattern()">💾 저장</button>
+                    <button onclick="importPattern()">📁 불러오기</button>
+                </div>
+                <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadPattern(this)">
+                
+                <div class="slider-group">
+                    <label for="tempo">템포 (BPM): <span id="tempoValue">120</span></label>
+                    <input type="range" id="tempo" min="60" max="200" value="120" oninput="updateTempo(this.value)">
+                </div>
+                <div class="slider-group">
+                    <label for="swing">스윙: <span id="swingValue">0</span>%</label>
+                    <input type="range" id="swing" min="0" max="70" value="0" oninput="updateSwing(this.value)">
+                </div>
+            </div>
+
+            <div class="control-section custom-mode-only">
+                <h3>🎙️ 커스텀 사운드</h3>
+                <div class="button-row">
+                    <button onclick="requestMicrophonePermission()" style="background: linear-gradient(45deg, #4ecdc4, #44a08d);">🎤 마이크 권한</button>
+                    <button onclick="toggleCustomSoundForm()">+ 새 사운드</button>
+                </div>
+                <div class="status" id="micStatus">마이크 상태: 확인 중...</div>
+                <div class="sound-grid" id="soundGrid"></div>
+                <div class="custom-sound-form" id="customSoundForm">
+                    <input type="text" id="customKey" placeholder="키 (A-Z)" maxlength="1">
+                    <input type="text" id="customName" placeholder="사운드 이름">
+                    <button onclick="startCustomRecording()">🔴 녹음</button>
+                    <button onclick="cancelCustomSound()">취소</button>
+                </div>
+            </div>
+
+            <div class="control-section" id="normalModeControls">
+                <h3>🥁 드럼 키트</h3>
+                <div class="sound-grid" id="drumKitGrid"></div>
+            </div>
+        </div>
+
+        <div class="status" id="status">준비됨 - 드럼 패턴을 만들어보세요!</div>
+
+        <div class="pattern-display" id="patternDisplay">여기에 생성된 패턴이 표시됩니다</div>
+
+        <div class="control-section">
+            <h3>🎼 시퀀서 (16스텝)</h3>
+            <div class="beat-grid" id="beatGrid"></div>
+        </div>
+
+        <div class="keyboard-hints">
+            <strong>⌨️ 키보드 단축키:</strong><br>
+            <span id="normalModeHints">
+                Q: 킥 | W: 스네어 | E: 하이햇 | R: 오픈햇 | T: 크래시<br>
+                Y: 라이드 | A: 탐1 | S: 탐2 | D: 플로어탐 | F: 박수 | G: 카우벨<br>
+            </span>
+            <span class="custom-mode-only" id="customModeHints">
+                A-Z: 커스텀 사운드 재생 | Shift + A-Z: 시퀀서에 추가/제거<br>
+            </span>
+            스페이스바: 재생/정지 | Enter: 랜덤 생성 | Backspace: 초기화
+        </div>
+    </div>
+
+    <script>
+        class DrumMachine {
+            constructor() {
+                this.audioContext = null;
+                this.isPlaying = false;
+                this.currentBeat = 0;
+                this.tempo = 120;
+                this.swing = 0;
+                this.pattern = {};
+                this.intervalId = null;
+                this.mode = 'normal'; // 'normal' or 'custom'
+                this.customSounds = new Map();
+                this.normalSounds = new Map();
+                this.selectedSound = null;
+                this.microphoneStream = null;
+                this.hasPermission = false;
+                this.isRecording = false;
+                this.mediaRecorder = null;
+                this.recordedChunks = [];
+                this.recordingSound = null;
+                
+                this.initializeAudio();
+                this.createNormalDrumSounds();
+                this.initializePattern();
+                this.createBeatGrid();
+                this.updateDrumKitGrid();
+                this.setupKeyboardListeners();
+            }
+
+            async initializeAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.updateStatus('오디오 시스템 준비 완료');
+                } catch (error) {
+                    console.error('오디오 컨텍스트 초기화 실패:', error);
+                    this.updateStatus('오디오 시스템 오류');
+                }
+            }
+
+            createNormalDrumSounds() {
+                const sounds = [
+                    { key: 'Q', name: '킥', id: 'kick', generator: this.createKickSound.bind(this) },
+                    { key: 'W', name: '스네어', id: 'snare', generator: this.createSnareSound.bind(this) },
+                    { key: 'E', name: '하이햇', id: 'hihat', generator: this.createHihatSound.bind(this) },
+                    { key: 'R', name: '오픈햇', id: 'openhat', generator: this.createOpenHatSound.bind(this) },
+                    { key: 'T', name: '크래시', id: 'crash', generator: this.createCrashSound.bind(this) },
+                    { key: 'Y', name: '라이드', id: 'ride', generator: this.createRideSound.bind(this) },
+                    { key: 'A', name: '탐1', id: 'tom1', generator: this.createTom1Sound.bind(this) },
+                    { key: 'S', name: '탐2', id: 'tom2', generator: this.createTom2Sound.bind(this) },
+                    { key: 'D', name: '플로어탐', id: 'floortom', generator: this.createFloorTomSound.bind(this) },
+                    { key: 'F', name: '박수', id: 'clap', generator: this.createClapSound.bind(this) },
+                    { key: 'G', name: '카우벨', id: 'cowbell', generator: this.createCowbellSound.bind(this) }
+                ];
+
+                sounds.forEach(sound => {
+                    this.normalSounds.set(sound.key, {
+                        name: sound.name,
+                        id: sound.id,
+                        generator: sound.generator
+                    });
+                });
+            }
+
+            initializePattern() {
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                this.pattern = {};
+                sounds.forEach((sound, key) => {
+                    this.pattern[key] = Array(16).fill(false);
+                });
+            }
+
+            // 킥 드럼
+            createKickSound() {
+                if (!this.audioContext) return;
+                
+                // 메인 저음 (펀치)
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, this.audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(60, this.audioContext.currentTime + 0.01);
+                osc.frequency.exponentialRampToValueAtTime(35, this.audioContext.currentTime + 0.1);
+                
+                gain.gain.setValueAtTime(1, this.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.3, this.audioContext.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+                
+                // 클릭 사운드 (어택)
+                const click = this.audioContext.createOscillator();
+                const clickGain = this.audioContext.createGain();
+                
+                click.type = 'square';
+                click.frequency.value = 1000;
+                
+                clickGain.gain.setValueAtTime(0.5, this.audioContext.currentTime);
+                clickGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.005);
+                
+                // 컴프레서 (더 펀치감 있게)
+                const compressor = this.audioContext.createDynamicsCompressor();
+                compressor.threshold.value = -10;
+                compressor.knee.value = 0;
+                compressor.ratio.value = 10;
+                compressor.attack.value = 0.003;
+                compressor.release.value = 0.1;
+                
+                osc.connect(gain);
+                gain.connect(compressor);
+                click.connect(clickGain);
+                clickGain.connect(compressor);
+                compressor.connect(this.audioContext.destination);
+                
+                osc.start();
+                osc.stop(this.audioContext.currentTime + 0.5);
+                click.start();
+                click.stop(this.audioContext.currentTime + 0.005);
+            }
+
+            // 스네어
+            createSnareSound() {
+                if (!this.audioContext) return;
+                
+                const noise = this.createNoise();
+                const noiseGain = this.audioContext.createGain();
+                const noiseFilter = this.audioContext.createBiquadFilter();
+                
+                noiseFilter.type = 'highpass';
+                noiseFilter.frequency.value = 1000;
+                
+                noiseGain.gain.setValueAtTime(0.5, this.audioContext.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+                
+                const osc = this.audioContext.createOscillator();
+                const oscGain = this.audioContext.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.value = 200;
+                
+                oscGain.gain.setValueAtTime(0.7, this.audioContext.currentTime);
+                oscGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+                
+                noise.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(this.audioContext.destination);
+                
+                osc.connect(oscGain);
+                oscGain.connect(this.audioContext.destination);
+                
+                osc.start();
+                osc.stop(this.audioContext.currentTime + 0.2);
+                noise.start();
+                noise.stop(this.audioContext.currentTime + 0.2);
+            }
+
+            // 하이햇
+            createHihatSound() {
+                if (!this.audioContext) return;
+                
+                const noise = this.createNoise();
+                const filter = this.audioContext.createBiquadFilter();
+                const gain = this.audioContext.createGain();
+                
+                filter.type = 'highpass';
+                filter.frequency.value = 8000;
+                
+                gain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.05);
+                
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.audioContext.destination);
+                
+                noise.start();
+                noise.stop(this.audioContext.currentTime + 0.05);
+            }
+
+            // 오픈 하이햇
+            createOpenHatSound() {
+                if (!this.audioContext) return;
+                
+                const noise = this.createNoise();
+                const filter = this.audioContext.createBiquadFilter();
+                const gain = this.audioContext.createGain();
+                
+                filter.type = 'highpass';
+                filter.frequency.value = 7000;
+                
+                gain.gain.setValueAtTime(0.4, this.audioContext.currentTime);
+                gain.gain.setValueAtTime(0.4, this.audioContext.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+                
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.audioContext.destination);
+                
+                noise.start();
+                noise.stop(this.audioContext.currentTime + 0.3);
+            }
+
+
+            // 크래시 심벌
+            createCrashSound() {
+                if (!this.audioContext) return;
+                
+                const noise = this.createNoise();
+                const filter = this.audioContext.createBiquadFilter();
+                const gain = this.audioContext.createGain();
+                
+                filter.type = 'highpass';
+                filter.frequency.value = 3000;
+                filter.Q.value = 0.5;
+                
+                gain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 2);
+                
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.audioContext.destination);
+                
+                noise.start();
+                noise.stop(this.audioContext.currentTime + 2);
+            }
+
+            // 라이드 심벌
+            createRideSound() {
+                if (!this.audioContext) return;
+                
+                const noise = this.createNoise();
+                const filter = this.audioContext.createBiquadFilter();
+                const gain = this.audioContext.createGain();
+                
+                filter.type = 'highpass';
+                filter.frequency.value = 5000;
+                filter.Q.value = 2;
+                
+                gain.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                gain.gain.setValueAtTime(0.2, this.audioContext.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+                
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.audioContext.destination);
+                
+                noise.start();
+                noise.stop(this.audioContext.currentTime + 0.5);
+            }
+
+            // 탐1
+            createTom1Sound() {
+                if (!this.audioContext) return;
+                
+                // 메인 톤
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, this.audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, this.audioContext.currentTime + 0.02);
+                osc.frequency.exponentialRampToValueAtTime(120, this.audioContext.currentTime + 0.2);
+                
+                gain.gain.setValueAtTime(0.8, this.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.3, this.audioContext.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.6);
+                
+                // 배음 (울림감)
+                const osc2 = this.audioContext.createOscillator();
+                const gain2 = this.audioContext.createGain();
+                
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(240, this.audioContext.currentTime);
+                osc2.frequency.exponentialRampToValueAtTime(180, this.audioContext.currentTime + 0.3);
+                
+                gain2.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.4);
+                
+                // 어택 노이즈
+                const noise = this.createNoise();
+                const noiseGain = this.audioContext.createGain();
+                const noiseFilter = this.audioContext.createBiquadFilter();
+                
+                noiseFilter.type = 'bandpass';
+                noiseFilter.frequency.value = 300;
+                noiseFilter.Q.value = 1;
+                
+                noiseGain.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.02);
+                
+                const masterGain = this.audioContext.createGain();
+                masterGain.gain.value = 1.2;
+                
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc2.connect(gain2);
+                gain2.connect(masterGain);
+                noise.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(masterGain);
+                masterGain.connect(this.audioContext.destination);
+                
+                osc.start();
+                osc.stop(this.audioContext.currentTime + 0.6);
+                osc2.start();
+                osc2.stop(this.audioContext.currentTime + 0.4);
+                noise.start();
+                noise.stop(this.audioContext.currentTime + 0.02);
+            }
+
+            // 탐2
+            createTom2Sound() {
+                if (!this.audioContext) return;
+                
+                // 메인 톤
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, this.audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + 0.02);
+                osc.frequency.exponentialRampToValueAtTime(80, this.audioContext.currentTime + 0.2);
+                
+                gain.gain.setValueAtTime(0.9, this.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.3, this.audioContext.currentTime + 0.15);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.7);
+                
+                // 배음
+                const osc2 = this.audioContext.createOscillator();
+                const gain2 = this.audioContext.createGain();
+                
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(160, this.audioContext.currentTime);
+                osc2.frequency.exponentialRampToValueAtTime(120, this.audioContext.currentTime + 0.3);
+                
+                gain2.gain.setValueAtTime(0.4, this.audioContext.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+                
+                // 어택 노이즈
+                const noise = this.createNoise();
+                const noiseGain = this.audioContext.createGain();
+                const noiseFilter = this.audioContext.createBiquadFilter();
+                
+                noiseFilter.type = 'bandpass';
+                noiseFilter.frequency.value = 200;
+                noiseFilter.Q.value = 1;
+                
+                noiseGain.gain.setValueAtTime(0.25, this.audioContext.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.03);
+                
+                const masterGain = this.audioContext.createGain();
+                masterGain.gain.value = 1.3;
+                
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc2.connect(gain2);
+                gain2.connect(masterGain);
+                noise.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(masterGain);
+                masterGain.connect(this.audioContext.destination);
+                
+                osc.start();
+                osc.stop(this.audioContext.currentTime + 0.7);
+                osc2.start();
+                osc2.stop(this.audioContext.currentTime + 0.5);
+                noise.start();
+                noise.stop(this.audioContext.currentTime + 0.03);
+            }
+
+            // 플로어탐
+            createFloorTomSound() {
+                if (!this.audioContext) return;
+                
+                // 메인 톤 (깊은 울림)
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, this.audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(65, this.audioContext.currentTime + 0.03);
+                osc.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.3);
+                
+                gain.gain.setValueAtTime(1.0, this.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.4, this.audioContext.currentTime + 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.8);
+                
+                // 서브 베이스 (더 깊은 울림)
+                const sub = this.audioContext.createOscillator();
+                const subGain = this.audioContext.createGain();
+                
+                sub.type = 'sine';
+                sub.frequency.setValueAtTime(50, this.audioContext.currentTime);
+                sub.frequency.exponentialRampToValueAtTime(40, this.audioContext.currentTime + 0.4);
+                
+                subGain.gain.setValueAtTime(0.6, this.audioContext.currentTime);
+                subGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.6);
+                
+                // 어택 사운드
+                const attack = this.audioContext.createOscillator();
+                const attackGain = this.audioContext.createGain();
+                
+                attack.type = 'triangle';
+                attack.frequency.value = 120;
+                
+                attackGain.gain.setValueAtTime(0.4, this.audioContext.currentTime);
+                attackGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.02);
+                
+                const masterGain = this.audioContext.createGain();
+                masterGain.gain.value = 1.5;
+                
+                osc.connect(gain);
+                gain.connect(masterGain);
+                sub.connect(subGain);
+                subGain.connect(masterGain);
+                attack.connect(attackGain);
+                attackGain.connect(masterGain);
+                masterGain.connect(this.audioContext.destination);
+                
+                osc.start();
+                osc.stop(this.audioContext.currentTime + 0.8);
+                sub.start();
+                sub.stop(this.audioContext.currentTime + 0.6);
+                attack.start();
+                attack.stop(this.audioContext.currentTime + 0.02);
+            }
+
+            // 박수
+            createClapSound() {
+                if (!this.audioContext) return;
+                
+                const filter = this.audioContext.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 1500;
+                filter.Q.value = 1;
+                
+                const envelopes = [];
+                const noises = [];
+                
+                for (let i = 0; i < 3; i++) {
+                    const noise = this.createNoise();
+                    const env = this.audioContext.createGain();
+                    
+                    const delay = i * 0.01;
+                    env.gain.setValueAtTime(0, this.audioContext.currentTime + delay);
+                    env.gain.linearRampToValueAtTime(0.2, this.audioContext.currentTime + delay + 0.01);
+                    env.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + delay + 0.03);
+                    
+                    noise.connect(filter);
+                    filter.connect(env);
+                    env.connect(this.audioContext.destination);
+                    
+                    noise.start(this.audioContext.currentTime + delay);
+                    noise.stop(this.audioContext.currentTime + delay + 0.03);
+                    
+                    noises.push(noise);
+                    envelopes.push(env);
+                }
+            }
+
+            // 카우벨
+            createCowbellSound() {
+                if (!this.audioContext) return;
+                
+                const osc1 = this.audioContext.createOscillator();
+                const osc2 = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                const filter = this.audioContext.createBiquadFilter();
+                
+                osc1.frequency.value = 800;
+                osc2.frequency.value = 540;
+                
+                filter.type = 'bandpass';
+                filter.frequency.value = 800;
+                filter.Q.value = 2;
+                
+                gain.gain.setValueAtTime(0.5, this.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+                
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(filter);
+                filter.connect(this.audioContext.destination);
+                
+                osc1.start();
+                osc2.start();
+                osc1.stop(this.audioContext.currentTime + 0.1);
+                osc2.stop(this.audioContext.currentTime + 0.1);
+            }
+
+            // 노이즈 생성 헬퍼
+            createNoise() {
+                const bufferSize = this.audioContext.sampleRate * 2;
+                const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+                const output = buffer.getChannelData(0);
+                
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                
+                const noise = this.audioContext.createBufferSource();
+                noise.buffer = buffer;
+                return noise;
+            }
+
+            createBeatGrid() {
+                const grid = document.getElementById('beatGrid');
+                grid.innerHTML = '';
+                
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                
+                // 헤더 행 (비트 번호)
+                const emptyHeader = document.createElement('div');
+                emptyHeader.style.minWidth = window.innerWidth <= 768 ? '80px' : '120px';
+                grid.appendChild(emptyHeader);
+                
+                for (let i = 0; i < 16; i++) {
+                    const header = document.createElement('div');
+                    header.style.textAlign = 'center';
+                    header.style.fontSize = window.innerWidth <= 768 ? '8px' : '10px';
+                    header.style.color = 'rgba(255,255,255,0.6)';
+                    header.style.minWidth = window.innerWidth <= 768 ? '40px' : 'auto';
+                    header.textContent = i + 1;
+                    grid.appendChild(header);
+                }
+                
+                // 각 사운드별 행
+                sounds.forEach((sound, key) => {
+                    const label = document.createElement('div');
+                    label.className = 'sound-label';
+                    label.textContent = `${key}: ${sound.name}`;
+                    label.style.minWidth = window.innerWidth <= 768 ? '80px' : '120px';
+                    grid.appendChild(label);
+                    
+                    for (let i = 0; i < 16; i++) {
+                        const cell = document.createElement('div');
+                        cell.className = `beat-cell sound-${sound.id || key.toLowerCase()}`;
+                        cell.dataset.sound = key;
+                        cell.dataset.beat = i;
+                        cell.onclick = () => this.toggleBeat(key, i);
+                        cell.style.minWidth = window.innerWidth <= 768 ? '40px' : 'auto';
+                        grid.appendChild(cell);
+                    }
+                });
+            }
+
+            updateBeatGrid() {
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                
+                sounds.forEach((sound, key) => {
+                    for (let i = 0; i < 16; i++) {
+                        const cell = document.querySelector(`[data-sound="${key}"][data-beat="${i}"]`);
+                        if (cell) {
+                            if (this.pattern[key] && this.pattern[key][i]) {
+                                cell.classList.add('active');
+                            } else {
+                                cell.classList.remove('active');
+                            }
+                            
+                            if (this.isPlaying && i === this.currentBeat) {
+                                cell.classList.add('playing');
+                            } else {
+                                cell.classList.remove('playing');
+                            }
+                        }
+                    }
+                });
+            }
+
+            updateDrumKitGrid() {
+                if (this.mode !== 'normal') return;
+                
+                const grid = document.getElementById('drumKitGrid');
+                grid.innerHTML = '';
+                
+                this.normalSounds.forEach((sound, key) => {
+                    const item = document.createElement('div');
+                    item.className = 'sound-item';
+                    item.innerHTML = `
+                        <div style="font-size: 24px; font-weight: bold;">${key}</div>
+                        <div style="font-size: 14px;">${sound.name}</div>
+                    `;
+                    item.onclick = () => this.playSound(key);
+                    grid.appendChild(item);
+                });
+            }
+
+            toggleBeat(sound, beat) {
+                if (!this.pattern[sound]) {
+                    this.pattern[sound] = Array(16).fill(false);
+                }
+                this.pattern[sound][beat] = !this.pattern[sound][beat];
+                this.updateBeatGrid();
+                this.updatePatternDisplay();
+            }
+
+            playSound(key) {
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+                
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const sound = sounds.get(key);
+                
+                if (sound) {
+                    if (sound.generator) {
+                        sound.generator();
+                    } else if (sound.audioBuffer) {
+                        const source = this.audioContext.createBufferSource();
+                        source.buffer = sound.audioBuffer;
+                        source.connect(this.audioContext.destination);
+                        source.start();
+                    }
+                }
+            }
+
+            generateBeat() {
+                this.clearBeat();
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                
+                if (this.mode === 'normal') {
+                    // 기본 킥 패턴
+                    this.pattern['Q'][0] = true;
+                    this.pattern['Q'][4] = true;
+                    this.pattern['Q'][8] = true;
+                    this.pattern['Q'][12] = true;
+                    
+                    // 스네어 패턴
+                    this.pattern['W'][4] = true;
+                    this.pattern['W'][12] = true;
+                    
+                    // 하이햇 패턴
+                    for (let i = 0; i < 16; i += 2) {
+                        if (Math.random() > 0.3) {
+                            this.pattern['E'][i] = true;
+                        }
+                    }
+                    
+                    // 랜덤 추가 요소
+                    sounds.forEach((sound, key) => {
+                        if (['Q', 'W', 'E'].includes(key)) return;
+                        
+                        for (let i = 0; i < 16; i++) {
+                            if (Math.random() < 0.1) {
+                                this.pattern[key][i] = true;
+                            }
+                        }
+                    });
+                } else {
+                    // 커스텀 모드 랜덤 생성
+                    sounds.forEach((sound, key) => {
+                        for (let i = 0; i < 16; i++) {
+                            if (Math.random() < 0.2) {
+                                this.pattern[key][i] = true;
+                            }
+                        }
+                    });
+                }
+                
+                this.updateBeatGrid();
+                this.updatePatternDisplay();
+                this.updateStatus('새로운 비트 패턴이 생성되었습니다!');
+            }
+
+            generateFillIn() {
+                if (this.mode !== 'normal') return;
+                
+                this.clearBeat();
+                
+                const fillPatterns = [
+                    // 스네어 롤
+                    () => {
+                        for (let i = 8; i < 16; i++) {
+                            this.pattern['W'][i] = true;
+                        }
+                        this.pattern['Y'][15] = true; // 크래시로 끝
+                    },
+                    // 탐 필
+                    () => {
+                        this.pattern['S'][0] = true;
+                        this.pattern['S'][2] = true;
+                        this.pattern['D'][4] = true;
+                        this.pattern['D'][6] = true;
+                        this.pattern['F'][8] = true;
+                        this.pattern['F'][10] = true;
+                        this.pattern['F'][12] = true;
+                        this.pattern['Q'][14] = true;
+                        this.pattern['Y'][15] = true;
+                    },
+                    // 복합 필
+                    () => {
+                        for (let i = 0; i < 16; i += 4) {
+                            this.pattern['Q'][i] = true;
+                        }
+                        for (let i = 2; i < 16; i += 4) {
+                            this.pattern['W'][i] = true;
+                        }
+                        for (let i = 12; i < 16; i++) {
+                            this.pattern['S'][i] = Math.random() > 0.5;
+                            this.pattern['D'][i] = Math.random() > 0.5;
+                        }
+                        this.pattern['Y'][15] = true;
+                    }
+                ];
+                
+                const pattern = fillPatterns[Math.floor(Math.random() * fillPatterns.length)];
+                pattern();
+                
+                this.updateBeatGrid();
+                this.updatePatternDisplay();
+                this.updateStatus('필인 패턴이 생성되었습니다!');
+            }
+
+            loadGenrePattern(genre) {
+                if (this.mode !== 'normal') return;
+                
+                this.clearBeat();
+                
+                const patterns = {
+                    rock: () => {
+                        // 킥
+                        [0, 4, 8, 10, 12].forEach(i => this.pattern['Q'][i] = true);
+                        // 스네어
+                        [4, 12].forEach(i => this.pattern['W'][i] = true);
+                        // 하이햇
+                        for (let i = 0; i < 16; i += 2) {
+                            this.pattern['E'][i] = true;
+                        }
+                    },
+                    jazz: () => {
+                        // 라이드
+                        [0, 2, 4, 6, 8, 10, 12, 14].forEach(i => this.pattern['A'][i] = true);
+                        // 킥
+                        [0, 6, 10].forEach(i => this.pattern['Q'][i] = true);
+                        // 스네어 (브러시)
+                        [4, 12].forEach(i => this.pattern['W'][i] = true);
+                    },
+                    funk: () => {
+                        // 킥
+                        [0, 3, 7, 10, 12].forEach(i => this.pattern['Q'][i] = true);
+                        // 스네어
+                        [4, 12].forEach(i => this.pattern['W'][i] = true);
+                        // 하이햇
+                        for (let i = 0; i < 16; i++) {
+                            if (i % 2 === 0) this.pattern['E'][i] = true;
+                            else if (Math.random() > 0.5) this.pattern['R'][i] = true;
+                        }
+                    },
+                    latin: () => {
+                        // 킥
+                        [0, 3, 6, 10, 12].forEach(i => this.pattern['Q'][i] = true);
+                        // 림샷
+                        [4, 12].forEach(i => this.pattern['T'][i] = true);
+                        // 카우벨
+                        [0, 2, 4, 6, 8, 10, 12, 14].forEach(i => this.pattern['H'][i] = true);
+                        // 하이햇
+                        for (let i = 1; i < 16; i += 2) {
+                            this.pattern['E'][i] = true;
+                        }
+                    },
+                    hiphop: () => {
+                        // 킥
+                        [0, 2, 10].forEach(i => this.pattern['Q'][i] = true);
+                        // 스네어
+                        [4, 12].forEach(i => this.pattern['W'][i] = true);
+                        // 하이햇
+                        [0, 2, 4, 6, 8, 10, 11, 12, 14].forEach(i => this.pattern['E'][i] = true);
+                        // 오픈햇
+                        [7, 15].forEach(i => this.pattern['R'][i] = true);
+                    },
+                    edm: () => {
+                        // 킥 (four on the floor)
+                        [0, 4, 8, 12].forEach(i => this.pattern['Q'][i] = true);
+                        // 스네어/클랩
+                        [4, 12].forEach(i => {
+                            this.pattern['W'][i] = true;
+                            this.pattern['G'][i] = true;
+                        });
+                        // 하이햇
+                        for (let i = 2; i < 16; i += 4) {
+                            this.pattern['R'][i] = true;
+                        }
+                    },
+                    reggae: () => {
+                        // 킥
+                        [0, 10].forEach(i => this.pattern['Q'][i] = true);
+                        // 스네어 (원드롭)
+                        [6, 14].forEach(i => this.pattern['W'][i] = true);
+                        // 하이햇
+                        for (let i = 0; i < 16; i += 2) {
+                            this.pattern['E'][i] = true;
+                        }
+                        // 림샷
+                        [2, 10].forEach(i => this.pattern['T'][i] = true);
+                    },
+                    metal: () => {
+                        // 더블 베이스
+                        [0, 1, 4, 5, 8, 9, 12, 13].forEach(i => this.pattern['Q'][i] = true);
+                        // 스네어
+                        [4, 12].forEach(i => this.pattern['W'][i] = true);
+                        // 라이드/하이햇
+                        for (let i = 0; i < 16; i++) {
+                            if (i % 2 === 0) this.pattern['A'][i] = true;
+                            else this.pattern['E'][i] = true;
+                        }
+                        // 크래시 악센트
+                        [0, 8].forEach(i => this.pattern['Y'][i] = true);
+                    }
+                };
+                
+                if (patterns[genre]) {
+                    patterns[genre]();
+                    this.updateBeatGrid();
+                    this.updatePatternDisplay();
+                    this.updateStatus(`${genre.toUpperCase()} 패턴이 로드되었습니다!`);
+                }
+            }
+
+            clearBeat() {
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                this.pattern = {};
+                sounds.forEach((sound, key) => {
+                    this.pattern[key] = Array(16).fill(false);
+                });
+                this.updateBeatGrid();
+                this.updatePatternDisplay();
+            }
+
+            togglePlayback() {
+                if (!this.audioContext) {
+                    this.initializeAudio();
+                    return;
+                }
+                
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+                
+                if (this.isPlaying) {
+                    this.stopPlayback();
+                } else {
+                    this.startPlayback();
+                }
+            }
+
+            startPlayback() {
+                this.isPlaying = true;
+                this.currentBeat = 0;
+                
+                const beatDuration = (60 / this.tempo / 4) * 1000;
+                
+                const playBeat = () => {
+                    const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                    
+                    sounds.forEach((sound, key) => {
+                        if (this.pattern[key] && this.pattern[key][this.currentBeat]) {
+                            this.playSound(key);
+                        }
+                    });
+                    
+                    this.updateBeatGrid();
+                    this.currentBeat = (this.currentBeat + 1) % 16;
+                };
+                
+                playBeat(); // 즉시 첫 비트 재생
+                
+                // 스윙 적용
+                const swing = this.swing / 100;
+                let nextBeatTime = beatDuration;
+                
+                this.intervalId = setInterval(() => {
+                    playBeat();
+                    
+                    // 스윙 타이밍 조정 (짝수 비트에만 적용)
+                    if (this.currentBeat % 2 === 0) {
+                        nextBeatTime = beatDuration * (1 + swing);
+                    } else {
+                        nextBeatTime = beatDuration * (1 - swing);
+                    }
+                }, beatDuration);
+                
+                this.updateStatus('재생 중...');
+            }
+
+            stopPlayback() {
+                this.isPlaying = false;
+                if (this.intervalId) {
+                    clearInterval(this.intervalId);
+                    this.intervalId = null;
+                }
+                this.updateBeatGrid();
+                this.updateStatus('정지됨');
+            }
+
+            setMode(mode) {
+                this.mode = mode;
+                this.stopPlayback();
+                this.initializePattern();
+                this.createBeatGrid();
+                
+                // UI 업데이트
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                if (mode === 'normal') {
+                    document.getElementById('normalModeControls').style.display = 'block';
+                    document.querySelectorAll('.custom-mode-only').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    this.updateDrumKitGrid();
+                } else {
+                    document.getElementById('normalModeControls').style.display = 'none';
+                    document.querySelectorAll('.custom-mode-only').forEach(el => {
+                        el.style.display = 'block';
+                    });
+                    if (this.customSounds.size === 0) {
+                        this.createDefaultCustomSounds();
+                    }
+                    this.updateSoundGrid();
+                    this.checkMicrophonePermission();
+                }
+                
+                this.updatePatternDisplay();
+                this.updateStatus(`${mode === 'normal' ? '일반 드럼' : '커스텀 비트박스'} 모드로 전환되었습니다`);
+            }
+
+            createDefaultCustomSounds() {
+                this.customSounds.set('K', {
+                    name: '킥',
+                    audioBuffer: null,
+                    generator: this.createKickSound.bind(this)
+                });
+                this.customSounds.set('S', {
+                    name: '스네어',
+                    audioBuffer: null,
+                    generator: this.createSnareSound.bind(this)
+                });
+                this.customSounds.set('H', {
+                    name: '하이햇',
+                    audioBuffer: null,
+                    generator: this.createHihatSound.bind(this)
+                });
+            }
+
+            updatePatternDisplay() {
+                const display = document.getElementById('patternDisplay');
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                let text = '';
+                
+                sounds.forEach((sound, key) => {
+                    if (this.pattern[key] && this.pattern[key].some(beat => beat)) {
+                        text += `${key} (${sound.name}): `;
+                        for (let i = 0; i < 16; i++) {
+                            text += this.pattern[key][i] ? '●' : '○';
+                            if ((i + 1) % 4 === 0) text += ' ';
+                        }
+                        text += '\n';
+                    }
+                });
+                
+                display.textContent = text || '패턴이 비어있습니다. 비트를 추가해보세요!';
+            }
+
+            updateStatus(message) {
+                document.getElementById('status').textContent = message;
+            }
+
+            updateTempo(value) {
+                this.tempo = parseInt(value);
+                document.getElementById('tempoValue').textContent = value;
+                
+                if (this.isPlaying) {
+                    this.stopPlayback();
+                    this.startPlayback();
+                }
+            }
+
+            updateSwing(value) {
+                this.swing = parseInt(value);
+                document.getElementById('swingValue').textContent = value;
+            }
+
+            setupKeyboardListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.target.tagName === 'INPUT') return;
+                    
+                    const key = e.key.toUpperCase();
+                    
+                    if (e.key === ' ') {
+                        e.preventDefault();
+                        this.togglePlayback();
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.generateBeat();
+                    } else if (e.key === 'Backspace') {
+                        e.preventDefault();
+                        this.clearBeat();
+                    } else {
+                        const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                        if (sounds.has(key)) {
+                            e.preventDefault();
+                            this.playSound(key);
+                        }
+                    }
+                });
+            }
+
+            // 커스텀 사운드 관련 메서드들
+            updateSoundGrid() {
+                const grid = document.getElementById('soundGrid');
+                grid.innerHTML = '';
+                
+                for (const [key, sound] of this.customSounds) {
+                    const item = document.createElement('div');
+                    item.className = `sound-item ${sound.audioBuffer ? 'has-custom' : ''}`;
+                    item.innerHTML = `
+                        <span style="font-size: 24px; font-weight: bold;">${key}</span>
+                        <span style="font-size: 12px;">${sound.name}</span>
+                        <button class="record-btn" onclick="recordCustomSound('${key}')" style="margin-top: 5px;">
+                            ${sound.audioBuffer ? '재녹음' : '녹음'}
+                        </button>
+                        ${this.isRecording && this.recordingSound === key ? 
+                            `<button class="stop-btn" onclick="stopRecording()">⏹️ 중지</button>` : ''}
+                    `;
+                    item.onclick = (e) => {
+                        if (e.target.tagName !== 'BUTTON') {
+                            this.playSound(key);
+                        }
+                    };
+                    grid.appendChild(item);
+                }
+            }
+
+            async checkMicrophonePermission() {
+                try {
+                    if (navigator.permissions && navigator.permissions.query) {
+                        const result = await navigator.permissions.query({ name: 'microphone' });
+                        this.updateMicStatus(result.state);
+                        
+                        result.onchange = () => {
+                            this.updateMicStatus(result.state);
+                        };
+                    } else {
+                        this.updateMicStatus('unknown');
+                    }
+                } catch (error) {
+                    console.log('권한 확인 중 오류:', error);
+                    this.updateMicStatus('unknown');
+                }
+            }
+
+            updateMicStatus(state) {
+                const micStatus = document.getElementById('micStatus');
+                switch(state) {
+                    case 'granted':
+                        micStatus.textContent = '마이크 상태: ✅ 허용됨';
+                        micStatus.style.color = '#4ecdc4';
+                        this.hasPermission = true;
+                        break;
+                    case 'denied':
+                        micStatus.textContent = '마이크 상태: ❌ 거부됨';
+                        micStatus.style.color = '#ff6b6b';
+                        this.hasPermission = false;
+                        break;
+                    case 'prompt':
+                        micStatus.textContent = '마이크 상태: ⏳ 권한 대기중';
+                        micStatus.style.color = '#ffd700';
+                        this.hasPermission = false;
+                        break;
+                    default:
+                        micStatus.textContent = '마이크 상태: ❓ 확인 불가';
+                        micStatus.style.color = '#cccccc';
+                        this.hasPermission = false;
+                }
+            }
+
+            async requestMicrophonePermission() {
+                try {
+                    this.updateStatus('마이크 권한을 요청하고 있습니다...');
+                    
+                    // 모바일에서 HTTPS 체크
+                    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                        alert('모바일에서 마이크를 사용하려면 HTTPS 연결이 필요합니다.\n\n로컬에서 테스트하려면:\n1. localhost로 접속하거나\n2. ngrok 같은 터널링 서비스를 사용하세요.');
+                        this.updateStatus('HTTPS 연결이 필요합니다.');
+                        return;
+                    }
+                    
+                    if (this.microphoneStream) {
+                        this.microphoneStream.getTracks().forEach(track => track.stop());
+                        this.microphoneStream = null;
+                    }
+                    
+                    // 모바일 친화적인 설정
+                    const constraints = {
+                        audio: {
+                            echoCancellation: { ideal: true },
+                            noiseSuppression: { ideal: true },
+                            autoGainControl: { ideal: true },
+                            sampleRate: { ideal: 44100 }
+                        }
+                    };
+                    
+                    // iOS Safari 대응
+                    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                        constraints.audio = true; // iOS는 단순한 설정이 더 잘 작동
+                    }
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    
+                    this.microphoneStream = stream;
+                    this.hasPermission = true;
+                    this.updateMicStatus('granted');
+                    this.updateStatus('마이크가 준비되었습니다!');
+                    
+                } catch (error) {
+                    console.error('마이크 권한 요청 실패:', error);
+                    this.hasPermission = false;
+                    this.updateMicStatus('denied');
+                    
+                    if (error.name === 'NotAllowedError') {
+                        this.updateStatus('마이크 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
+                    } else if (error.name === 'NotFoundError') {
+                        this.updateStatus('마이크가 연결되어 있지 않습니다.');
+                    } else if (error.name === 'NotReadableError') {
+                        this.updateStatus('마이크가 다른 앱에서 사용 중입니다.');
+                    } else if (error.name === 'OverconstrainedError') {
+                        // 제약 조건이 너무 엄격한 경우 단순한 설정으로 재시도
+                        try {
+                            const simpleStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                            this.microphoneStream = simpleStream;
+                            this.hasPermission = true;
+                            this.updateMicStatus('granted');
+                            this.updateStatus('마이크가 준비되었습니다! (기본 설정)');
+                        } catch (retryError) {
+                            this.updateStatus('마이크 접근 실패: ' + retryError.message);
+                        }
+                    } else {
+                        this.updateStatus('마이크 접근 오류: ' + error.message);
+                    }
+                }
+            }
+
+            exportPattern() {
+                const data = {
+                    mode: this.mode,
+                    pattern: this.pattern,
+                    tempo: this.tempo,
+                    swing: this.swing,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `drum-pattern-${new Date().getTime()}.json`;
+                a.click();
+            }
+
+            importPattern() {
+                document.getElementById('fileInput').click();
+            }
+
+            loadPattern(input) {
+                const file = input.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            
+                            if (data.mode) {
+                                this.setMode(data.mode);
+                            }
+                            
+                            this.pattern = data.pattern || {};
+                            this.tempo = data.tempo || 120;
+                            this.swing = data.swing || 0;
+                            
+                            document.getElementById('tempo').value = this.tempo;
+                            document.getElementById('tempoValue').textContent = this.tempo;
+                            document.getElementById('swing').value = this.swing;
+                            document.getElementById('swingValue').textContent = this.swing;
+                            
+                            this.updateBeatGrid();
+                            this.updatePatternDisplay();
+                            this.updateStatus('패턴이 불러와졌습니다!');
+                        } catch (error) {
+                            this.updateStatus('파일 형식이 올바르지 않습니다.');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            }
+        }
+
+        let drumMachine;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            drumMachine = new DrumMachine();
+        });
+
+        // 전역 함수들
+        function setMode(mode) {
+            drumMachine.setMode(mode);
+        }
+
+        function generateBeat() {
+            drumMachine.generateBeat();
+        }
+
+        function generateFillIn() {
+            drumMachine.generateFillIn();
+        }
+
+        function loadGenrePattern(genre) {
+            drumMachine.loadGenrePattern(genre);
+        }
+
+        function clearBeat() {
+            drumMachine.clearBeat();
+        }
+
+        function togglePlayback() {
+            drumMachine.togglePlayback();
+        }
+
+        function exportPattern() {
+            drumMachine.exportPattern();
+        }
+
+        function importPattern() {
+            drumMachine.importPattern();
+        }
+
+        function loadPattern(input) {
+            drumMachine.loadPattern(input);
+        }
+
+        function updateTempo(value) {
+            drumMachine.updateTempo(value);
+        }
+
+        function updateSwing(value) {
+            drumMachine.updateSwing(value);
+        }
+
+        function requestMicrophonePermission() {
+            drumMachine.requestMicrophonePermission();
+        }
+
+        function toggleCustomSoundForm() {
+            const form = document.getElementById('customSoundForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function startCustomRecording() {
+            // 커스텀 녹음 구현은 기존 코드 참조
+            alert('커스텀 녹음 기능은 별도 구현이 필요합니다.');
+        }
+
+        function cancelCustomSound() {
+            document.getElementById('customKey').value = '';
+            document.getElementById('customName').value = '';
+            toggleCustomSoundForm();
+        }
+    </script>
+</body>
+</html>
