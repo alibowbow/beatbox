@@ -139,17 +139,29 @@
 
         .generate-btn {
             background: linear-gradient(45deg, #f093fb, #f5576c);
-            font-size: 16px;
-            padding: 15px 25px;
+            font-size: 12px;
+            padding: 8px 15px;
         }
 
         .play-btn {
             background: linear-gradient(45deg, #a8edea, #fed6e3);
             color: #333;
+            font-size: 18px;
+            padding: 15px 30px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .play-btn {
+                font-size: 16px;
+                padding: 12px 25px;
+            }
         }
 
         .fill-btn {
             background: linear-gradient(45deg, #ffd89b, #19547b);
+            font-size: 12px;
+            padding: 8px 15px;
         }
 
         .pattern-display {
@@ -307,10 +319,30 @@
             margin-bottom: 20px;
         }
 
+        .drum-kit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+            max-width: 100%;
+        }
+
         @media (max-width: 768px) {
             .sound-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 8px;
+            }
+            
+            .drum-kit-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .drum-kit-grid {
+                grid-template-columns: repeat(6, 1fr);
+                max-width: 800px;
             }
         }
 
@@ -404,20 +436,25 @@
             <button class="mode-btn" onclick="setMode('custom')">🎤 커스텀 비트박스 모드</button>
         </div>
 
-        <div class="main-grid">
+        <div class="desktop-layout">
             <div class="control-section">
-                <h3>🎵 비트 & 리듬 컨트롤</h3>
+                <h3>🎵 비트 & 리듬 컨트롤 & 시퀀서</h3>
                 <div class="button-row">
-                    <button class="generate-btn" onclick="generateBeat()">🎲 랜덤 비트</button>
+                    <button class="play-btn" onclick="togglePlayback()">▶️ 재생/정지</button>
+                    <button class="generate-btn" onclick="generateBeat()">🎲 랜덤비트생성</button>
                     <button class="fill-btn" onclick="generateFillIn()">🥁 필인 생성</button>
-                    <button onclick="clearBeat()">🗑️ 초기화</button>
+                </div>
+                
+                <div class="button-row">
+                    <button onclick="setGridMode('16')" id="grid16Btn" class="active">🏠 16스텝 (4/4)</button>
+                    <button onclick="setGridMode('24')" id="grid24Btn">🎷 24스텝 (3연음)</button>
                 </div>
                 
                 <div class="genre-selector">
                     <button class="genre-btn" onclick="loadGenrePattern('rock')">🎸 록</button>
                     <button class="genre-btn" onclick="loadGenrePattern('jazz')">🎷 재즈</button>
                     <button class="genre-btn" onclick="loadGenrePattern('funk')">🎺 펑크</button>
-                    <button class="genre-btn" onclick="loadGenrePattern('latin')">🪇 라틴</button>
+                    <button class="genre-btn" onclick="loadGenrePattern('shuffle')">🎶 셔플</button>
                     <button class="genre-btn" onclick="loadGenrePattern('hiphop')">🎤 힙합</button>
                     <button class="genre-btn" onclick="loadGenrePattern('edm')">🎧 EDM</button>
                     <button class="genre-btn" onclick="loadGenrePattern('reggae')">🌴 레게</button>
@@ -425,9 +462,9 @@
                 </div>
 
                 <div class="button-row">
-                    <button class="play-btn" onclick="togglePlayback()">▶️ 재생/정지</button>
                     <button onclick="exportPattern()">💾 저장</button>
                     <button onclick="importPattern()">📁 불러오기</button>
+                    <button onclick="clearBeat()">🗑️ 초기화</button>
                 </div>
                 <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadPattern(this)">
                 
@@ -439,9 +476,20 @@
                     <label for="swing">스윙: <span id="swingValue">0</span>%</label>
                     <input type="range" id="swing" min="0" max="70" value="0" oninput="updateSwing(this.value)">
                 </div>
+                
+                <div style="font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 8px; text-align: center;">
+                    💡 그리드를 터치/클릭하여 비트를 추가하거나 제거할 수 있습니다
+                </div>
+                <div class="beat-grid grid-16" id="beatGrid"></div>
             </div>
 
-            <div class="control-section custom-mode-only">
+            <div class="control-section">
+                <h3>📊 패턴 표시</h3>
+                <div class="pattern-display" id="patternDisplay">여기에 생성된 패턴이 표시됩니다</div>
+            </div>
+        </div>
+        
+        <div class="control-section custom-mode-only">
                 <h3>🎙️ 커스텀 사운드</h3>
                 <div class="button-row">
                     <button onclick="requestMicrophonePermission()" style="background: linear-gradient(45deg, #4ecdc4, #44a08d);">🎤 마이크 권한</button>
@@ -457,19 +505,14 @@
                 </div>
             </div>
 
-            <div class="control-section" id="normalModeControls">
-                <h3>🥁 드럼 키트</h3>
-                <div class="sound-grid" id="drumKitGrid"></div>
-            </div>
         </div>
 
         <div class="status" id="status">준비됨 - 드럼 패턴을 만들어보세요!</div>
 
-        <div class="pattern-display" id="patternDisplay">여기에 생성된 패턴이 표시됩니다</div>
 
-        <div class="control-section">
-            <h3>🎼 시퀀서 (16스텝)</h3>
-            <div class="beat-grid" id="beatGrid"></div>
+        <div class="control-section" id="normalModeControls">
+            <h3>🥁 드럼 키트</h3>
+            <div class="drum-kit-grid" id="drumKitGrid"></div>
         </div>
 
         <div class="keyboard-hints">
@@ -505,6 +548,8 @@
                 this.mediaRecorder = null;
                 this.recordedChunks = [];
                 this.recordingSound = null;
+                this.recordingTimer = null;
+                this.gridMode = '16'; // '16' or '24'
                 
                 this.initializeAudio();
                 this.createNormalDrumSounds();
@@ -550,9 +595,10 @@
 
             initializePattern() {
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
                 this.pattern = {};
                 sounds.forEach((sound, key) => {
-                    this.pattern[key] = Array(16).fill(false);
+                    this.pattern[key] = Array(maxSteps).fill(false);
                 });
             }
 
@@ -560,47 +606,96 @@
             createKickSound() {
                 if (!this.audioContext) return;
                 
-                // 메인 저음 (펀치)
-                const osc = this.audioContext.createOscillator();
-                const gain = this.audioContext.createGain();
+                // 서브 베이스 (깊은 웅장함)
+                const subOsc = this.audioContext.createOscillator();
+                const subGain = this.audioContext.createGain();
                 
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(150, this.audioContext.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(60, this.audioContext.currentTime + 0.01);
-                osc.frequency.exponentialRampToValueAtTime(35, this.audioContext.currentTime + 0.1);
+                subOsc.type = 'sine';
+                subOsc.frequency.setValueAtTime(40, this.audioContext.currentTime);
+                subOsc.frequency.exponentialRampToValueAtTime(25, this.audioContext.currentTime + 0.3);
                 
-                gain.gain.setValueAtTime(1, this.audioContext.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.3, this.audioContext.currentTime + 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+                subGain.gain.setValueAtTime(1.2, this.audioContext.currentTime);
+                subGain.gain.exponentialRampToValueAtTime(0.6, this.audioContext.currentTime + 0.2);
+                subGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.8);
                 
-                // 클릭 사운드 (어택)
-                const click = this.audioContext.createOscillator();
-                const clickGain = this.audioContext.createGain();
+                // 메인 킥 (펀치)
+                const mainOsc = this.audioContext.createOscillator();
+                const mainGain = this.audioContext.createGain();
                 
-                click.type = 'square';
-                click.frequency.value = 1000;
+                mainOsc.type = 'sine';
+                mainOsc.frequency.setValueAtTime(80, this.audioContext.currentTime);
+                mainOsc.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.02);
+                mainOsc.frequency.exponentialRampToValueAtTime(35, this.audioContext.currentTime + 0.1);
                 
-                clickGain.gain.setValueAtTime(0.5, this.audioContext.currentTime);
-                clickGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.005);
+                mainGain.gain.setValueAtTime(0.8, this.audioContext.currentTime);
+                mainGain.gain.exponentialRampToValueAtTime(0.3, this.audioContext.currentTime + 0.1);
+                mainGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.4);
                 
-                // 컴프레서 (더 펀치감 있게)
-                const compressor = this.audioContext.createDynamicsCompressor();
-                compressor.threshold.value = -10;
-                compressor.knee.value = 0;
-                compressor.ratio.value = 10;
-                compressor.attack.value = 0.003;
-                compressor.release.value = 0.1;
+                // 소프트 어택 (부드러운 펀치감)
+                const attackOsc = this.audioContext.createOscillator();
+                const attackGain = this.audioContext.createGain();
+                const attackFilter = this.audioContext.createBiquadFilter();
                 
-                osc.connect(gain);
-                gain.connect(compressor);
-                click.connect(clickGain);
-                clickGain.connect(compressor);
-                compressor.connect(this.audioContext.destination);
+                attackOsc.type = 'triangle';
+                attackOsc.frequency.value = 200;
                 
-                osc.start();
-                osc.stop(this.audioContext.currentTime + 0.5);
-                click.start();
-                click.stop(this.audioContext.currentTime + 0.005);
+                attackFilter.type = 'lowpass';
+                attackFilter.frequency.value = 800;
+                attackFilter.Q.value = 2;
+                
+                attackGain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                attackGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.01);
+                
+                // 리버브 효과 (공간감)
+                const convolver = this.audioContext.createConvolver();
+                const reverbGain = this.audioContext.createGain();
+                reverbGain.gain.value = 0.2;
+                
+                // 간단한 임펄스 리스폰스 생성 (공간감)
+                const impulseLength = this.audioContext.sampleRate * 0.5;
+                const impulse = this.audioContext.createBuffer(2, impulseLength, this.audioContext.sampleRate);
+                for (let channel = 0; channel < 2; channel++) {
+                    const channelData = impulse.getChannelData(channel);
+                    for (let i = 0; i < impulseLength; i++) {
+                        channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / impulseLength, 2);
+                    }
+                }
+                convolver.buffer = impulse;
+                
+                // 마스터 필터 (부드럽게)
+                const masterFilter = this.audioContext.createBiquadFilter();
+                masterFilter.type = 'lowpass';
+                masterFilter.frequency.value = 150;
+                masterFilter.Q.value = 1;
+                
+                const masterGain = this.audioContext.createGain();
+                masterGain.gain.value = 1.5;
+                
+                // 연결
+                subOsc.connect(subGain);
+                mainOsc.connect(mainGain);
+                attackOsc.connect(attackFilter);
+                attackFilter.connect(attackGain);
+                
+                subGain.connect(masterFilter);
+                mainGain.connect(masterFilter);
+                attackGain.connect(masterFilter);
+                
+                masterFilter.connect(masterGain);
+                masterGain.connect(this.audioContext.destination);
+                
+                // 리버브 체인
+                masterFilter.connect(convolver);
+                convolver.connect(reverbGain);
+                reverbGain.connect(this.audioContext.destination);
+                
+                // 재생
+                subOsc.start();
+                subOsc.stop(this.audioContext.currentTime + 0.8);
+                mainOsc.start();
+                mainOsc.stop(this.audioContext.currentTime + 0.4);
+                attackOsc.start();
+                attackOsc.stop(this.audioContext.currentTime + 0.01);
             }
 
             // 스네어
@@ -992,13 +1087,19 @@
                 grid.innerHTML = '';
                 
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                
+                // 그리드 컬럼 설정 업데이트
+                grid.style.gridTemplateColumns = window.innerWidth <= 768 
+                    ? `80px repeat(${maxSteps}, 40px)`
+                    : `120px repeat(${maxSteps}, 1fr)`;
                 
                 // 헤더 행 (비트 번호)
                 const emptyHeader = document.createElement('div');
                 emptyHeader.style.minWidth = window.innerWidth <= 768 ? '80px' : '120px';
                 grid.appendChild(emptyHeader);
                 
-                for (let i = 0; i < 16; i++) {
+                for (let i = 0; i < maxSteps; i++) {
                     const header = document.createElement('div');
                     header.style.textAlign = 'center';
                     header.style.fontSize = window.innerWidth <= 768 ? '8px' : '10px';
@@ -1016,7 +1117,7 @@
                     label.style.minWidth = window.innerWidth <= 768 ? '80px' : '120px';
                     grid.appendChild(label);
                     
-                    for (let i = 0; i < 16; i++) {
+                    for (let i = 0; i < maxSteps; i++) {
                         const cell = document.createElement('div');
                         cell.className = `beat-cell sound-${sound.id || key.toLowerCase()}`;
                         cell.dataset.sound = key;
@@ -1030,9 +1131,10 @@
 
             updateBeatGrid() {
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
                 
                 sounds.forEach((sound, key) => {
-                    for (let i = 0; i < 16; i++) {
+                    for (let i = 0; i < maxSteps; i++) {
                         const cell = document.querySelector(`[data-sound="${key}"][data-beat="${i}"]`);
                         if (cell) {
                             if (this.pattern[key] && this.pattern[key][i]) {
@@ -1070,8 +1172,9 @@
             }
 
             toggleBeat(sound, beat) {
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
                 if (!this.pattern[sound]) {
-                    this.pattern[sound] = Array(16).fill(false);
+                    this.pattern[sound] = Array(maxSteps).fill(false);
                 }
                 this.pattern[sound][beat] = !this.pattern[sound][beat];
                 this.updateBeatGrid();
@@ -1101,30 +1204,55 @@
             generateBeat() {
                 this.clearBeat();
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
                 
                 if (this.mode === 'normal') {
-                    // 기본 킥 패턴
-                    this.pattern['Q'][0] = true;
-                    this.pattern['Q'][4] = true;
-                    this.pattern['Q'][8] = true;
-                    this.pattern['Q'][12] = true;
-                    
-                    // 스네어 패턴
-                    this.pattern['W'][4] = true;
-                    this.pattern['W'][12] = true;
-                    
-                    // 하이햇 패턴
-                    for (let i = 0; i < 16; i += 2) {
-                        if (Math.random() > 0.3) {
-                            this.pattern['E'][i] = true;
+                    if (this.gridMode === '24') {
+                        // 24스텝 랜덤 패턴 (3연음 기반)
+                        // 킥 패턴 (3연음 구조)
+                        [0, 6, 12, 18].forEach(i => {
+                            if (Math.random() > 0.3) this.pattern['Q'][i] = true;
+                        });
+                        
+                        // 스네어 패턴
+                        [6, 18].forEach(i => {
+                            if (Math.random() > 0.2) this.pattern['W'][i] = true;
+                        });
+                        
+                        // 하이햇/라이드 패턴 (3연음)
+                        for (let i = 0; i < maxSteps; i += 3) {
+                            if (Math.random() > 0.3) {
+                                this.pattern['E'][i] = true;
+                            }
+                            if (Math.random() > 0.6 && i + 1 < maxSteps) {
+                                this.pattern['Y'][i + 1] = true;
+                            }
+                        }
+                    } else {
+                        // 16스텝 기본 패턴
+                        // 기본 킥 패턴
+                        [0, 4, 8, 12].forEach(i => {
+                            if (Math.random() > 0.2) this.pattern['Q'][i] = true;
+                        });
+                        
+                        // 스네어 패턴
+                        [4, 12].forEach(i => {
+                            if (Math.random() > 0.1) this.pattern['W'][i] = true;
+                        });
+                        
+                        // 하이햇 패턴
+                        for (let i = 0; i < maxSteps; i += 2) {
+                            if (Math.random() > 0.3) {
+                                this.pattern['E'][i] = true;
+                            }
                         }
                     }
                     
                     // 랜덤 추가 요소
                     sounds.forEach((sound, key) => {
-                        if (['Q', 'W', 'E'].includes(key)) return;
+                        if (['Q', 'W', 'E', 'Y'].includes(key)) return;
                         
-                        for (let i = 0; i < 16; i++) {
+                        for (let i = 0; i < maxSteps; i++) {
                             if (Math.random() < 0.1) {
                                 this.pattern[key][i] = true;
                             }
@@ -1133,7 +1261,7 @@
                 } else {
                     // 커스텀 모드 랜덤 생성
                     sounds.forEach((sound, key) => {
-                        for (let i = 0; i < 16; i++) {
+                        for (let i = 0; i < maxSteps; i++) {
                             if (Math.random() < 0.2) {
                                 this.pattern[key][i] = true;
                             }
@@ -1198,97 +1326,265 @@
             loadGenrePattern(genre) {
                 if (this.mode !== 'normal') return;
                 
+                // 재즈와 셔플은 24스텝 그리드로 자동 전환
+                if (genre === 'jazz' || genre === 'shuffle') {
+                    this.setGridMode('24');
+                } else {
+                    this.setGridMode('16');
+                }
+                
                 this.clearBeat();
                 
                 const patterns = {
                     rock: () => {
-                        // 킥
-                        [0, 4, 8, 10, 12].forEach(i => this.pattern['Q'][i] = true);
-                        // 스네어
+                        // 록 기본 킥 패턴 (랜덤 요소 추가)
+                        const kickPatterns = [
+                            [0, 4, 8, 12],
+                            [0, 4, 8, 10, 12],
+                            [0, 2, 4, 8, 12],
+                            [0, 4, 6, 8, 12]
+                        ];
+                        const selectedKick = kickPatterns[Math.floor(Math.random() * kickPatterns.length)];
+                        selectedKick.forEach(i => this.pattern['Q'][i] = true);
+                        
+                        // 스네어 (백비트 + 랜덤)
                         [4, 12].forEach(i => this.pattern['W'][i] = true);
-                        // 하이햇
+                        if (Math.random() > 0.7) this.pattern['W'][6] = true;
+                        if (Math.random() > 0.8) this.pattern['W'][14] = true;
+                        
+                        // 하이햇 (랜덤 패턴)
                         for (let i = 0; i < 16; i += 2) {
-                            this.pattern['E'][i] = true;
+                            if (Math.random() > 0.2) this.pattern['E'][i] = true;
                         }
+                        for (let i = 1; i < 16; i += 4) {
+                            if (Math.random() > 0.6) this.pattern['E'][i] = true;
+                        }
+                        
+                        // 크래시 악센트
+                        if (Math.random() > 0.6) this.pattern['T'][0] = true;
+                        if (Math.random() > 0.8) this.pattern['T'][8] = true;
                     },
                     jazz: () => {
-                        // 라이드
-                        [0, 2, 4, 6, 8, 10, 12, 14].forEach(i => this.pattern['A'][i] = true);
-                        // 킥
-                        [0, 6, 10].forEach(i => this.pattern['Q'][i] = true);
-                        // 스네어 (브러시)
-                        [4, 12].forEach(i => this.pattern['W'][i] = true);
+                        // 24스텝 재즈 패턴 (진짜 3연음: 8마디×3박)
+                        // 라이드 (각 3박의 1박에 주로 배치)
+                        const rideBase = [0, 3, 6, 9, 12, 15, 18, 21]; // 각 마디의 1박
+                        rideBase.forEach(i => {
+                            if (Math.random() > 0.1) this.pattern['Y'][i] = true;
+                        });
+                        // 3박 중 2박, 3박에도 가끔 추가
+                        [1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20, 22, 23].forEach(i => {
+                            if (Math.random() > 0.8) this.pattern['Y'][i] = true;
+                        });
+                        
+                        // 킥 (3연음 기반 패턴)
+                        const kickPatterns = [
+                            [0, 9, 18], // 1, 4, 7마디
+                            [0, 12, 21], // 1, 5, 8마디  
+                            [0, 6, 15], // 1, 3, 6마디
+                            [0, 9, 15, 21] // 1, 4, 6, 8마디
+                        ];
+                        const selectedKick = kickPatterns[Math.floor(Math.random() * kickPatterns.length)];
+                        selectedKick.forEach(i => this.pattern['Q'][i] = true);
+                        
+                        // 스네어 (2마디, 6마디에 주로)
+                        [6, 18].forEach(i => {
+                            if (Math.random() > 0.2) this.pattern['W'][i] = true;
+                        });
+                        if (Math.random() > 0.7) this.pattern['W'][12] = true; // 5마디
+                        
+                        // 하이햇 (3박 중 2, 3박에 주로)
+                        [1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20, 22, 23].forEach(i => {
+                            if (Math.random() > 0.6) this.pattern['E'][i] = true;
+                        });
+                        
+                        // 추가 재즈 요소
+                        if (Math.random() > 0.6) this.pattern['F'][2] = true; // 박수
+                        if (Math.random() > 0.8) this.pattern['A'][8] = true; // 탐1
                     },
                     funk: () => {
-                        // 킥
-                        [0, 3, 7, 10, 12].forEach(i => this.pattern['Q'][i] = true);
-                        // 스네어
+                        // 펑크 킥 패턴 (랜덤 변형)
+                        const funkKickPatterns = [
+                            [0, 3, 7, 10, 12],
+                            [0, 3, 6, 10, 12],
+                            [0, 2, 7, 10, 14],
+                            [0, 3, 7, 12, 15]
+                        ];
+                        const selectedKick = funkKickPatterns[Math.floor(Math.random() * funkKickPatterns.length)];
+                        selectedKick.forEach(i => this.pattern['Q'][i] = true);
+                        
+                        // 스네어 (랜덤 강조)
                         [4, 12].forEach(i => this.pattern['W'][i] = true);
-                        // 하이햇
+                        if (Math.random() > 0.6) this.pattern['W'][6] = true;
+                        if (Math.random() > 0.8) this.pattern['W'][14] = true;
+                        
+                        // 하이햇 (펑크 특유의 패턴)
                         for (let i = 0; i < 16; i++) {
-                            if (i % 2 === 0) this.pattern['E'][i] = true;
+                            if (i % 2 === 0 && Math.random() > 0.2) this.pattern['E'][i] = true;
                             else if (Math.random() > 0.5) this.pattern['R'][i] = true;
                         }
+                        
+                        // 추가 펑크 요소
+                        if (Math.random() > 0.7) this.pattern['F'][1] = true; // 박수
+                        if (Math.random() > 0.6) this.pattern['G'][5] = true; // 카우벨
                     },
-                    latin: () => {
-                        // 킥
-                        [0, 3, 6, 10, 12].forEach(i => this.pattern['Q'][i] = true);
-                        // 림샷
-                        [4, 12].forEach(i => this.pattern['T'][i] = true);
-                        // 카우벨
-                        [0, 2, 4, 6, 8, 10, 12, 14].forEach(i => this.pattern['H'][i] = true);
-                        // 하이햇
-                        for (let i = 1; i < 16; i += 2) {
-                            this.pattern['E'][i] = true;
-                        }
+                    shuffle: () => {
+                        // 24스텝 셔플 리듬 (진짜 3연음: 8마디×3박)
+                        // 킥 (각 3박 마디의 1박과 3박에 주로 - 셔플 느낌)
+                        const shuffleKickPatterns = [
+                            [0, 2, 9, 11, 18, 20], // 1,3박 + 4,6박 + 7,9박
+                            [0, 6, 8, 12, 14, 21], // 1박 + 3,4박 + 5,6박 + 8박
+                            [0, 2, 6, 15, 17, 21], // 1,3박 + 3박 + 6,8박 + 8박
+                            [0, 9, 12, 18] // 1, 4, 5, 7마디
+                        ];
+                        const selectedKick = shuffleKickPatterns[Math.floor(Math.random() * shuffleKickPatterns.length)];
+                        selectedKick.forEach(i => this.pattern['Q'][i] = true);
+                        
+                        // 스네어 (각 마디의 2박에 주로 - 백비트)
+                        [4, 7, 13, 16, 22].forEach(i => {
+                            if (Math.random() > 0.3) this.pattern['W'][i] = true;
+                        });
+                        
+                        // 하이햇 (셔플 특유의 스윙감 - 1박과 3박 사이)
+                        [1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20, 22, 23].forEach(i => {
+                            if (Math.random() > 0.5) this.pattern['E'][i] = true;
+                        });
+                        
+                        // 라이드 (각 마디의 1박에 주로)
+                        [0, 3, 6, 9, 12, 15, 18, 21].forEach(i => {
+                            if (Math.random() > 0.4) this.pattern['Y'][i] = true;
+                        });
+                        
+                        // 추가 셔플 요소
+                        if (Math.random() > 0.6) this.pattern['A'][5] = true; // 탐1
+                        if (Math.random() > 0.8) this.pattern['S'][11] = true; // 탐2
                     },
                     hiphop: () => {
-                        // 킥
-                        [0, 2, 10].forEach(i => this.pattern['Q'][i] = true);
-                        // 스네어
+                        // 힙합 킥 패턴 (랜덤 변형)
+                        const hiphopKickPatterns = [
+                            [0, 2, 10],
+                            [0, 3, 8, 11],
+                            [0, 2, 6, 10],
+                            [0, 4, 10, 14]
+                        ];
+                        const selectedKick = hiphopKickPatterns[Math.floor(Math.random() * hiphopKickPatterns.length)];
+                        selectedKick.forEach(i => this.pattern['Q'][i] = true);
+                        
+                        // 스네어 (백비트 + 랜덤)
                         [4, 12].forEach(i => this.pattern['W'][i] = true);
-                        // 하이햇
-                        [0, 2, 4, 6, 8, 10, 11, 12, 14].forEach(i => this.pattern['E'][i] = true);
-                        // 오픈햇
-                        [7, 15].forEach(i => this.pattern['R'][i] = true);
+                        if (Math.random() > 0.7) this.pattern['W'][6] = true;
+                        
+                        // 하이햇 (힙합 특유의 복잡한 패턴)
+                        const hihatBase = [0, 2, 4, 6, 8, 10, 12, 14];
+                        hihatBase.forEach(i => {
+                            if (Math.random() > 0.2) this.pattern['E'][i] = true;
+                        });
+                        [1, 3, 5, 7, 9, 11, 13, 15].forEach(i => {
+                            if (Math.random() > 0.6) this.pattern['E'][i] = true;
+                        });
+                        
+                        // 오픈햇 (랜덤)
+                        [7, 15].forEach(i => {
+                            if (Math.random() > 0.3) this.pattern['R'][i] = true;
+                        });
+                        
+                        // 추가 힙합 요소
+                        if (Math.random() > 0.6) this.pattern['F'][2] = true; // 박수
+                        if (Math.random() > 0.8) this.pattern['F'][10] = true;
                     },
                     edm: () => {
-                        // 킥 (four on the floor)
+                        // EDM 킥 (four on the floor + 변형)
                         [0, 4, 8, 12].forEach(i => this.pattern['Q'][i] = true);
-                        // 스네어/클랩
+                        if (Math.random() > 0.7) {
+                            // 더블 킥 추가
+                            [1, 5, 9, 13].forEach(i => {
+                                if (Math.random() > 0.6) this.pattern['Q'][i] = true;
+                            });
+                        }
+                        
+                        // 스네어/클랩 (랜덤 강화)
                         [4, 12].forEach(i => {
                             this.pattern['W'][i] = true;
-                            this.pattern['G'][i] = true;
+                            if (Math.random() > 0.5) this.pattern['F'][i] = true; // 박수 추가
                         });
-                        // 하이햇
+                        if (Math.random() > 0.6) this.pattern['W'][8] = true;
+                        
+                        // 하이햇 (EDM 스타일 랜덤)
                         for (let i = 2; i < 16; i += 4) {
-                            this.pattern['R'][i] = true;
+                            if (Math.random() > 0.3) this.pattern['R'][i] = true;
                         }
+                        for (let i = 1; i < 16; i += 2) {
+                            if (Math.random() > 0.7) this.pattern['E'][i] = true;
+                        }
+                        
+                        // EDM 특수 효과
+                        if (Math.random() > 0.5) this.pattern['T'][0] = true; // 크래시
+                        if (Math.random() > 0.8) this.pattern['T'][8] = true;
                     },
                     reggae: () => {
-                        // 킥
-                        [0, 10].forEach(i => this.pattern['Q'][i] = true);
-                        // 스네어 (원드롭)
+                        // 레게 킥 패턴 (원드롭 변형)
+                        const reggaeKickPatterns = [
+                            [0, 10],
+                            [0, 8, 10],
+                            [0, 6, 10],
+                            [2, 10]
+                        ];
+                        const selectedKick = reggaeKickPatterns[Math.floor(Math.random() * reggaeKickPatterns.length)];
+                        selectedKick.forEach(i => this.pattern['Q'][i] = true);
+                        
+                        // 스네어 (원드롭 + 랜덤)
                         [6, 14].forEach(i => this.pattern['W'][i] = true);
-                        // 하이햇
+                        if (Math.random() > 0.7) this.pattern['W'][2] = true;
+                        
+                        // 하이햇 (레게 스카 패턴)
                         for (let i = 0; i < 16; i += 2) {
-                            this.pattern['E'][i] = true;
+                            if (Math.random() > 0.2) this.pattern['E'][i] = true;
                         }
-                        // 림샷
-                        [2, 10].forEach(i => this.pattern['T'][i] = true);
+                        for (let i = 1; i < 16; i += 4) {
+                            if (Math.random() > 0.6) this.pattern['E'][i] = true;
+                        }
+                        
+                        // 림샷/사이드스틱 (랜덤)
+                        [2, 10].forEach(i => {
+                            if (Math.random() > 0.4) this.pattern['T'][i] = true;
+                        });
+                        
+                        // 추가 레게 요소
+                        if (Math.random() > 0.7) this.pattern['G'][4] = true; // 카우벨
+                        if (Math.random() > 0.8) this.pattern['G'][12] = true;
                     },
                     metal: () => {
-                        // 더블 베이스
-                        [0, 1, 4, 5, 8, 9, 12, 13].forEach(i => this.pattern['Q'][i] = true);
-                        // 스네어
+                        // 메탈 킥 패턴 (더블베이스 변형)
+                        const metalKickPatterns = [
+                            [0, 1, 4, 5, 8, 9, 12, 13],
+                            [0, 1, 2, 4, 5, 8, 9, 12, 13],
+                            [0, 1, 4, 8, 9, 12, 13, 14],
+                            [0, 2, 4, 6, 8, 10, 12, 14]
+                        ];
+                        const selectedKick = metalKickPatterns[Math.floor(Math.random() * metalKickPatterns.length)];
+                        selectedKick.forEach(i => this.pattern['Q'][i] = true);
+                        
+                        // 스네어 (백비트 + 강화)
                         [4, 12].forEach(i => this.pattern['W'][i] = true);
-                        // 라이드/하이햇
+                        if (Math.random() > 0.6) this.pattern['W'][6] = true;
+                        if (Math.random() > 0.7) this.pattern['W'][10] = true;
+                        
+                        // 라이드/하이햇 (메탈 블라스트 패턴)
                         for (let i = 0; i < 16; i++) {
-                            if (i % 2 === 0) this.pattern['A'][i] = true;
-                            else this.pattern['E'][i] = true;
+                            if (i % 2 === 0 && Math.random() > 0.1) this.pattern['Y'][i] = true;
+                            else if (Math.random() > 0.3) this.pattern['E'][i] = true;
                         }
-                        // 크래시 악센트
-                        [0, 8].forEach(i => this.pattern['Y'][i] = true);
+                        
+                        // 크래시 악센트 (랜덤 강화)
+                        [0, 8].forEach(i => {
+                            if (Math.random() > 0.3) this.pattern['T'][i] = true;
+                        });
+                        if (Math.random() > 0.7) this.pattern['T'][4] = true;
+                        if (Math.random() > 0.8) this.pattern['T'][12] = true;
+                        
+                        // 추가 메탈 요소
+                        if (Math.random() > 0.6) this.pattern['A'][2] = true; // 탐1
+                        if (Math.random() > 0.7) this.pattern['S'][6] = true; // 탐2
+                        if (Math.random() > 0.8) this.pattern['D'][10] = true; // 플로어탐
                     }
                 };
                 
@@ -1302,9 +1598,10 @@
 
             clearBeat() {
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
                 this.pattern = {};
                 sounds.forEach((sound, key) => {
-                    this.pattern[key] = Array(16).fill(false);
+                    this.pattern[key] = Array(maxSteps).fill(false);
                 });
                 this.updateBeatGrid();
                 this.updatePatternDisplay();
@@ -1331,6 +1628,7 @@
                 this.isPlaying = true;
                 this.currentBeat = 0;
                 
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
                 const beatDuration = (60 / this.tempo / 4) * 1000;
                 
                 const playBeat = () => {
@@ -1343,7 +1641,7 @@
                     });
                     
                     this.updateBeatGrid();
-                    this.currentBeat = (this.currentBeat + 1) % 16;
+                    this.currentBeat = (this.currentBeat + 1) % maxSteps;
                 };
                 
                 playBeat(); // 즉시 첫 비트 재생
@@ -1431,14 +1729,21 @@
             updatePatternDisplay() {
                 const display = document.getElementById('patternDisplay');
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
                 let text = '';
                 
                 sounds.forEach((sound, key) => {
                     if (this.pattern[key] && this.pattern[key].some(beat => beat)) {
                         text += `${key} (${sound.name}): `;
-                        for (let i = 0; i < 16; i++) {
+                        for (let i = 0; i < maxSteps; i++) {
                             text += this.pattern[key][i] ? '●' : '○';
-                            if ((i + 1) % 4 === 0) text += ' ';
+                            if (this.gridMode === '24') {
+                                // 24스텝에서는 8마디×3박 구조로 표시 (3-3-3-3-3-3-3-3 패턴)
+                                if ((i + 1) % 3 === 0) text += ' ';
+                            } else {
+                                // 16스텝에서는 4-4-4-4 패턴
+                                if ((i + 1) % 4 === 0) text += ' ';
+                            }
                         }
                         text += '\n';
                     }
@@ -1678,6 +1983,228 @@
                     reader.readAsText(file);
                 }
             }
+
+            setGridMode(mode) {
+                this.gridMode = mode;
+                
+                // 그리드 모드에 따라 패턴 배열 크기 조정
+                const maxSteps = mode === '24' ? 24 : 16;
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                
+                // 기존 패턴을 새로운 크기로 조정
+                sounds.forEach((sound, key) => {
+                    if (!this.pattern[key]) {
+                        this.pattern[key] = Array(maxSteps).fill(false);
+                    } else {
+                        // 기존 패턴이 있으면 크기 조정
+                        const currentPattern = this.pattern[key];
+                        this.pattern[key] = Array(maxSteps).fill(false);
+                        for (let i = 0; i < Math.min(currentPattern.length, maxSteps); i++) {
+                            this.pattern[key][i] = currentPattern[i];
+                        }
+                    }
+                });
+                
+                // UI 업데이트
+                this.createBeatGrid();
+                this.updateBeatGrid();
+                this.updatePatternDisplay();
+                
+                // 버튼 활성화 상태 업데이트
+                document.querySelectorAll('#grid16Btn, #grid24Btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.getElementById(mode === '24' ? 'grid24Btn' : 'grid16Btn').classList.add('active');
+            }
+            
+            async startCustomRecording(key, name) {
+                if (!this.hasPermission) {
+                    await this.requestMicrophonePermission();
+                    if (!this.hasPermission) {
+                        this.updateStatus('마이크 권한이 필요합니다.');
+                        return;
+                    }
+                }
+                
+                try {
+                    this.isRecording = true;
+                    this.recordingSound = key;
+                    this.recordedChunks = [];
+                    
+                    // MediaRecorder 설정
+                    const options = {
+                        mimeType: 'audio/webm;codecs=opus',
+                        audioBitsPerSecond: 128000
+                    };
+                    
+                    // 브라우저 호환성 체크
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                        options.mimeType = 'audio/webm';
+                        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                            options.mimeType = 'audio/mp4';
+                            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                                options.mimeType = '';
+                            }
+                        }
+                    }
+                    
+                    this.mediaRecorder = new MediaRecorder(this.microphoneStream, options.mimeType ? options : undefined);
+                    
+                    this.mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            this.recordedChunks.push(event.data);
+                        }
+                    };
+                    
+                    this.mediaRecorder.onstop = () => {
+                        this.processRecording(key, name);
+                    };
+                    
+                    this.mediaRecorder.start();
+                    this.updateStatus(`🔴 녹음 중... (${key}: ${name})`);
+                    this.updateSoundGrid();
+                    
+                    // 자동으로 3초 후 중지 (타이머 설정)
+                    this.recordingTimer = setTimeout(() => {
+                        if (this.isRecording) {
+                            this.stopCustomRecording();
+                        }
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.error('녹음 시작 실패:', error);
+                    this.updateStatus('녹음 시작에 실패했습니다: ' + error.message);
+                    this.isRecording = false;
+                    this.recordingSound = null;
+                }
+            }
+            
+            stopCustomRecording() {
+                if (!this.isRecording || !this.mediaRecorder) {
+                    return;
+                }
+                
+                this.isRecording = false;
+                this.mediaRecorder.stop();
+                
+                if (this.recordingTimer) {
+                    clearTimeout(this.recordingTimer);
+                    this.recordingTimer = null;
+                }
+                
+                this.updateStatus('녹음 처리 중...');
+                this.updateSoundGrid();
+            }
+            
+            async processRecording(key, name) {
+                try {
+                    const blob = new Blob(this.recordedChunks, { type: this.recordedChunks[0].type });
+                    
+                    // Blob을 ArrayBuffer로 변환
+                    const arrayBuffer = await blob.arrayBuffer();
+                    
+                    // 오디오 컨텍스트로 디코딩
+                    const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+                    
+                    // 오디오 트리밍 (무음 제거)
+                    const trimmedBuffer = this.trimSilence(audioBuffer);
+                    
+                    // 커스텀 사운드로 저장
+                    this.customSounds.set(key, {
+                        name: name,
+                        audioBuffer: trimmedBuffer,
+                        generator: null
+                    });
+                    
+                    // 패턴에 추가
+                    if (!this.pattern[key]) {
+                        const maxSteps = this.gridMode === '24' ? 24 : 16;
+                        this.pattern[key] = Array(maxSteps).fill(false);
+                    }
+                    
+                    this.updateSoundGrid();
+                    this.createBeatGrid();
+                    this.updateStatus(`✅ "${name}" 사운드가 ${key} 키에 저장되었습니다!`);
+                    
+                    // 폼 초기화
+                    document.getElementById('customKey').value = '';
+                    document.getElementById('customName').value = '';
+                    toggleCustomSoundForm();
+                    
+                } catch (error) {
+                    console.error('녹음 처리 실패:', error);
+                    this.updateStatus('녹음 처리에 실패했습니다: ' + error.message);
+                }
+                
+                this.recordingSound = null;
+                this.recordedChunks = [];
+            }
+            
+            trimSilence(audioBuffer) {
+                const sampleRate = audioBuffer.sampleRate;
+                const channels = audioBuffer.numberOfChannels;
+                const length = audioBuffer.length;
+                
+                // 무음 임계값 설정
+                const silenceThreshold = 0.01;
+                
+                let start = 0;
+                let end = length - 1;
+                
+                // 시작점 찾기
+                for (let i = 0; i < length; i++) {
+                    let sample = 0;
+                    for (let ch = 0; ch < channels; ch++) {
+                        sample += Math.abs(audioBuffer.getChannelData(ch)[i]);
+                    }
+                    sample /= channels;
+                    
+                    if (sample > silenceThreshold) {
+                        start = Math.max(0, i - sampleRate * 0.05); // 50ms 여유
+                        break;
+                    }
+                }
+                
+                // 끝점 찾기
+                for (let i = length - 1; i >= 0; i--) {
+                    let sample = 0;
+                    for (let ch = 0; ch < channels; ch++) {
+                        sample += Math.abs(audioBuffer.getChannelData(ch)[i]);
+                    }
+                    sample /= channels;
+                    
+                    if (sample > silenceThreshold) {
+                        end = Math.min(length - 1, i + sampleRate * 0.05); // 50ms 여유
+                        break;
+                    }
+                }
+                
+                // 트리밍된 버퍼 생성
+                const trimmedLength = end - start + 1;
+                const trimmedBuffer = this.audioContext.createBuffer(channels, trimmedLength, sampleRate);
+                
+                for (let ch = 0; ch < channels; ch++) {
+                    const originalData = audioBuffer.getChannelData(ch);
+                    const trimmedData = trimmedBuffer.getChannelData(ch);
+                    
+                    for (let i = 0; i < trimmedLength; i++) {
+                        trimmedData[i] = originalData[start + i];
+                    }
+                }
+                
+                return trimmedBuffer;
+            }
+            
+            recordCustomSound(key) {
+                const sound = this.customSounds.get(key);
+                if (!sound) return;
+                
+                // 기존 사운드 재녹음
+                const name = sound.name;
+                document.getElementById('customKey').value = key;
+                document.getElementById('customName').value = name;
+                toggleCustomSoundForm();
+            }
         }
 
         let drumMachine;
@@ -1741,14 +2268,38 @@
         }
 
         function startCustomRecording() {
-            // 커스텀 녹음 구현은 기존 코드 참조
-            alert('커스텀 녹음 기능은 별도 구현이 필요합니다.');
+            const key = document.getElementById('customKey').value.toUpperCase();
+            const name = document.getElementById('customName').value;
+            
+            if (!key || !name) {
+                alert('키와 사운드 이름을 모두 입력해주세요.');
+                return;
+            }
+            
+            if (!/^[A-Z]$/.test(key)) {
+                alert('키는 A-Z 중 하나여야 합니다.');
+                return;
+            }
+            
+            drumMachine.startCustomRecording(key, name);
+        }
+        
+        function stopRecording() {
+            drumMachine.stopCustomRecording();
+        }
+        
+        function recordCustomSound(key) {
+            drumMachine.recordCustomSound(key);
         }
 
         function cancelCustomSound() {
             document.getElementById('customKey').value = '';
             document.getElementById('customName').value = '';
             toggleCustomSoundForm();
+        }
+
+        function setGridMode(mode) {
+            drumMachine.setGridMode(mode);
         }
     </script>
 </body>
