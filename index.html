@@ -820,6 +820,10 @@
         .sound-floortom { --sound-color: #ef4444; }
         .sound-clap { --sound-color: #c7d2fe; }
         .sound-cowbell { --sound-color: #fde047; }
+        .sound-rimshot { --sound-color: #e2e8f0; }
+        .sound-conga { --sound-color: #f59e0b; }
+        .sound-shaker { --sound-color: #a3e635; }
+        .sound-tambourine { --sound-color: #e879f9; }
 
         /* ───────── 패턴 표시 ───────── */
         .pattern-display {
@@ -1300,6 +1304,14 @@
 
         <div class="control-section" id="normalModeControls">
             <h3><svg class="icon"><use href="#i-drum"/></svg> 드럼 키트 패드 <span class="sec-no">MODULE 03</span></h3>
+            <div class="group-label">Drum Kit Select</div>
+            <div class="button-row">
+                <div class="segmented">
+                    <button class="seg-btn kit-btn active" data-kit="acoustic" onclick="setDrumKit('acoustic')"><svg class="icon"><use href="#i-drum"/></svg> 어쿠스틱</button>
+                    <button class="seg-btn kit-btn" data-kit="tr808" onclick="setDrumKit('tr808')"><svg class="icon"><use href="#i-wave"/></svg> 808 클래식</button>
+                    <button class="seg-btn kit-btn" data-kit="electro" onclick="setDrumKit('electro')"><svg class="icon"><use href="#i-bolt"/></svg> 일렉트로</button>
+                </div>
+            </div>
             <div class="drum-kit-grid" id="drumKitGrid"></div>
         </div>
 
@@ -1318,6 +1330,10 @@
                     <span class="hint-item"><kbd>D</kbd> 플로어탐</span>
                     <span class="hint-item"><kbd>F</kbd> 박수</span>
                     <span class="hint-item"><kbd>G</kbd> 카우벨</span>
+                    <span class="hint-item"><kbd>H</kbd> 림샷</span>
+                    <span class="hint-item"><kbd>J</kbd> 콩가</span>
+                    <span class="hint-item"><kbd>Z</kbd> 쉐이커</span>
+                    <span class="hint-item"><kbd>X</kbd> 탬버린</span>
                 </div>
             </div>
             <div class="custom-mode-only" id="customModeHints">
@@ -1360,7 +1376,9 @@
                 this.recordingSound = null;
                 this.recordingTimer = null;
                 this.gridMode = '16'; // '16' or '24'
-                
+                this.kit = 'acoustic'; // 'acoustic' | 'tr808' | 'electro'
+                this.openHatEnvs = null;
+
                 this.initializeAudio();
                 this.createNormalDrumSounds();
                 this.initializePattern();
@@ -1372,6 +1390,7 @@
             async initializeAudio() {
                 try {
                     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.buildAudioGraph();
                     this.updateStatus('오디오 시스템 준비 완료');
                 } catch (error) {
                     console.error('오디오 컨텍스트 초기화 실패:', error);
@@ -1391,7 +1410,11 @@
                     { key: 'S', name: '탐2', id: 'tom2', generator: this.createTom2Sound.bind(this) },
                     { key: 'D', name: '플로어탐', id: 'floortom', generator: this.createFloorTomSound.bind(this) },
                     { key: 'F', name: '박수', id: 'clap', generator: this.createClapSound.bind(this) },
-                    { key: 'G', name: '카우벨', id: 'cowbell', generator: this.createCowbellSound.bind(this) }
+                    { key: 'G', name: '카우벨', id: 'cowbell', generator: this.createCowbellSound.bind(this) },
+                    { key: 'H', name: '림샷', id: 'rimshot', generator: this.createRimshotSound.bind(this) },
+                    { key: 'J', name: '콩가', id: 'conga', generator: this.createCongaSound.bind(this) },
+                    { key: 'Z', name: '쉐이커', id: 'shaker', generator: this.createShakerSound.bind(this) },
+                    { key: 'X', name: '탬버린', id: 'tambourine', generator: this.createTambourineSound.bind(this) }
                 ];
 
                 sounds.forEach(sound => {
@@ -1412,484 +1435,397 @@
                 });
             }
 
-            // 킥 드럼
-            createKickSound() {
-                if (!this.audioContext) return;
-                
-                // 서브 베이스 (깊은 웅장함)
-                const subOsc = this.audioContext.createOscillator();
-                const subGain = this.audioContext.createGain();
-                
-                subOsc.type = 'sine';
-                subOsc.frequency.setValueAtTime(40, this.audioContext.currentTime);
-                subOsc.frequency.exponentialRampToValueAtTime(25, this.audioContext.currentTime + 0.3);
-                
-                subGain.gain.setValueAtTime(1.2, this.audioContext.currentTime);
-                subGain.gain.exponentialRampToValueAtTime(0.6, this.audioContext.currentTime + 0.2);
-                subGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.8);
-                
-                // 메인 킥 (펀치)
-                const mainOsc = this.audioContext.createOscillator();
-                const mainGain = this.audioContext.createGain();
-                
-                mainOsc.type = 'sine';
-                mainOsc.frequency.setValueAtTime(80, this.audioContext.currentTime);
-                mainOsc.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.02);
-                mainOsc.frequency.exponentialRampToValueAtTime(35, this.audioContext.currentTime + 0.1);
-                
-                mainGain.gain.setValueAtTime(0.8, this.audioContext.currentTime);
-                mainGain.gain.exponentialRampToValueAtTime(0.3, this.audioContext.currentTime + 0.1);
-                mainGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.4);
-                
-                // 소프트 어택 (부드러운 펀치감)
-                const attackOsc = this.audioContext.createOscillator();
-                const attackGain = this.audioContext.createGain();
-                const attackFilter = this.audioContext.createBiquadFilter();
-                
-                attackOsc.type = 'triangle';
-                attackOsc.frequency.value = 200;
-                
-                attackFilter.type = 'lowpass';
-                attackFilter.frequency.value = 800;
-                attackFilter.Q.value = 2;
-                
-                attackGain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-                attackGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.01);
-                
-                // 리버브 효과 (공간감)
-                const convolver = this.audioContext.createConvolver();
-                const reverbGain = this.audioContext.createGain();
-                reverbGain.gain.value = 0.2;
-                
-                // 간단한 임펄스 리스폰스 생성 (공간감)
-                const impulseLength = this.audioContext.sampleRate * 0.5;
-                const impulse = this.audioContext.createBuffer(2, impulseLength, this.audioContext.sampleRate);
-                for (let channel = 0; channel < 2; channel++) {
-                    const channelData = impulse.getChannelData(channel);
-                    for (let i = 0; i < impulseLength; i++) {
-                        channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / impulseLength, 2);
+            /* ───────── 사운드 엔진: 킷 기반 신디사이저 ───────── */
+
+            // 마스터 체인: 개별 사운드 → 마스터 게인 → 소프트 새추레이터 → 컴프레서 → 출력
+            // 컴프레서가 여러 사운드를 하나로 묶어주고(글루), 새추레이터가 아날로그풍 배음을 더한다
+            buildAudioGraph() {
+                const ctx = this.audioContext;
+
+                this.masterGain = ctx.createGain();
+                this.masterGain.gain.value = 0.85;
+
+                this.saturator = ctx.createWaveShaper();
+                this.saturator.curve = this.makeSaturationCurve(1.8);
+                this.saturator.oversample = '2x';
+
+                this.compressor = ctx.createDynamicsCompressor();
+                this.compressor.threshold.value = -14;
+                this.compressor.knee.value = 18;
+                this.compressor.ratio.value = 4;
+                this.compressor.attack.value = 0.003;
+                this.compressor.release.value = 0.22;
+
+                this.masterGain.connect(this.saturator);
+                this.saturator.connect(this.compressor);
+                this.compressor.connect(ctx.destination);
+
+                // 공용 룸 리버브 (센드 방식 - 사운드별로 보낼 양만 조절)
+                this.reverb = ctx.createConvolver();
+                this.reverb.buffer = this.makeImpulseResponse(1.4, 2.8);
+                this.reverbReturn = ctx.createGain();
+                this.reverbReturn.gain.value = 0.9;
+                this.reverb.connect(this.reverbReturn);
+                this.reverbReturn.connect(this.masterGain);
+
+                // 노이즈 버퍼는 한 번만 생성해서 재사용 (히트마다 새로 만들지 않음)
+                this.noiseBuffer = this.makeNoiseBuffer();
+            }
+
+            makeSaturationCurve(amount) {
+                const n = 1024;
+                const curve = new Float32Array(n);
+                for (let i = 0; i < n; i++) {
+                    const x = (i / (n - 1)) * 2 - 1;
+                    curve[i] = Math.tanh(amount * x) / Math.tanh(amount);
+                }
+                return curve;
+            }
+
+            makeImpulseResponse(seconds, decay) {
+                const ctx = this.audioContext;
+                const length = Math.floor(ctx.sampleRate * seconds);
+                const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+                for (let ch = 0; ch < 2; ch++) {
+                    const data = impulse.getChannelData(ch);
+                    for (let i = 0; i < length; i++) {
+                        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
                     }
                 }
-                convolver.buffer = impulse;
-                
-                // 마스터 필터 (부드럽게)
-                const masterFilter = this.audioContext.createBiquadFilter();
-                masterFilter.type = 'lowpass';
-                masterFilter.frequency.value = 150;
-                masterFilter.Q.value = 1;
-                
-                const masterGain = this.audioContext.createGain();
-                masterGain.gain.value = 1.5;
-                
-                // 연결
-                subOsc.connect(subGain);
-                mainOsc.connect(mainGain);
-                attackOsc.connect(attackFilter);
-                attackFilter.connect(attackGain);
-                
-                subGain.connect(masterFilter);
-                mainGain.connect(masterFilter);
-                attackGain.connect(masterFilter);
-                
-                masterFilter.connect(masterGain);
-                masterGain.connect(this.audioContext.destination);
-                
-                // 리버브 체인
-                masterFilter.connect(convolver);
-                convolver.connect(reverbGain);
-                reverbGain.connect(this.audioContext.destination);
-                
-                // 재생
-                subOsc.start();
-                subOsc.stop(this.audioContext.currentTime + 0.8);
-                mainOsc.start();
-                mainOsc.stop(this.audioContext.currentTime + 0.4);
-                attackOsc.start();
-                attackOsc.stop(this.audioContext.currentTime + 0.01);
+                return impulse;
             }
 
-            // 스네어
+            makeNoiseBuffer() {
+                const ctx = this.audioContext;
+                const length = ctx.sampleRate;
+                const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < length; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                return buffer;
+            }
+
+            // 톤 헬퍼: 피치 스윕 + 엔벨로프 + 필터/드라이브, 히트마다 ±2% 피치·±6% 게인 랜덤(휴머나이즈)
+            playTone({ type = 'sine', freq, sweepTo, sweepTime = 0.05, gain = 0.5, attack = 0.001, decay = 0.3, filterType, filterFreq, Q = 1, drive = 0, send = 0, when = 0 }) {
+                const ctx = this.audioContext;
+                const t = ctx.currentTime + when;
+                const jitter = 1 + (Math.random() - 0.5) * 0.04;
+
+                const osc = ctx.createOscillator();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq * jitter, t);
+                if (sweepTo) {
+                    osc.frequency.exponentialRampToValueAtTime(Math.max(sweepTo * jitter, 0.01), t + sweepTime);
+                }
+
+                const env = ctx.createGain();
+                env.gain.setValueAtTime(0, t);
+                env.gain.linearRampToValueAtTime(gain * (1 + (Math.random() - 0.5) * 0.12), t + attack);
+                env.gain.exponentialRampToValueAtTime(0.001, t + attack + decay);
+
+                let node = osc;
+                if (drive > 0) {
+                    const shaper = ctx.createWaveShaper();
+                    shaper.curve = this.makeSaturationCurve(drive);
+                    node.connect(shaper);
+                    node = shaper;
+                }
+                if (filterType) {
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = filterType;
+                    filter.frequency.value = filterFreq;
+                    filter.Q.value = Q;
+                    node.connect(filter);
+                    node = filter;
+                }
+                node.connect(env);
+                env.connect(this.masterGain);
+                if (send > 0) {
+                    const sendGain = ctx.createGain();
+                    sendGain.gain.value = send;
+                    env.connect(sendGain);
+                    sendGain.connect(this.reverb);
+                }
+
+                osc.start(t);
+                osc.stop(t + attack + decay + 0.05);
+                return env;
+            }
+
+            // 노이즈 헬퍼: 캐시된 버퍼를 랜덤 오프셋으로 재생해 히트마다 다른 질감
+            playNoise({ gain = 0.5, attack = 0.001, decay = 0.2, filterType = 'highpass', filterFreq = 1000, Q = 1, filter2Type, filter2Freq, Q2 = 1, send = 0, when = 0 }) {
+                const ctx = this.audioContext;
+                const t = ctx.currentTime + when;
+
+                const src = ctx.createBufferSource();
+                src.buffer = this.noiseBuffer;
+                src.loop = true;
+
+                const env = ctx.createGain();
+                env.gain.setValueAtTime(0, t);
+                env.gain.linearRampToValueAtTime(gain * (1 + (Math.random() - 0.5) * 0.12), t + attack);
+                env.gain.exponentialRampToValueAtTime(0.001, t + attack + decay);
+
+                let node = src;
+                const f1 = ctx.createBiquadFilter();
+                f1.type = filterType;
+                f1.frequency.value = filterFreq;
+                f1.Q.value = Q;
+                node.connect(f1);
+                node = f1;
+                if (filter2Type) {
+                    const f2 = ctx.createBiquadFilter();
+                    f2.type = filter2Type;
+                    f2.frequency.value = filter2Freq;
+                    f2.Q.value = Q2;
+                    node.connect(f2);
+                    node = f2;
+                }
+                node.connect(env);
+                env.connect(this.masterGain);
+                if (send > 0) {
+                    const sendGain = ctx.createGain();
+                    sendGain.gain.value = send;
+                    env.connect(sendGain);
+                    sendGain.connect(this.reverb);
+                }
+
+                src.start(t, Math.random() * 0.9);
+                src.stop(t + attack + decay + 0.05);
+                return env;
+            }
+
+            // 금속성 배음 뱅크: 비정수배 스퀘어파 6개를 밴드패스+하이패스로 깎는 클래식 기법
+            // 화이트노이즈만 쓰는 것보다 하이햇/심벌의 금속성이 훨씬 리얼해진다
+            playMetal({ baseFreq = 40, ratios = [2, 3, 4.16, 5.43, 6.79, 8.21], gain = 0.3, attack = 0.001, decay = 0.1, bandFreq = 10000, bandQ = 1, hipassFreq = 7000, send = 0, when = 0 }) {
+                const ctx = this.audioContext;
+                const t = ctx.currentTime + when;
+
+                const band = ctx.createBiquadFilter();
+                band.type = 'bandpass';
+                band.frequency.value = bandFreq;
+                band.Q.value = bandQ;
+
+                const hipass = ctx.createBiquadFilter();
+                hipass.type = 'highpass';
+                hipass.frequency.value = hipassFreq;
+
+                const env = ctx.createGain();
+                env.gain.setValueAtTime(0, t);
+                env.gain.linearRampToValueAtTime(gain * (1 + (Math.random() - 0.5) * 0.12), t + attack);
+                env.gain.exponentialRampToValueAtTime(0.001, t + attack + decay);
+
+                band.connect(hipass);
+                hipass.connect(env);
+                env.connect(this.masterGain);
+                if (send > 0) {
+                    const sendGain = ctx.createGain();
+                    sendGain.gain.value = send;
+                    env.connect(sendGain);
+                    sendGain.connect(this.reverb);
+                }
+
+                const jitter = 1 + (Math.random() - 0.5) * 0.03;
+                ratios.forEach(ratio => {
+                    const osc = ctx.createOscillator();
+                    osc.type = 'square';
+                    osc.frequency.value = baseFreq * ratio * jitter;
+                    osc.connect(band);
+                    osc.start(t);
+                    osc.stop(t + attack + decay + 0.05);
+                });
+                return env;
+            }
+
+            // 오픈햇 초크: 실제 하이햇처럼 닫힌 햇/재타격이 열린 햇 울림을 끊는다
+            chokeOpenHat() {
+                if (!this.openHatEnvs) return;
+                const t = this.audioContext.currentTime;
+                this.openHatEnvs.forEach(env => {
+                    env.gain.cancelScheduledValues(t);
+                    env.gain.setValueAtTime(Math.max(env.gain.value, 0.001), t);
+                    env.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+                });
+                this.openHatEnvs = null;
+            }
+
+            // 킥: 비터 클릭(어택) + 쉘 바디(피치 스윕) + 서브 울림, 킷별 캐릭터
+            createKickSound() {
+                if (!this.audioContext || !this.masterGain) return;
+                const kit = this.kit;
+                if (kit === 'tr808') {
+                    this.playTone({ freq: 58, sweepTo: 41, sweepTime: 0.09, gain: 1.15, decay: 0.85, drive: 2.4, filterType: 'lowpass', filterFreq: 380 });
+                    this.playTone({ type: 'triangle', freq: 190, sweepTo: 50, sweepTime: 0.03, gain: 0.35, decay: 0.05 });
+                } else if (kit === 'electro') {
+                    this.playTone({ freq: 135, sweepTo: 44, sweepTime: 0.045, gain: 1.0, decay: 0.3, drive: 3.2, filterType: 'lowpass', filterFreq: 900 });
+                    this.playNoise({ gain: 0.4, decay: 0.02, filterType: 'lowpass', filterFreq: 3600 });
+                } else {
+                    this.playNoise({ gain: 0.35, decay: 0.012, filterType: 'bandpass', filterFreq: 3200, Q: 0.8 });
+                    this.playTone({ freq: 165, sweepTo: 58, sweepTime: 0.035, gain: 0.9, decay: 0.22, drive: 1.6, filterType: 'lowpass', filterFreq: 700 });
+                    this.playTone({ freq: 60, sweepTo: 42, sweepTime: 0.22, gain: 0.95, decay: 0.5, filterType: 'lowpass', filterFreq: 220, send: 0.06 });
+                }
+            }
+
+            // 스네어: 드럼 헤드 공진 모드 2개 + 스내피(와이어) 노이즈 레이어
             createSnareSound() {
-                if (!this.audioContext) return;
-                
-                const noise = this.createNoise();
-                const noiseGain = this.audioContext.createGain();
-                const noiseFilter = this.audioContext.createBiquadFilter();
-                
-                noiseFilter.type = 'highpass';
-                noiseFilter.frequency.value = 1000;
-                
-                noiseGain.gain.setValueAtTime(0.5, this.audioContext.currentTime);
-                noiseGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
-                
-                const osc = this.audioContext.createOscillator();
-                const oscGain = this.audioContext.createGain();
-                
-                osc.type = 'triangle';
-                osc.frequency.value = 200;
-                
-                oscGain.gain.setValueAtTime(0.7, this.audioContext.currentTime);
-                oscGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
-                
-                noise.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(this.audioContext.destination);
-                
-                osc.connect(oscGain);
-                oscGain.connect(this.audioContext.destination);
-                
-                osc.start();
-                osc.stop(this.audioContext.currentTime + 0.2);
-                noise.start();
-                noise.stop(this.audioContext.currentTime + 0.2);
+                if (!this.audioContext || !this.masterGain) return;
+                const kit = this.kit;
+                if (kit === 'tr808') {
+                    this.playTone({ freq: 185, gain: 0.5, decay: 0.11 });
+                    this.playTone({ freq: 330, gain: 0.28, decay: 0.07 });
+                    this.playNoise({ gain: 0.5, decay: 0.22, filterType: 'highpass', filterFreq: 1600, filter2Type: 'bandpass', filter2Freq: 6800, Q2: 0.7, send: 0.1 });
+                } else if (kit === 'electro') {
+                    this.playTone({ freq: 220, sweepTo: 175, sweepTime: 0.06, gain: 0.55, decay: 0.13, drive: 2.5 });
+                    this.playNoise({ gain: 0.65, decay: 0.28, filterType: 'highpass', filterFreq: 900, send: 0.14 });
+                } else {
+                    this.playTone({ freq: 186, gain: 0.5, decay: 0.15, drive: 1.4 });
+                    this.playTone({ freq: 349, gain: 0.3, decay: 0.09 });
+                    this.playNoise({ gain: 0.42, decay: 0.16, filterType: 'highpass', filterFreq: 1300, send: 0.12 });
+                    this.playNoise({ gain: 0.3, decay: 0.24, filterType: 'bandpass', filterFreq: 5200, Q: 0.6, send: 0.15 });
+                }
             }
 
-            // 하이햇
+            // 클로즈드 하이햇: 금속성 배음 뱅크 + 오픈햇 초크
             createHihatSound() {
-                if (!this.audioContext) return;
-                
-                const noise = this.createNoise();
-                const filter = this.audioContext.createBiquadFilter();
-                const gain = this.audioContext.createGain();
-                
-                filter.type = 'highpass';
-                filter.frequency.value = 8000;
-                
-                gain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.05);
-                
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.audioContext.destination);
-                
-                noise.start();
-                noise.stop(this.audioContext.currentTime + 0.05);
+                if (!this.audioContext || !this.masterGain) return;
+                this.chokeOpenHat();
+                const kit = this.kit;
+                if (kit === 'tr808') {
+                    this.playMetal({ gain: 0.32, decay: 0.05, bandFreq: 9500, bandQ: 1.2, hipassFreq: 7500 });
+                } else if (kit === 'electro') {
+                    this.playNoise({ gain: 0.3, decay: 0.055, filterType: 'highpass', filterFreq: 8800 });
+                    this.playMetal({ gain: 0.12, decay: 0.04, bandFreq: 11000, hipassFreq: 8000 });
+                } else {
+                    this.playMetal({ gain: 0.3, decay: 0.07, bandFreq: 10500, bandQ: 1, hipassFreq: 7200 });
+                    this.playNoise({ gain: 0.1, decay: 0.05, filterType: 'highpass', filterFreq: 9000 });
+                }
             }
 
-            // 오픈 하이햇
+            // 오픈 하이햇: 긴 울림 + 초크 대상으로 등록
             createOpenHatSound() {
-                if (!this.audioContext) return;
-                
-                const noise = this.createNoise();
-                const filter = this.audioContext.createBiquadFilter();
-                const gain = this.audioContext.createGain();
-                
-                filter.type = 'highpass';
-                filter.frequency.value = 7000;
-                
-                gain.gain.setValueAtTime(0.4, this.audioContext.currentTime);
-                gain.gain.setValueAtTime(0.4, this.audioContext.currentTime + 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
-                
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.audioContext.destination);
-                
-                noise.start();
-                noise.stop(this.audioContext.currentTime + 0.3);
+                if (!this.audioContext || !this.masterGain) return;
+                this.chokeOpenHat();
+                const kit = this.kit;
+                const envs = [];
+                if (kit === 'tr808') {
+                    envs.push(this.playMetal({ gain: 0.3, decay: 0.45, bandFreq: 9200, bandQ: 1, hipassFreq: 7000 }));
+                } else if (kit === 'electro') {
+                    envs.push(this.playNoise({ gain: 0.3, decay: 0.42, filterType: 'highpass', filterFreq: 8200 }));
+                } else {
+                    envs.push(this.playMetal({ gain: 0.28, decay: 0.5, bandFreq: 9800, bandQ: 0.9, hipassFreq: 6800, send: 0.1 }));
+                    envs.push(this.playNoise({ gain: 0.12, decay: 0.45, filterType: 'highpass', filterFreq: 8400, send: 0.08 }));
+                }
+                this.openHatEnvs = envs;
             }
 
-
-            // 크래시 심벌
+            // 크래시: 금속 뱅크(쉬머) + 노이즈 워시 + 초기 임팩트
             createCrashSound() {
-                if (!this.audioContext) return;
-                
-                const noise = this.createNoise();
-                const filter = this.audioContext.createBiquadFilter();
-                const gain = this.audioContext.createGain();
-                
-                filter.type = 'highpass';
-                filter.frequency.value = 3000;
-                filter.Q.value = 0.5;
-                
-                gain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 2);
-                
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.audioContext.destination);
-                
-                noise.start();
-                noise.stop(this.audioContext.currentTime + 2);
+                if (!this.audioContext || !this.masterGain) return;
+                const kit = this.kit;
+                if (kit === 'electro') {
+                    this.playNoise({ gain: 0.4, decay: 1.3, filterType: 'highpass', filterFreq: 5800, send: 0.2 });
+                } else if (kit === 'tr808') {
+                    this.playNoise({ gain: 0.38, decay: 1.0, filterType: 'highpass', filterFreq: 4400 });
+                    this.playMetal({ gain: 0.2, decay: 0.5, bandFreq: 7800, bandQ: 0.6, hipassFreq: 5200 });
+                } else {
+                    this.playMetal({ baseFreq: 55, ratios: [2.1, 3.0, 4.16, 5.43, 6.79, 8.21], gain: 0.42, decay: 1.7, bandFreq: 6200, bandQ: 0.4, hipassFreq: 3600, send: 0.25 });
+                    this.playNoise({ gain: 0.3, decay: 1.5, filterType: 'highpass', filterFreq: 5200, send: 0.22 });
+                    this.playNoise({ gain: 0.2, decay: 0.35, filterType: 'bandpass', filterFreq: 3400, Q: 0.7 });
+                }
             }
 
-            // 라이드 심벌
+            // 라이드: 스틱 핑(타점) + 금속 워시
             createRideSound() {
-                if (!this.audioContext) return;
-                
-                const noise = this.createNoise();
-                const filter = this.audioContext.createBiquadFilter();
-                const gain = this.audioContext.createGain();
-                
-                filter.type = 'highpass';
-                filter.frequency.value = 5000;
-                filter.Q.value = 2;
-                
-                gain.gain.setValueAtTime(0.2, this.audioContext.currentTime);
-                gain.gain.setValueAtTime(0.2, this.audioContext.currentTime + 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
-                
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.audioContext.destination);
-                
-                noise.start();
-                noise.stop(this.audioContext.currentTime + 0.5);
+                if (!this.audioContext || !this.masterGain) return;
+                const kit = this.kit;
+                if (kit === 'electro') {
+                    this.playNoise({ gain: 0.22, decay: 0.45, filterType: 'highpass', filterFreq: 6500 });
+                    this.playTone({ freq: 1040, gain: 0.1, decay: 0.3, filterType: 'highpass', filterFreq: 900 });
+                } else if (kit === 'tr808') {
+                    this.playMetal({ gain: 0.25, decay: 0.4, bandFreq: 8200, bandQ: 0.8, hipassFreq: 5600 });
+                } else {
+                    this.playTone({ freq: 1250, gain: 0.14, decay: 0.55, filterType: 'highpass', filterFreq: 1000, send: 0.1 });
+                    this.playMetal({ baseFreq: 62, ratios: [4.2, 5.6, 6.9, 8.4, 10.5, 12.3], gain: 0.2, decay: 0.9, bandFreq: 7600, bandQ: 0.55, hipassFreq: 4800, send: 0.14 });
+                }
             }
 
-            // 탐1
+            // 탐 공통: 기본음(스윕) + 상위 배음 + 어택 노이즈
+            playTom(freqHigh, freqLow, decay, gain) {
+                const kit = this.kit;
+                if (kit === 'tr808') {
+                    this.playTone({ freq: freqHigh * 0.8, sweepTo: freqLow * 0.75, sweepTime: 0.12, gain: gain, decay: decay * 1.2, drive: 1.8, filterType: 'lowpass', filterFreq: 1200 });
+                } else if (kit === 'electro') {
+                    this.playTone({ type: 'triangle', freq: freqHigh, sweepTo: freqLow, sweepTime: 0.07, gain: gain, decay: decay, drive: 2.6 });
+                    this.playNoise({ gain: 0.15, decay: 0.02, filterType: 'bandpass', filterFreq: 2000 });
+                } else {
+                    this.playTone({ freq: freqHigh, sweepTo: freqLow, sweepTime: 0.045, gain: gain, decay: decay, drive: 1.3, send: 0.1 });
+                    this.playTone({ freq: freqHigh * 1.5, sweepTo: freqLow * 1.4, sweepTime: 0.05, gain: gain * 0.3, decay: decay * 0.55 });
+                    this.playNoise({ gain: 0.18, decay: 0.015, filterType: 'bandpass', filterFreq: freqHigh * 2.2, Q: 0.8 });
+                }
+            }
+
             createTom1Sound() {
-                if (!this.audioContext) return;
-                
-                // 메인 톤
-                const osc = this.audioContext.createOscillator();
-                const gain = this.audioContext.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, this.audioContext.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(150, this.audioContext.currentTime + 0.02);
-                osc.frequency.exponentialRampToValueAtTime(120, this.audioContext.currentTime + 0.2);
-                
-                gain.gain.setValueAtTime(0.8, this.audioContext.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.3, this.audioContext.currentTime + 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.6);
-                
-                // 배음 (울림감)
-                const osc2 = this.audioContext.createOscillator();
-                const gain2 = this.audioContext.createGain();
-                
-                osc2.type = 'sine';
-                osc2.frequency.setValueAtTime(240, this.audioContext.currentTime);
-                osc2.frequency.exponentialRampToValueAtTime(180, this.audioContext.currentTime + 0.3);
-                
-                gain2.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-                gain2.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.4);
-                
-                // 어택 노이즈
-                const noise = this.createNoise();
-                const noiseGain = this.audioContext.createGain();
-                const noiseFilter = this.audioContext.createBiquadFilter();
-                
-                noiseFilter.type = 'bandpass';
-                noiseFilter.frequency.value = 300;
-                noiseFilter.Q.value = 1;
-                
-                noiseGain.gain.setValueAtTime(0.2, this.audioContext.currentTime);
-                noiseGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.02);
-                
-                const masterGain = this.audioContext.createGain();
-                masterGain.gain.value = 1.2;
-                
-                osc.connect(gain);
-                gain.connect(masterGain);
-                osc2.connect(gain2);
-                gain2.connect(masterGain);
-                noise.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(masterGain);
-                masterGain.connect(this.audioContext.destination);
-                
-                osc.start();
-                osc.stop(this.audioContext.currentTime + 0.6);
-                osc2.start();
-                osc2.stop(this.audioContext.currentTime + 0.4);
-                noise.start();
-                noise.stop(this.audioContext.currentTime + 0.02);
+                if (!this.audioContext || !this.masterGain) return;
+                this.playTom(240, 128, 0.4, 0.75);
             }
 
-            // 탐2
             createTom2Sound() {
-                if (!this.audioContext) return;
-                
-                // 메인 톤
-                const osc = this.audioContext.createOscillator();
-                const gain = this.audioContext.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(300, this.audioContext.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + 0.02);
-                osc.frequency.exponentialRampToValueAtTime(80, this.audioContext.currentTime + 0.2);
-                
-                gain.gain.setValueAtTime(0.9, this.audioContext.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.3, this.audioContext.currentTime + 0.15);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.7);
-                
-                // 배음
-                const osc2 = this.audioContext.createOscillator();
-                const gain2 = this.audioContext.createGain();
-                
-                osc2.type = 'sine';
-                osc2.frequency.setValueAtTime(160, this.audioContext.currentTime);
-                osc2.frequency.exponentialRampToValueAtTime(120, this.audioContext.currentTime + 0.3);
-                
-                gain2.gain.setValueAtTime(0.4, this.audioContext.currentTime);
-                gain2.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
-                
-                // 어택 노이즈
-                const noise = this.createNoise();
-                const noiseGain = this.audioContext.createGain();
-                const noiseFilter = this.audioContext.createBiquadFilter();
-                
-                noiseFilter.type = 'bandpass';
-                noiseFilter.frequency.value = 200;
-                noiseFilter.Q.value = 1;
-                
-                noiseGain.gain.setValueAtTime(0.25, this.audioContext.currentTime);
-                noiseGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.03);
-                
-                const masterGain = this.audioContext.createGain();
-                masterGain.gain.value = 1.3;
-                
-                osc.connect(gain);
-                gain.connect(masterGain);
-                osc2.connect(gain2);
-                gain2.connect(masterGain);
-                noise.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(masterGain);
-                masterGain.connect(this.audioContext.destination);
-                
-                osc.start();
-                osc.stop(this.audioContext.currentTime + 0.7);
-                osc2.start();
-                osc2.stop(this.audioContext.currentTime + 0.5);
-                noise.start();
-                noise.stop(this.audioContext.currentTime + 0.03);
+                if (!this.audioContext || !this.masterGain) return;
+                this.playTom(185, 95, 0.5, 0.8);
             }
 
-            // 플로어탐
             createFloorTomSound() {
-                if (!this.audioContext) return;
-                
-                // 메인 톤 (깊은 울림)
-                const osc = this.audioContext.createOscillator();
-                const gain = this.audioContext.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(200, this.audioContext.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(65, this.audioContext.currentTime + 0.03);
-                osc.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.3);
-                
-                gain.gain.setValueAtTime(1.0, this.audioContext.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.4, this.audioContext.currentTime + 0.2);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.8);
-                
-                // 서브 베이스 (더 깊은 울림)
-                const sub = this.audioContext.createOscillator();
-                const subGain = this.audioContext.createGain();
-                
-                sub.type = 'sine';
-                sub.frequency.setValueAtTime(50, this.audioContext.currentTime);
-                sub.frequency.exponentialRampToValueAtTime(40, this.audioContext.currentTime + 0.4);
-                
-                subGain.gain.setValueAtTime(0.6, this.audioContext.currentTime);
-                subGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.6);
-                
-                // 어택 사운드
-                const attack = this.audioContext.createOscillator();
-                const attackGain = this.audioContext.createGain();
-                
-                attack.type = 'triangle';
-                attack.frequency.value = 120;
-                
-                attackGain.gain.setValueAtTime(0.4, this.audioContext.currentTime);
-                attackGain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.02);
-                
-                const masterGain = this.audioContext.createGain();
-                masterGain.gain.value = 1.5;
-                
-                osc.connect(gain);
-                gain.connect(masterGain);
-                sub.connect(subGain);
-                subGain.connect(masterGain);
-                attack.connect(attackGain);
-                attackGain.connect(masterGain);
-                masterGain.connect(this.audioContext.destination);
-                
-                osc.start();
-                osc.stop(this.audioContext.currentTime + 0.8);
-                sub.start();
-                sub.stop(this.audioContext.currentTime + 0.6);
-                attack.start();
-                attack.stop(this.audioContext.currentTime + 0.02);
+                if (!this.audioContext || !this.masterGain) return;
+                this.playTom(130, 62, 0.65, 0.95);
             }
 
-            // 박수
+            // 박수: 여러 손이 어긋나게 치는 버스트 3개 + 룸 테일
             createClapSound() {
-                if (!this.audioContext) return;
-                
-                const filter = this.audioContext.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.value = 1500;
-                filter.Q.value = 1;
-                
-                const envelopes = [];
-                const noises = [];
-                
+                if (!this.audioContext || !this.masterGain) return;
+                const kit = this.kit;
+                const spread = kit === 'tr808' ? 0.009 : 0.011;
                 for (let i = 0; i < 3; i++) {
-                    const noise = this.createNoise();
-                    const env = this.audioContext.createGain();
-                    
-                    const delay = i * 0.01;
-                    env.gain.setValueAtTime(0, this.audioContext.currentTime + delay);
-                    env.gain.linearRampToValueAtTime(0.2, this.audioContext.currentTime + delay + 0.01);
-                    env.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + delay + 0.03);
-                    
-                    noise.connect(filter);
-                    filter.connect(env);
-                    env.connect(this.audioContext.destination);
-                    
-                    noise.start(this.audioContext.currentTime + delay);
-                    noise.stop(this.audioContext.currentTime + delay + 0.03);
-                    
-                    noises.push(noise);
-                    envelopes.push(env);
+                    this.playNoise({ gain: 0.32, decay: 0.028, filterType: 'bandpass', filterFreq: 1250 + i * 180, Q: 1.6, when: i * spread });
                 }
+                this.playNoise({ gain: 0.3, decay: kit === 'electro' ? 0.3 : 0.22, filterType: 'bandpass', filterFreq: 1350, Q: 1.1, when: 3 * spread, send: 0.18 });
             }
 
-            // 카우벨
+            // 카우벨: 스퀘어파 2개(540+800Hz)를 밴드패스로 깎는 클래식 방식
             createCowbellSound() {
-                if (!this.audioContext) return;
-                
-                const osc1 = this.audioContext.createOscillator();
-                const osc2 = this.audioContext.createOscillator();
-                const gain = this.audioContext.createGain();
-                const filter = this.audioContext.createBiquadFilter();
-                
-                osc1.frequency.value = 800;
-                osc2.frequency.value = 540;
-                
-                filter.type = 'bandpass';
-                filter.frequency.value = 800;
-                filter.Q.value = 2;
-                
-                gain.gain.setValueAtTime(0.5, this.audioContext.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
-                
-                osc1.connect(gain);
-                osc2.connect(gain);
-                gain.connect(filter);
-                filter.connect(this.audioContext.destination);
-                
-                osc1.start();
-                osc2.start();
-                osc1.stop(this.audioContext.currentTime + 0.1);
-                osc2.stop(this.audioContext.currentTime + 0.1);
+                if (!this.audioContext || !this.masterGain) return;
+                const decay = this.kit === 'acoustic' ? 0.32 : 0.24;
+                this.playTone({ type: 'square', freq: 540, gain: 0.3, decay: decay, filterType: 'bandpass', filterFreq: 850, Q: 2.5 });
+                this.playTone({ type: 'square', freq: 800, gain: 0.3, decay: decay * 0.8, filterType: 'bandpass', filterFreq: 850, Q: 2.5 });
             }
 
-            // 노이즈 생성 헬퍼
-            createNoise() {
-                const bufferSize = this.audioContext.sampleRate * 2;
-                const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
-                const output = buffer.getChannelData(0);
-                
-                for (let i = 0; i < bufferSize; i++) {
-                    output[i] = Math.random() * 2 - 1;
-                }
-                
-                const noise = this.audioContext.createBufferSource();
-                noise.buffer = buffer;
-                return noise;
+            // 림샷: 스틱 클릭 + 림 금속 울림 + 짧은 헤드 톤
+            createRimshotSound() {
+                if (!this.audioContext || !this.masterGain) return;
+                this.playTone({ type: 'square', freq: 1720, gain: 0.16, decay: 0.045, filterType: 'bandpass', filterFreq: 1800, Q: 3 });
+                this.playTone({ freq: 476, gain: 0.4, decay: 0.055, drive: 2.2 });
+                this.playNoise({ gain: 0.25, decay: 0.012, filterType: 'highpass', filterFreq: 3200 });
+            }
+
+            // 콩가: 손바닥 타격의 짧은 피치 드롭 + 옥타브 배음
+            createCongaSound() {
+                if (!this.audioContext || !this.masterGain) return;
+                this.playTone({ freq: 215, sweepTo: 185, sweepTime: 0.02, gain: 0.65, decay: 0.28, send: 0.08 });
+                this.playTone({ freq: 430, gain: 0.12, decay: 0.08 });
+                this.playNoise({ gain: 0.12, decay: 0.008, filterType: 'bandpass', filterFreq: 1200 });
+            }
+
+            // 쉐이커: 느린 어택의 밴드패스 노이즈 (알갱이 쏠리는 질감)
+            createShakerSound() {
+                if (!this.audioContext || !this.masterGain) return;
+                this.playNoise({ gain: 0.3, attack: 0.012, decay: 0.07, filterType: 'bandpass', filterFreq: 6800, Q: 1.4, filter2Type: 'highpass', filter2Freq: 4500 });
+            }
+
+            // 탬버린: 고역 징글 뱅크 + 이중 타격 쉬머
+            createTambourineSound() {
+                if (!this.audioContext || !this.masterGain) return;
+                this.playMetal({ baseFreq: 400, ratios: [14.3, 16.9, 19.8, 22.4], gain: 0.2, decay: 0.14, bandFreq: 8600, bandQ: 0.9, hipassFreq: 6200, send: 0.12 });
+                this.playNoise({ gain: 0.12, decay: 0.1, filterType: 'highpass', filterFreq: 7600, when: 0.012 });
             }
 
             createBeatGrid() {
@@ -2094,9 +2030,9 @@
                     // 랜덤 추가 요소
                     sounds.forEach((sound, key) => {
                         if (['Q', 'W', 'E', 'Y'].includes(key)) return;
-                        
+
                         for (let i = 0; i < maxSteps; i++) {
-                            if (Math.random() < 0.1) {
+                            if (Math.random() < 0.07) {
                                 this.pattern[key][i] = true;
                             }
                         }
@@ -2388,7 +2324,7 @@
                         
                         // 림샷/사이드스틱 (랜덤)
                         [2, 10].forEach(i => {
-                            if (Math.random() > 0.4) this.pattern['T'][i] = true;
+                            if (Math.random() > 0.4) this.pattern['H'][i] = true;
                         });
                         
                         // 추가 레게 요소
@@ -2890,7 +2826,16 @@
                 });
                 document.getElementById(mode === '24' ? 'grid24Btn' : 'grid16Btn').classList.add('active');
             }
-            
+
+            setDrumKit(kit) {
+                this.kit = kit;
+                document.querySelectorAll('.kit-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.kit === kit);
+                });
+                const names = { acoustic: '어쿠스틱', tr808: '808 클래식', electro: '일렉트로' };
+                this.updateStatus(`드럼 킷: ${names[kit] || kit} 사운드로 전환되었습니다`);
+            }
+
             async startCustomRecording(key, name) {
                 if (!this.hasPermission) {
                     await this.requestMicrophonePermission();
@@ -3173,6 +3118,10 @@
 
         function setGridMode(mode) {
             drumMachine.setGridMode(mode);
+        }
+
+        function setDrumKit(kit) {
+            drumMachine.setDrumKit(kit);
         }
     </script>
 </body>
