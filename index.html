@@ -723,6 +723,14 @@
             border-left: 3px solid var(--sound-color);
             white-space: nowrap;
             overflow: hidden;
+            cursor: pointer;
+            transition: background 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .sound-label:hover {
+            background: rgba(255, 255, 255, 0.07);
         }
 
         .sound-label .key-chip {
@@ -738,11 +746,60 @@
         }
 
         .sound-label .label-name {
+            flex: 1;
             font-size: 12px;
             font-weight: 500;
             color: var(--text-mid);
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .sound-label .mute-ic {
+            width: 15px;
+            height: 15px;
+            flex: none;
+            color: var(--text-dim);
+            transition: color 0.15s ease;
+        }
+
+        .sound-label:hover .mute-ic {
+            color: var(--sound-color);
+        }
+
+        .sound-label .mute-ic.ic-mute {
+            display: none;
+        }
+
+        /* 뮤트된 행: 라벨은 흐리게 + 빨간 표시, 셀은 채도 낮춤 */
+        .sound-label.muted {
+            border-left-color: var(--rose);
+            background: rgba(251, 113, 133, 0.08);
+        }
+
+        .sound-label.muted .label-name,
+        .sound-label.muted .key-chip {
+            color: var(--text-dim);
+        }
+
+        .sound-label.muted .ic-vol {
+            display: none;
+        }
+
+        .sound-label.muted .mute-ic.ic-mute {
+            display: inline-block;
+            color: var(--rose);
+        }
+
+        .beat-cell.row-muted {
+            opacity: 0.32;
+            filter: saturate(0.4);
+        }
+
+        @media (max-width: 768px) {
+            .sound-label .mute-ic {
+                width: 13px;
+                height: 13px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1200,6 +1257,8 @@
         <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h8.5M18 7h2M4 12h3M12 12h8M4 17h11.5M20.5 17H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15.2" cy="7" r="2.1" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9.3" cy="12" r="2.1" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.9" cy="17" r="2.1" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
         <symbol id="i-metro" viewBox="0 0 24 24"><path d="M9.2 3.5h5.6l3.6 14.8a1.5 1.5 0 0 1-1.46 1.86H7.06a1.5 1.5 0 0 1-1.46-1.86L9.2 3.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 13.8 17.2 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="14.3" r="1.7" fill="currentColor"/></symbol>
         <symbol id="i-keys" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6.2 9.8h.01M10.1 9.8h.01M14 9.8h.01M17.9 9.8h.01M6.2 14.2h.01M17.9 14.2h.01M9.5 14.2h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5H4z" fill="currentColor"/><path d="M16 9.5l5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
         <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v15.5h16.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14.5l3.2-4.2 3 2.4 4.4-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
         <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-3.7 10.7c.7.6 1.2 1.4 1.2 2.3h5c0-.9.5-1.7 1.2-2.3A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 19.5h4M10.7 22h2.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     </svg>
@@ -1378,6 +1437,7 @@
                 this.gridMode = '16'; // '16' or '24'
                 this.kit = 'acoustic'; // 'acoustic' | 'tr808' | 'electro'
                 this.openHatEnvs = null;
+                this.mutedSounds = new Set(); // 뮤트된 악기 키 모음
 
                 this.initializeAudio();
                 this.createNormalDrumSounds();
@@ -1869,16 +1929,22 @@
                         : null;
                     rowIndex++;
 
+                    const isMuted = this.mutedSounds.has(key);
                     const label = document.createElement('div');
-                    label.className = `sound-label ${soundClass}`;
-                    label.innerHTML = `<span class="key-chip">${key}</span><span class="label-name">${sound.name}</span>`;
+                    label.className = `sound-label ${soundClass}` + (isMuted ? ' muted' : '');
+                    label.dataset.sound = key;
+                    label.title = '클릭하여 뮤트/해제';
+                    label.innerHTML = `<span class="key-chip">${key}</span><span class="label-name">${sound.name}</span>` +
+                        `<svg class="icon mute-ic ic-vol"><use href="#i-vol"/></svg>` +
+                        `<svg class="icon mute-ic ic-mute"><use href="#i-mute"/></svg>`;
                     if (customColor) label.style.setProperty('--sound-color', customColor);
+                    label.onclick = () => this.toggleMute(key);
                     grid.appendChild(label);
 
                     for (let i = 0; i < maxSteps; i++) {
                         const cell = document.createElement('div');
                         const groupAlt = Math.floor(i / groupSize) % 2 === 1;
-                        cell.className = `beat-cell ${soundClass}` + (groupAlt ? ' g-alt' : '');
+                        cell.className = `beat-cell ${soundClass}` + (groupAlt ? ' g-alt' : '') + (isMuted ? ' row-muted' : '');
                         cell.dataset.sound = key;
                         cell.dataset.beat = i;
                         cell.onclick = () => this.toggleBeat(key, i);
@@ -1948,6 +2014,32 @@
                 this.pattern[sound][beat] = !this.pattern[sound][beat];
                 this.updateBeatGrid();
                 this.updatePatternDisplay();
+            }
+
+            // 악기(행) 뮤트 토글: 시퀀서 재생 시 해당 악기 소리를 건너뛴다
+            toggleMute(key) {
+                if (this.mutedSounds.has(key)) {
+                    this.mutedSounds.delete(key);
+                } else {
+                    this.mutedSounds.add(key);
+                }
+                this.applyMuteState();
+
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const sound = sounds.get(key);
+                const name = sound ? sound.name : key;
+                const muted = this.mutedSounds.has(key);
+                this.updateStatus(`${name} ${muted ? '🔇 뮤트됨' : '🔊 뮤트 해제'}`);
+            }
+
+            // 뮤트 상태를 라벨/셀 클래스에 반영 (그리드 재생성 없이 갱신)
+            applyMuteState() {
+                document.querySelectorAll('#beatGrid .sound-label').forEach(label => {
+                    label.classList.toggle('muted', this.mutedSounds.has(label.dataset.sound));
+                });
+                document.querySelectorAll('#beatGrid .beat-cell').forEach(cell => {
+                    cell.classList.toggle('row-muted', this.mutedSounds.has(cell.dataset.sound));
+                });
             }
 
             playSound(key) {
@@ -2418,7 +2510,7 @@
                     const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                     
                     sounds.forEach((sound, key) => {
-                        if (this.pattern[key] && this.pattern[key][this.currentBeat]) {
+                        if (this.pattern[key] && this.pattern[key][this.currentBeat] && !this.mutedSounds.has(key)) {
                             this.playSound(key);
                         }
                     });
