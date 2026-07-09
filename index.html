@@ -212,6 +212,27 @@
             color: var(--cyan);
         }
 
+        @media (max-width: 768px) {
+            .mode-selector {
+                gap: 8px;
+                margin-bottom: 14px;
+                flex-wrap: nowrap;
+            }
+
+            .mode-btn {
+                flex: 1 1 0;
+                min-width: 0;
+                padding: 10px 6px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+
+            .mode-btn .icon {
+                width: 14px;
+                height: 14px;
+            }
+        }
+
         /* ───────── 버튼 시스템 ───────── */
         button {
             display: inline-flex;
@@ -915,6 +936,17 @@
         .beat-cell.active.playing {
             filter: brightness(1.35);
             animation: cellPulse 0.25s ease;
+        }
+
+        /* 모바일: 셀을 가로로 넓고 세로로 낮게(정사각형 해제) → 시퀀서 세로 공간 절약.
+           (기본 .beat-cell 규칙보다 뒤에 두어 aspect-ratio를 확실히 덮어씀) */
+        @media (max-width: 768px) {
+            .beat-cell {
+                aspect-ratio: auto;
+                height: 30px;
+                min-height: 0;
+                border-radius: 6px;
+            }
         }
 
         @keyframes cellPulse {
