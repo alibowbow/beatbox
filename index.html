@@ -1104,7 +1104,9 @@
             overflow: hidden;
             transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             user-select: none;
+            -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation; /* 탭 지연/더블탭 확대 제거 → 손가락 접촉 즉시 발음, 동시 멀티터치 지원 */
         }
 
         .pad::before {
@@ -2190,8 +2192,18 @@
                         <span class="pad-name">${sound.name}</span>
                         <span class="pad-tag">SYNTH</span>
                     `;
-                    item.onclick = () => this.playSound(key);
+                    this.attachPadTrigger(item, key);
                     grid.appendChild(item);
+                });
+            }
+
+            // 패드에 pointerdown 기반 트리거 연결: 손가락마다 독립 pointer로 즉시 발음돼
+            // 여러 패드를 동시에 눌러도 각각 소리가 난다 (click은 release·순차라 멀티터치에 부적합)
+            attachPadTrigger(el, key, { guardButtons = false } = {}) {
+                el.addEventListener('pointerdown', (e) => {
+                    if (guardButtons && e.target.closest('button')) return; // 녹음 버튼 등은 제외
+                    if (e.pointerType === 'mouse' && e.button !== 0) return; // 마우스는 좌클릭만
+                    this.playSound(key);
                 });
             }
 
@@ -2905,11 +2917,7 @@
                         ${this.isRecording && this.recordingSound === key ?
                             `<button class="stop-btn" onclick="stopRecording()"><svg class="icon"><use href="#i-stop"/></svg> 중지</button>` : ''}
                     `;
-                    item.onclick = (e) => {
-                        if (!e.target.closest('button')) {
-                            this.playSound(key);
-                        }
-                    };
+                    this.attachPadTrigger(item, key, { guardButtons: true });
                     grid.appendChild(item);
                 }
             }
