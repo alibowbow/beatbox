@@ -609,6 +609,7 @@
         }
 
         .beat-grid {
+            position: relative;
             display: grid;
             gap: 3px;
             background: rgba(3, 6, 14, 0.62);
@@ -619,6 +620,8 @@
             overflow-y: hidden;
             max-width: 100%;
             user-select: none;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
 
         .beat-grid::-webkit-scrollbar {
@@ -637,16 +640,94 @@
 
         @media (max-width: 768px) {
             .beat-grid {
-                gap: 2px;
-                padding: 10px;
+                gap: 3px;
+                padding: 10px 10px 12px;
+            }
+
+            /* 모바일: 상단 컨트롤을 촘촘하게 눌러 시퀀서가 더 빨리 보이도록 */
+            .control-section {
+                padding: 13px 11px;
+            }
+
+            .control-section h3 {
+                font-size: 13.5px;
+                margin-bottom: 12px;
+                padding-bottom: 10px;
+            }
+
+            .transport {
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+
+            .play-btn {
+                flex: 1 1 100%;
+                padding: 11px 18px;
+            }
+
+            .generate-btn,
+            .fill-btn {
+                flex: 1 1 0;
+            }
+
+            .button-row {
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+
+            .group-label {
+                margin: 2px 0 6px;
+            }
+
+            .genre-selector {
+                gap: 6px;
+                margin-bottom: 10px;
+            }
+
+            .genre-btn {
+                padding: 7px 11px;
+                font-size: 12px;
+            }
+
+            /* 템포/스윙 슬라이더를 2열로 나란히 배치해 세로 공간 절약 */
+            .slider-rack {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin: 10px 0 10px;
+            }
+
+            .slider-group {
+                padding: 10px 11px;
+            }
+
+            .slider-head {
+                margin-bottom: 9px;
+            }
+
+            .slider-head label {
+                font-size: 11.5px;
+                gap: 5px;
+            }
+
+            .slider-value {
+                font-size: 14px;
+            }
+
+            .grid-hint {
+                font-size: 11px;
+                margin-bottom: 8px;
             }
         }
 
         .grid-corner {
+            position: sticky;
+            left: 0;
+            z-index: 4;
             display: flex;
             align-items: flex-end;
             justify-content: flex-end;
             padding: 0 10px 4px 0;
+            background: #0d1226;
             font-family: var(--font-disp);
             font-size: 8.5px;
             font-weight: 700;
@@ -714,13 +795,17 @@
         /* 사운드 라벨 */
         .sound-label {
             --sound-color: var(--cyan);
+            position: sticky;
+            left: 0;
+            z-index: 3;
             display: flex;
             align-items: center;
             gap: 8px;
             padding: 0 8px 0 10px;
-            background: rgba(255, 255, 255, 0.03);
+            background: #0d1226;
             border-radius: 8px;
             border-left: 3px solid var(--sound-color);
+            box-shadow: 6px 0 10px -6px rgba(0, 0, 0, 0.7);
             white-space: nowrap;
             overflow: hidden;
             cursor: pointer;
@@ -730,7 +815,7 @@
         }
 
         .sound-label:hover {
-            background: rgba(255, 255, 255, 0.07);
+            background: #161d36;
         }
 
         .sound-label .key-chip {
@@ -757,7 +842,7 @@
         /* 뮤트된 행: 라벨은 흐리게 + 빨간 표시, 셀은 채도 낮춤 */
         .sound-label.muted {
             border-left-color: var(--rose);
-            background: rgba(251, 113, 133, 0.08);
+            background: #1c1119;
         }
 
         .sound-label.muted .key-chip {
@@ -1254,7 +1339,7 @@
 
                 <div class="transport">
                     <button class="play-btn" id="playBtn" onclick="togglePlayback()"><svg class="icon"><use href="#i-play"/></svg> 재생</button>
-                    <button class="generate-btn" onclick="generateBeat()"><svg class="icon"><use href="#i-dice"/></svg> 랜덤 비트</button>
+                    <button class="generate-btn" onclick="generateBeat()"><svg class="icon"><use href="#i-dice"/></svg> 새 비트 생성</button>
                     <button class="fill-btn" onclick="generateFillIn()"><svg class="icon"><use href="#i-bolt"/></svg> 필인 생성</button>
                 </div>
 
@@ -1373,7 +1458,7 @@
             </div>
             <div class="hint-row" style="margin-top: 6px;">
                 <span class="hint-item"><kbd>Space</kbd> 재생/정지</span>
-                <span class="hint-item"><kbd>Enter</kbd> 랜덤 생성</span>
+                <span class="hint-item"><kbd>Enter</kbd> 새 비트 생성</span>
                 <span class="hint-item"><kbd>Backspace</kbd> 초기화</span>
             </div>
         </div>
@@ -1416,6 +1501,24 @@
                 this.createBeatGrid();
                 this.updateDrumKitGrid();
                 this.setupKeyboardListeners();
+                this.setupResizeListener();
+            }
+
+            // 화면 회전/리사이즈로 모바일↔데스크톱이 바뀌면 그리드 셀 크기를 다시 계산
+            setupResizeListener() {
+                let wasMobile = window.innerWidth <= 768;
+                let timer = null;
+                window.addEventListener('resize', () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        const isMobile = window.innerWidth <= 768;
+                        if (isMobile !== wasMobile) {
+                            wasMobile = isMobile;
+                            this.createBeatGrid();
+                            this.updateBeatGrid();
+                        }
+                    }, 200);
+                });
             }
 
             async initializeAudio() {
@@ -1868,9 +1971,9 @@
                 const groupSize = this.gridMode === '24' ? 3 : 4;
                 const isMobile = window.innerWidth <= 768;
 
-                // 그리드 컬럼 설정 업데이트
+                // 그리드 컬럼 설정 업데이트 (모바일은 셀을 키워 탭하기 쉽게, 스크롤로 열람)
                 grid.style.gridTemplateColumns = isMobile
-                    ? `88px repeat(${maxSteps}, 38px)`
+                    ? `84px repeat(${maxSteps}, 42px)`
                     : `132px repeat(${maxSteps}, minmax(30px, 1fr))`;
 
                 // 헤더 행 (스텝 넘버링: 다운비트는 박자 번호, 나머지는 스텝 인덱스)
@@ -1953,6 +2056,28 @@
                         this.isPlaying && parseInt(header.dataset.step) === this.currentBeat
                     );
                 });
+            }
+
+            // 재생 중 현재 스텝이 화면 밖으로 나가면 그리드를 가로로 자동 스크롤 (오토스크롤)
+            autoScrollToStep() {
+                const grid = document.getElementById('beatGrid');
+                if (!grid || grid.scrollWidth <= grid.clientWidth + 4) return;
+                const header = grid.querySelector(`.step-num[data-step="${this.currentBeat}"]`);
+                if (!header) return;
+
+                const cellLeft = header.offsetLeft;
+                const cellRight = cellLeft + header.offsetWidth;
+                const viewLeft = grid.scrollLeft;
+                const viewRight = viewLeft + grid.clientWidth;
+                const margin = header.offsetWidth * 1.5;
+
+                // 스텝이 첫 칸으로 되돌아오면 처음으로 리셋, 아니면 가장자리 근처에서 가운데로
+                if (this.currentBeat === 0) {
+                    grid.scrollTo({ left: 0, behavior: 'smooth' });
+                } else if (cellLeft < viewLeft + margin || cellRight > viewRight - margin) {
+                    const target = cellLeft - grid.clientWidth / 2 + header.offsetWidth / 2;
+                    grid.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+                }
             }
 
             updateDrumKitGrid() {
@@ -2483,8 +2608,9 @@
                             this.playSound(key);
                         }
                     });
-                    
+
                     this.updateBeatGrid();
+                    this.autoScrollToStep();
                     this.currentBeat = (this.currentBeat + 1) % maxSteps;
                 };
                 
