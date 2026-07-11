@@ -455,6 +455,91 @@
             box-shadow: 0 0 14px rgba(167, 139, 250, 0.25);
         }
 
+        /* ───────── 유클리드 생성기 패널 ───────── */
+        .euclid-panel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: rgba(3, 6, 14, 0.45);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+        }
+
+        .euclid-select {
+            flex: 1 1 130px;
+            min-width: 110px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: var(--text-hi);
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .euclid-select:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.18);
+        }
+
+        .euclid-select option {
+            background: #0b1020;
+            color: var(--text-hi);
+        }
+
+        .euclid-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1 1 130px;
+            min-width: 120px;
+        }
+
+        .euclid-lbl {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-mid);
+        }
+
+        .euclid-lbl b {
+            font-family: var(--font-disp);
+            color: var(--cyan);
+            margin-left: 3px;
+        }
+
+        .euclid-field input[type="range"] {
+            height: 6px;
+        }
+
+        .euclid-apply {
+            flex: none;
+            border-color: rgba(34, 211, 238, 0.45);
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.24), rgba(99, 102, 241, 0.22));
+            color: var(--text-hi);
+        }
+
+        .euclid-apply:hover {
+            border-color: rgba(34, 211, 238, 0.75);
+            box-shadow: 0 6px 18px rgba(34, 211, 238, 0.25);
+        }
+
+        @media (max-width: 768px) {
+            .euclid-panel {
+                gap: 9px;
+                padding: 10px 11px;
+            }
+
+            .euclid-apply {
+                flex: 1 1 100%;
+            }
+        }
+
         /* ───────── 레이아웃 ───────── */
         .desktop-layout {
             display: grid;
@@ -979,6 +1064,37 @@
             animation: cellPulse 0.25s ease;
         }
 
+        /* 확률 스텝: 점선 테두리 + 살짝 흐린 채움 + 코너 % 배지 */
+        .beat-cell.active.prob {
+            border-style: dashed;
+            border-color: rgba(255, 255, 255, 0.85);
+        }
+
+        .beat-cell.active.prob::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.22) 0 3px, transparent 3px 7px);
+            pointer-events: none;
+        }
+
+        .prob-badge {
+            position: absolute;
+            top: 1px;
+            right: 2px;
+            z-index: 1;
+            font-family: var(--font-disp);
+            font-size: 8px;
+            font-weight: 700;
+            line-height: 1;
+            color: #0b1020;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 4px;
+            padding: 1px 2px;
+            pointer-events: none;
+        }
+
         /* 모바일: 셀을 가로로 넓고 세로로 낮게(정사각형 해제) → 시퀀서 세로 공간 절약.
            (기본 .beat-cell 규칙보다 뒤에 두어 aspect-ratio를 확실히 덮어씀) */
         @media (max-width: 768px) {
@@ -1438,6 +1554,20 @@
                     <button class="genre-btn" data-genre="metal" onclick="loadGenrePattern('metal')">🤘 메탈</button>
                 </div>
 
+                <div class="group-label">Euclidean Generator</div>
+                <div class="euclid-panel">
+                    <select id="euclidInst" class="euclid-select" title="유클리드 리듬을 채울 악기"></select>
+                    <div class="euclid-field">
+                        <span class="euclid-lbl">펄스 <b id="euclidPulsesVal">4</b></span>
+                        <input type="range" id="euclidPulses" min="0" max="16" value="4" style="--val: 25%" oninput="updateEuclidUI()">
+                    </div>
+                    <div class="euclid-field">
+                        <span class="euclid-lbl">회전 <b id="euclidRotateVal">0</b></span>
+                        <input type="range" id="euclidRotate" min="0" max="15" value="0" style="--val: 0%" oninput="updateEuclidUI()">
+                    </div>
+                    <button class="euclid-apply" onclick="applyEuclid()"><svg class="icon"><use href="#i-grid"/></svg> 적용</button>
+                </div>
+
                 <div class="button-row">
                     <button onclick="exportPattern()"><svg class="icon"><use href="#i-save"/></svg> 저장</button>
                     <button onclick="importPattern()"><svg class="icon"><use href="#i-folder"/></svg> 불러오기</button>
@@ -1464,7 +1594,7 @@
 
                 <div class="grid-hint">
                     <svg class="icon"><use href="#i-bulb"/></svg>
-                    <span class="hint-text">그리드를 터치/클릭하여 비트를 추가하거나 제거할 수 있습니다</span>
+                    <span class="hint-text">클릭: 비트 켜기/끄기 · 우클릭/길게누르기: 발음 확률(100→75→50→25%)</span>
                     <button class="autoscroll-toggle" id="autoScrollToggle" onclick="toggleAutoScroll()" aria-pressed="false" title="재생 중 현재 스텝을 자동으로 따라가도록 스크롤">
                         <svg class="icon"><use href="#i-autoscroll"/></svg>
                         <span>오토스크롤 <b>OFF</b></span>
@@ -1574,6 +1704,7 @@
                 this.kit = 'acoustic'; // 'acoustic' | 'tr808' | 'electro'
                 this.openHatEnvs = null;
                 this.mutedSounds = new Set(); // 뮤트된 악기 키 모음
+                this.probability = {}; // 스텝별 발음 확률 { key: { stepIdx: 0~100 } } · 없으면 100%
                 this.autoScroll = false; // 재생 중 플레이헤드 따라 자동 스크롤 (기본 꺼짐)
 
                 this.initializeAudio();
@@ -1645,6 +1776,7 @@
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 this.pattern = {};
+                this.probability = {};
                 sounds.forEach((sound, key) => {
                     this.pattern[key] = Array(maxSteps).fill(false);
                 });
@@ -2101,9 +2233,34 @@
                         cell.dataset.sound = key;
                         cell.dataset.beat = i;
                         cell.onclick = () => this.toggleBeat(key, i);
+                        cell.oncontextmenu = (e) => { e.preventDefault(); this.cycleStepProbability(key, i); };
+                        this.attachLongPress(cell, () => this.cycleStepProbability(key, i));
                         if (customColor) cell.style.setProperty('--sound-color', customColor);
                         grid.appendChild(cell);
                     }
+                });
+
+                this.populateEuclidInstruments();
+                this.updateEuclidUI();
+            }
+
+            // 롱프레스(모바일): 셀을 길게 누르면 콜백 실행, 이후 탭(토글)은 억제
+            attachLongPress(el, cb) {
+                let timer = null, fired = false;
+                el.addEventListener('touchstart', () => {
+                    fired = false;
+                    timer = setTimeout(() => {
+                        fired = true;
+                        cb();
+                        if (navigator.vibrate) navigator.vibrate(15);
+                    }, 450);
+                }, { passive: true });
+                const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+                el.addEventListener('touchmove', cancel, { passive: true });
+                el.addEventListener('touchcancel', cancel);
+                el.addEventListener('touchend', (e) => {
+                    cancel();
+                    if (fired) e.preventDefault(); // 롱프레스 후 합성 click(토글) 방지
                 });
             }
 
@@ -2115,16 +2272,30 @@
                     for (let i = 0; i < maxSteps; i++) {
                         const cell = document.querySelector(`[data-sound="${key}"][data-beat="${i}"]`);
                         if (cell) {
-                            if (this.pattern[key] && this.pattern[key][i]) {
-                                cell.classList.add('active');
-                            } else {
-                                cell.classList.remove('active');
-                            }
-                            
+                            const isActive = !!(this.pattern[key] && this.pattern[key][i]);
+                            cell.classList.toggle('active', isActive);
+
                             if (this.isPlaying && i === this.currentBeat) {
                                 cell.classList.add('playing');
                             } else {
                                 cell.classList.remove('playing');
+                            }
+
+                            // 스텝 확률 표시 (100% 미만 활성 셀에 점선 테두리 + 숫자 배지)
+                            const prob = this.getProb(key, i);
+                            if (isActive && prob < 100) {
+                                cell.classList.add('prob');
+                                let badge = cell.querySelector('.prob-badge');
+                                if (!badge) {
+                                    badge = document.createElement('span');
+                                    badge.className = 'prob-badge';
+                                    cell.appendChild(badge);
+                                }
+                                badge.textContent = prob;
+                            } else {
+                                cell.classList.remove('prob');
+                                const badge = cell.querySelector('.prob-badge');
+                                if (badge) badge.remove();
                             }
                         }
                     }
@@ -2213,8 +2384,111 @@
                     this.pattern[sound] = Array(maxSteps).fill(false);
                 }
                 this.pattern[sound][beat] = !this.pattern[sound][beat];
+                if (!this.pattern[sound][beat]) this.clearProb(sound, beat); // 끄면 확률도 초기화
                 this.updateBeatGrid();
                 this.updatePatternDisplay();
+            }
+
+            // ───────── 스텝 확률 (Probability) ─────────
+            getProb(key, i) {
+                return (this.probability[key] && this.probability[key][i] != null)
+                    ? this.probability[key][i] : 100;
+            }
+
+            setProb(key, i, v) {
+                if (!this.probability[key]) this.probability[key] = {};
+                this.probability[key][i] = v;
+            }
+
+            clearProb(key, i) {
+                if (this.probability[key]) delete this.probability[key][i];
+            }
+
+            // 우클릭/롱프레스: 스텝 확률을 100→75→50→25→100 순으로 순환 (꺼진 칸은 먼저 켬)
+            cycleStepProbability(sound, beat) {
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                if (!this.pattern[sound]) this.pattern[sound] = Array(maxSteps).fill(false);
+
+                if (!this.pattern[sound][beat]) {
+                    this.pattern[sound][beat] = true;
+                    this.setProb(sound, beat, 100);
+                } else {
+                    const levels = [100, 75, 50, 25];
+                    const idx = levels.indexOf(this.getProb(sound, beat));
+                    this.setProb(sound, beat, levels[(idx + 1) % levels.length]);
+                }
+                this.updateBeatGrid();
+                this.updatePatternDisplay();
+            }
+
+            // ───────── 유클리드 리듬 (Euclidean) ─────────
+            // Bresenham 방식으로 pulses개 히트를 steps칸에 최대한 균등 분배, 첫 히트를 스텝0으로 정렬
+            euclideanPattern(pulses, steps) {
+                const p = Math.max(0, Math.min(pulses, steps));
+                const arr = Array(steps).fill(false);
+                if (p === 0 || steps === 0) return arr;
+                let bucket = 0;
+                for (let i = 0; i < steps; i++) {
+                    bucket += p;
+                    if (bucket >= steps) { bucket -= steps; arr[i] = true; }
+                }
+                const first = arr.indexOf(true);
+                return first > 0 ? arr.slice(first).concat(arr.slice(0, first)) : arr;
+            }
+
+            rotatePattern(arr, r) {
+                const n = arr.length;
+                if (!n) return arr;
+                r = ((r % n) + n) % n;
+                return arr.slice(n - r).concat(arr.slice(0, n - r)); // 오른쪽으로 r칸 회전
+            }
+
+            populateEuclidInstruments() {
+                const sel = document.getElementById('euclidInst');
+                if (!sel) return;
+                const prev = sel.value;
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                sel.innerHTML = '';
+                sounds.forEach((sound, key) => {
+                    const opt = document.createElement('option');
+                    opt.value = key;
+                    opt.textContent = `${key} · ${sound.name}`;
+                    sel.appendChild(opt);
+                });
+                if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+            }
+
+            updateEuclidUI() {
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                const pulses = document.getElementById('euclidPulses');
+                const rotate = document.getElementById('euclidRotate');
+                if (!pulses || !rotate) return;
+                pulses.max = maxSteps;
+                rotate.max = maxSteps - 1;
+                if (+pulses.value > maxSteps) pulses.value = maxSteps;
+                if (+rotate.value > maxSteps - 1) rotate.value = maxSteps - 1;
+                document.getElementById('euclidPulsesVal').textContent = pulses.value;
+                document.getElementById('euclidRotateVal').textContent = rotate.value;
+                this.updateSliderFill('euclidPulses');
+                this.updateSliderFill('euclidRotate');
+            }
+
+            applyEuclid() {
+                const inst = document.getElementById('euclidInst').value;
+                if (!inst) return;
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                const pulses = parseInt(document.getElementById('euclidPulses').value);
+                const rot = parseInt(document.getElementById('euclidRotate').value);
+
+                this.pattern[inst] = this.rotatePattern(this.euclideanPattern(pulses, maxSteps), rot);
+                delete this.probability[inst]; // 새 리듬이니 이 행의 확률은 초기화
+                document.querySelectorAll('.genre-btn.active').forEach(btn => btn.classList.remove('active'));
+
+                this.updateBeatGrid();
+                this.updatePatternDisplay();
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const nm = (sounds.get(inst) || {}).name || inst;
+                this.updateStatus(`유클리드 적용: ${nm} — 펄스 ${pulses}/${maxSteps}, 회전 ${rot}`);
             }
 
             // 악기(행) 뮤트 토글: 시퀀서 재생 시 해당 악기 소리를 건너뛴다
@@ -2676,6 +2950,7 @@
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 this.pattern = {};
+                this.probability = {};
                 sounds.forEach((sound, key) => {
                     this.pattern[key] = Array(maxSteps).fill(false);
                 });
@@ -2712,7 +2987,10 @@
                     
                     sounds.forEach((sound, key) => {
                         if (this.pattern[key] && this.pattern[key][this.currentBeat] && !this.mutedSounds.has(key)) {
-                            this.playSound(key);
+                            const prob = this.getProb(key, this.currentBeat);
+                            if (prob >= 100 || Math.random() * 100 < prob) {
+                                this.playSound(key);
+                            }
                         }
                     });
 
@@ -3035,6 +3313,7 @@
                 const data = {
                     mode: this.mode,
                     pattern: this.pattern,
+                    probability: this.probability,
                     tempo: this.tempo,
                     swing: this.swing,
                     timestamp: new Date().toISOString()
@@ -3065,6 +3344,7 @@
                             }
                             
                             this.pattern = data.pattern || {};
+                            this.probability = data.probability || {};
                             this.tempo = data.tempo || 120;
                             this.swing = data.swing || 0;
                             
@@ -3416,6 +3696,14 @@
 
         function toggleAutoScroll() {
             drumMachine.toggleAutoScroll();
+        }
+
+        function applyEuclid() {
+            drumMachine.applyEuclid();
+        }
+
+        function updateEuclidUI() {
+            drumMachine.updateEuclidUI();
         }
     </script>
 </body>
