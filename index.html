@@ -540,6 +540,105 @@
             }
         }
 
+        /* ───────── 신스 레인 ───────── */
+        .synth-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .synth-toggle.active {
+            border-color: rgba(167, 139, 250, 0.6);
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.28), rgba(99, 102, 241, 0.24));
+            color: var(--text-hi);
+            box-shadow: 0 0 12px rgba(167, 139, 250, 0.25);
+        }
+
+        .synth-toggle.active .icon {
+            color: var(--violet);
+        }
+
+        .synth-ctl {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-dim);
+        }
+
+        .synth-ctl select {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 8px 10px;
+            color: var(--text-hi);
+            font-family: var(--font-body);
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .synth-ctl select:focus {
+            outline: none;
+            border-color: var(--violet);
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.18);
+        }
+
+        .synth-ctl select option {
+            background: #0b1020;
+            color: var(--text-hi);
+        }
+
+        /* 신스 그리드: 멜로디 보라 액센트 */
+        #synthGrid .synth-label {
+            --sound-color: var(--violet);
+        }
+
+        #synthGrid .synth-label .key-chip {
+            color: var(--violet);
+        }
+
+        #synthGrid .synth-cell {
+            --sound-color: #a78bfa;
+        }
+
+        #synthGrid .synth-cell.active {
+            background: linear-gradient(180deg, #c4b5fd, #7c3aed);
+            border-color: #a78bfa;
+            box-shadow: 0 0 12px rgba(167, 139, 250, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        #synthLane.lane-off .beat-grid {
+            opacity: 0.45;
+            filter: saturate(0.5);
+        }
+
+        #synthLane.lane-off .synth-toggle {
+            border-color: var(--line);
+            background: var(--surface);
+            color: var(--text-dim);
+            box-shadow: none;
+        }
+
+        @media (max-width: 768px) {
+            .synth-controls {
+                gap: 8px;
+            }
+
+            .synth-ctl {
+                flex: 1 1 44%;
+                justify-content: space-between;
+            }
+
+            .synth-ctl select {
+                flex: 1;
+                min-width: 0;
+            }
+        }
+
         /* ───────── 레이아웃 ───────── */
         .desktop-layout {
             display: grid;
@@ -1609,6 +1708,34 @@
             </div>
         </div>
 
+        <div class="control-section" id="synthLane" style="margin-bottom: 20px;">
+            <h3><svg class="icon"><use href="#i-music"/></svg> 베이스 · 멜로디 신스 <span class="sec-no">MODULE 05</span></h3>
+            <div class="synth-controls">
+                <button class="autoscroll-toggle synth-toggle active" id="synthToggle" onclick="toggleSynthLane()" aria-pressed="true" title="신스 레인 켜기/끄기">
+                    <svg class="icon"><use href="#i-music"/></svg>
+                    <span>신스 <b>ON</b></span>
+                </button>
+                <label class="synth-ctl">스케일
+                    <select id="synthScale" onchange="updateSynthConfig()"></select>
+                </label>
+                <label class="synth-ctl">키
+                    <select id="synthRoot" onchange="updateSynthConfig()"></select>
+                </label>
+                <label class="synth-ctl">옥타브
+                    <select id="synthOctave" onchange="updateSynthConfig()"></select>
+                </label>
+                <label class="synth-ctl">파형
+                    <select id="synthWave" onchange="updateSynthConfig()"></select>
+                </label>
+                <button class="danger-btn" onclick="clearSynth()"><svg class="icon"><use href="#i-trash"/></svg> 레인 초기화</button>
+            </div>
+            <div class="grid-hint">
+                <svg class="icon"><use href="#i-bulb"/></svg>
+                <span class="hint-text">칸을 눌러 음을 배치하세요 · 한 스텝엔 한 음(모노) · 스케일에 맞춰 항상 어울립니다</span>
+            </div>
+            <div class="beat-grid" id="synthGrid"></div>
+        </div>
+
         <div class="control-section custom-mode-only" style="margin-bottom: 20px;">
             <h3><svg class="icon"><use href="#i-mic"/></svg> 커스텀 사운드 <span class="sec-no">MODULE 04</span></h3>
             <div class="button-row">
@@ -1707,11 +1834,22 @@
                 this.probability = {}; // 스텝별 발음 확률 { key: { stepIdx: 0~100 } } · 없으면 100%
                 this.autoScroll = false; // 재생 중 플레이헤드 따라 자동 스크롤 (기본 꺼짐)
 
+                // 베이스/멜로디 신스 레인 (그루브박스)
+                this.bassEnabled = true;
+                this.bassScale = 'minorPent';
+                this.bassRootNote = 0;   // 0=C … 11=B
+                this.bassOctave = 2;     // 과학적 옥타브 (C2 = MIDI 36)
+                this.bassWave = 'sawtooth';
+                this.bassVolume = 0.9;
+                this.bassPattern = [];   // step → synthRows 인덱스 | null
+                this.synthRows = [];     // 오름차순 MIDI 노트 배열
+
                 this.initializeAudio();
                 this.createNormalDrumSounds();
                 this.initializePattern();
                 this.createBeatGrid();
                 this.updateDrumKitGrid();
+                this.initSynthLane();
                 this.setupKeyboardListeners();
                 this.setupResizeListener();
             }
@@ -1728,6 +1866,8 @@
                             wasMobile = isMobile;
                             this.createBeatGrid();
                             this.updateBeatGrid();
+                            this.createSynthGrid();
+                            this.updateSynthGrid();
                         }
                     }, 200);
                 });
@@ -2491,6 +2631,248 @@
                 this.updateStatus(`유클리드 적용: ${nm} — 펄스 ${pulses}/${maxSteps}, 회전 ${rot}`);
             }
 
+            // ═════════ 베이스/멜로디 신스 레인 ═════════
+            static get SCALES() {
+                return {
+                    minorPent: { name: '마이너 펜타토닉', steps: [0, 3, 5, 7, 10] },
+                    majorPent: { name: '메이저 펜타토닉', steps: [0, 2, 4, 7, 9] },
+                    naturalMinor: { name: '내추럴 마이너', steps: [0, 2, 3, 5, 7, 8, 10] },
+                    dorian: { name: '도리안', steps: [0, 2, 3, 5, 7, 9, 10] },
+                    major: { name: '메이저', steps: [0, 2, 4, 5, 7, 9, 11] },
+                };
+            }
+
+            static get NOTE_NAMES() {
+                return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            }
+
+            midiToName(midi) {
+                const names = DrumMachine.NOTE_NAMES;
+                return names[midi % 12] + (Math.floor(midi / 12) - 1);
+            }
+
+            initSynthLane() {
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                if (this.bassPattern.length !== maxSteps) this.bassPattern = Array(maxSteps).fill(null);
+                this.populateSynthSelectors();
+                this.buildSynthScale();
+                this.createSynthGrid();
+                this.syncSynthToggle();
+            }
+
+            buildSynthScale() {
+                const scale = (DrumMachine.SCALES[this.bassScale] || DrumMachine.SCALES.minorPent).steps;
+                const root = (this.bassOctave + 1) * 12 + this.bassRootNote; // MIDI
+                const rows = [];
+                const octaves = 2;
+                for (let o = 0; o < octaves; o++) {
+                    for (const off of scale) rows.push(root + o * 12 + off);
+                }
+                rows.push(root + octaves * 12); // 맨 위 옥타브 루트
+                this.synthRows = rows; // 오름차순
+            }
+
+            createSynthGrid() {
+                const grid = document.getElementById('synthGrid');
+                if (!grid) return;
+                grid.innerHTML = '';
+
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                const groupSize = this.gridMode === '24' ? 3 : 4;
+                const isMobile = window.innerWidth <= 768;
+                grid.style.gridTemplateColumns = isMobile
+                    ? `84px repeat(${maxSteps}, 42px)`
+                    : `132px repeat(${maxSteps}, minmax(30px, 1fr))`;
+
+                // 헤더
+                const corner = document.createElement('div');
+                corner.className = 'grid-corner';
+                corner.textContent = 'NOTE';
+                grid.appendChild(corner);
+                for (let i = 0; i < maxSteps; i++) {
+                    const header = document.createElement('div');
+                    const isDownbeat = i % groupSize === 0;
+                    header.className = 'step-num' + (isDownbeat ? ' downbeat' : '');
+                    header.dataset.step = i;
+                    const subNo = `<span class="sub-no">${String(i + 1).padStart(2, '0')}</span>`;
+                    header.innerHTML = isDownbeat
+                        ? `<span class="beat-no">${Math.floor(i / groupSize) + 1}</span>${subNo}`
+                        : subNo;
+                    grid.appendChild(header);
+                }
+
+                // 위(고음)→아래(저음) 순서로 행 렌더
+                for (let r = this.synthRows.length - 1; r >= 0; r--) {
+                    const midi = this.synthRows[r];
+                    const label = document.createElement('div');
+                    label.className = 'sound-label synth-label';
+                    label.innerHTML = `<span class="key-chip">♪</span><span class="label-name">${this.midiToName(midi)}</span>`;
+                    grid.appendChild(label);
+
+                    for (let i = 0; i < maxSteps; i++) {
+                        const cell = document.createElement('div');
+                        const groupAlt = Math.floor(i / groupSize) % 2 === 1;
+                        cell.className = 'beat-cell synth-cell' + (groupAlt ? ' g-alt' : '');
+                        cell.dataset.row = r;
+                        cell.dataset.beat = i;
+                        cell.onclick = () => this.setSynthNote(i, r);
+                        grid.appendChild(cell);
+                    }
+                }
+                this.updateSynthGrid();
+            }
+
+            setSynthNote(step, row) {
+                if (this.bassPattern[step] === row) {
+                    this.bassPattern[step] = null; // 같은 칸 다시 누르면 해제
+                } else {
+                    this.bassPattern[step] = row; // 모노포닉: 컬럼당 한 음
+                    if (this.audioContext) this.playSynthNote(this.synthRows[row]);
+                }
+                this.updateSynthGrid();
+            }
+
+            updateSynthGrid() {
+                const grid = document.getElementById('synthGrid');
+                if (!grid) return;
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                grid.querySelectorAll('.synth-cell').forEach(cell => {
+                    const r = parseInt(cell.dataset.row);
+                    const i = parseInt(cell.dataset.beat);
+                    cell.classList.toggle('active', this.bassPattern[i] === r);
+                    cell.classList.toggle('playing', this.isPlaying && i === this.currentBeat);
+                });
+                grid.querySelectorAll('.step-num').forEach(h => {
+                    h.classList.toggle('current', this.isPlaying && parseInt(h.dataset.step) === this.currentBeat);
+                });
+            }
+
+            // 신스 보이스: 오실레이터 + 서브 + 필터 엔벨로프(플럭 베이스)
+            playSynthNote(midi) {
+                if (!this.audioContext || !this.masterGain || midi == null) return;
+                const ctx = this.audioContext;
+                const t = ctx.currentTime;
+                const freq = 440 * Math.pow(2, (midi - 69) / 12);
+                const dur = 0.38;
+                const vol = 0.5 * this.bassVolume;
+
+                const osc = ctx.createOscillator();
+                osc.type = this.bassWave;
+                osc.frequency.value = freq;
+
+                const sub = ctx.createOscillator();
+                sub.type = 'sine';
+                sub.frequency.value = freq / 2;
+
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(Math.min(freq * 7, 7000), t);
+                filter.frequency.exponentialRampToValueAtTime(Math.max(freq * 1.4, 180), t + 0.28);
+                filter.Q.value = 7;
+
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(vol, t + 0.008);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+                const subGain = ctx.createGain();
+                subGain.gain.setValueAtTime(0, t);
+                subGain.gain.linearRampToValueAtTime(0.4 * this.bassVolume, t + 0.01);
+                subGain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.masterGain);
+                sub.connect(subGain);
+                subGain.connect(this.masterGain);
+
+                osc.start(t); osc.stop(t + dur + 0.05);
+                sub.start(t); sub.stop(t + dur + 0.05);
+            }
+
+            populateSynthSelectors() {
+                const scaleSel = document.getElementById('synthScale');
+                if (scaleSel && !scaleSel.dataset.filled) {
+                    Object.entries(DrumMachine.SCALES).forEach(([k, v]) => {
+                        const o = document.createElement('option');
+                        o.value = k; o.textContent = v.name;
+                        scaleSel.appendChild(o);
+                    });
+                    scaleSel.dataset.filled = '1';
+                }
+                if (scaleSel) scaleSel.value = this.bassScale;
+
+                const rootSel = document.getElementById('synthRoot');
+                if (rootSel && !rootSel.dataset.filled) {
+                    DrumMachine.NOTE_NAMES.forEach((n, i) => {
+                        const o = document.createElement('option');
+                        o.value = i; o.textContent = n;
+                        rootSel.appendChild(o);
+                    });
+                    rootSel.dataset.filled = '1';
+                }
+                if (rootSel) rootSel.value = this.bassRootNote;
+
+                const octSel = document.getElementById('synthOctave');
+                if (octSel && !octSel.dataset.filled) {
+                    [1, 2, 3, 4].forEach(oc => {
+                        const o = document.createElement('option');
+                        o.value = oc; o.textContent = 'Oct ' + oc;
+                        octSel.appendChild(o);
+                    });
+                    octSel.dataset.filled = '1';
+                }
+                if (octSel) octSel.value = this.bassOctave;
+
+                const waveSel = document.getElementById('synthWave');
+                if (waveSel && !waveSel.dataset.filled) {
+                    [['sawtooth', '톱니 (베이스)'], ['square', '사각 (리드)'], ['triangle', '삼각 (소프트)'], ['sine', '사인 (순음)']].forEach(([v, n]) => {
+                        const o = document.createElement('option');
+                        o.value = v; o.textContent = n;
+                        waveSel.appendChild(o);
+                    });
+                    waveSel.dataset.filled = '1';
+                }
+                if (waveSel) waveSel.value = this.bassWave;
+            }
+
+            updateSynthConfig() {
+                this.bassScale = document.getElementById('synthScale').value;
+                this.bassRootNote = parseInt(document.getElementById('synthRoot').value);
+                this.bassOctave = parseInt(document.getElementById('synthOctave').value);
+                this.bassWave = document.getElementById('synthWave').value;
+                this.buildSynthScale();
+                // 새 스케일 행 수를 벗어난 기존 노트는 정리
+                this.bassPattern = this.bassPattern.map(v => (v != null && v < this.synthRows.length) ? v : null);
+                this.createSynthGrid();
+                this.updateStatus(`신스: ${DrumMachine.SCALES[this.bassScale].name} / ${DrumMachine.NOTE_NAMES[this.bassRootNote]}${this.bassOctave}`);
+            }
+
+            toggleSynthLane() {
+                this.bassEnabled = !this.bassEnabled;
+                this.syncSynthToggle();
+                this.updateStatus(`베이스/멜로디 신스 ${this.bassEnabled ? '켜짐 🎹' : '꺼짐'}`);
+            }
+
+            syncSynthToggle() {
+                const btn = document.getElementById('synthToggle');
+                const lane = document.getElementById('synthLane');
+                if (btn) {
+                    btn.classList.toggle('active', this.bassEnabled);
+                    btn.setAttribute('aria-pressed', String(this.bassEnabled));
+                    const b = btn.querySelector('b');
+                    if (b) b.textContent = this.bassEnabled ? 'ON' : 'OFF';
+                }
+                if (lane) lane.classList.toggle('lane-off', !this.bassEnabled);
+            }
+
+            clearSynth() {
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                this.bassPattern = Array(maxSteps).fill(null);
+                this.updateSynthGrid();
+                this.updateStatus('신스 레인을 초기화했습니다');
+            }
+
             // 악기(행) 뮤트 토글: 시퀀서 재생 시 해당 악기 소리를 건너뛴다
             toggleMute(key) {
                 if (this.mutedSounds.has(key)) {
@@ -2994,7 +3376,13 @@
                         }
                     });
 
+                    // 베이스/멜로디 신스 레인
+                    if (this.bassEnabled && this.bassPattern[this.currentBeat] != null) {
+                        this.playSynthNote(this.synthRows[this.bassPattern[this.currentBeat]]);
+                    }
+
                     this.updateBeatGrid();
+                    this.updateSynthGrid();
                     this.autoScrollToStep();
                     this.currentBeat = (this.currentBeat + 1) % maxSteps;
                 };
@@ -3027,6 +3415,7 @@
                     this.intervalId = null;
                 }
                 this.updateBeatGrid();
+                this.updateSynthGrid();
                 this.setPlayButton(false);
                 this.updateStatus('정지됨');
             }
@@ -3316,6 +3705,14 @@
                     probability: this.probability,
                     tempo: this.tempo,
                     swing: this.swing,
+                    synth: {
+                        enabled: this.bassEnabled,
+                        scale: this.bassScale,
+                        rootNote: this.bassRootNote,
+                        octave: this.bassOctave,
+                        wave: this.bassWave,
+                        pattern: this.bassPattern
+                    },
                     timestamp: new Date().toISOString()
                 };
                 
@@ -3347,13 +3744,30 @@
                             this.probability = data.probability || {};
                             this.tempo = data.tempo || 120;
                             this.swing = data.swing || 0;
-                            
+
+                            // 신스 레인 복원 (구버전 파일이면 유지)
+                            if (data.synth) {
+                                const s = data.synth;
+                                this.bassEnabled = s.enabled !== false;
+                                this.bassScale = s.scale || this.bassScale;
+                                this.bassRootNote = s.rootNote != null ? s.rootNote : this.bassRootNote;
+                                this.bassOctave = s.octave != null ? s.octave : this.bassOctave;
+                                this.bassWave = s.wave || this.bassWave;
+                                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                                this.bassPattern = Array.isArray(s.pattern) ? s.pattern.slice(0, maxSteps) : Array(maxSteps).fill(null);
+                                while (this.bassPattern.length < maxSteps) this.bassPattern.push(null);
+                            }
+
                             document.getElementById('tempo').value = this.tempo;
                             document.getElementById('tempoValue').textContent = this.tempo;
                             document.getElementById('swing').value = this.swing;
                             document.getElementById('swingValue').textContent = this.swing;
-                            
+
                             this.updateBeatGrid();
+                            this.populateSynthSelectors();
+                            this.buildSynthScale();
+                            this.createSynthGrid();
+                            this.syncSynthToggle();
                             this.updatePatternDisplay();
                             this.updateStatus('패턴이 불러와졌습니다!');
                         } catch (error) {
@@ -3385,11 +3799,19 @@
                     }
                 });
                 
+                // 신스 레인도 새 스텝 수에 맞게 조정
+                const newBass = Array(maxSteps).fill(null);
+                for (let i = 0; i < Math.min(this.bassPattern.length, maxSteps); i++) {
+                    newBass[i] = this.bassPattern[i];
+                }
+                this.bassPattern = newBass;
+
                 // UI 업데이트
                 this.createBeatGrid();
                 this.updateBeatGrid();
+                this.createSynthGrid();
                 this.updatePatternDisplay();
-                
+
                 // 버튼 활성화 상태 업데이트
                 document.querySelectorAll('#grid16Btn, #grid24Btn').forEach(btn => {
                     btn.classList.remove('active');
@@ -3704,6 +4126,18 @@
 
         function updateEuclidUI() {
             drumMachine.updateEuclidUI();
+        }
+
+        function toggleSynthLane() {
+            drumMachine.toggleSynthLane();
+        }
+
+        function updateSynthConfig() {
+            drumMachine.updateSynthConfig();
+        }
+
+        function clearSynth() {
+            drumMachine.clearSynth();
         }
     </script>
 </body>
