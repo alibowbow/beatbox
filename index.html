@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#05070d">
-    <title>프로페셔널 드럼머신 PRO v2.0</title>
+    <title>BEATBOX STUDIO PRO V3.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -212,6 +212,173 @@
             color: var(--cyan);
         }
 
+        /* ───────── V3 이미지 아틀라스 ───────── */
+        .atlas-sprite {
+            display: block;
+            flex: none;
+            pointer-events: none;
+            background-image: url('assets/beatbox-instruments-atlas.png');
+            background-repeat: no-repeat;
+            background-size: 400% 400%;
+            background-position: var(--atlas-x, 100%) var(--atlas-y, 100%);
+        }
+
+        .atlas-kick       { --atlas-x: 0%;       --atlas-y: 0%; }
+        .atlas-snare      { --atlas-x: 33.333%;  --atlas-y: 0%; }
+        .atlas-hihat      { --atlas-x: 66.667%;  --atlas-y: 0%; }
+        .atlas-openhat    { --atlas-x: 100%;     --atlas-y: 0%; }
+        .atlas-crash      { --atlas-x: 0%;       --atlas-y: 33.333%; }
+        .atlas-ride       { --atlas-x: 33.333%;  --atlas-y: 33.333%; }
+        .atlas-tom1       { --atlas-x: 66.667%;  --atlas-y: 33.333%; }
+        .atlas-tom2       { --atlas-x: 100%;     --atlas-y: 33.333%; }
+        .atlas-floortom   { --atlas-x: 0%;       --atlas-y: 66.667%; }
+        .atlas-clap       { --atlas-x: 33.333%;  --atlas-y: 66.667%; }
+        .atlas-cowbell    { --atlas-x: 66.667%;  --atlas-y: 66.667%; }
+        .atlas-rimshot    { --atlas-x: 100%;     --atlas-y: 66.667%; }
+        .atlas-conga      { --atlas-x: 0%;       --atlas-y: 100%; }
+        .atlas-shaker     { --atlas-x: 33.333%;  --atlas-y: 100%; }
+        .atlas-tambourine { --atlas-x: 66.667%;  --atlas-y: 100%; }
+        .atlas-groovebox  { --atlas-x: 100%;     --atlas-y: 100%; }
+
+        /* ───────── LIVE GROOVE DECK ───────── */
+        .live-deck {
+            position: relative;
+            display: grid;
+            grid-template-columns: 108px minmax(190px, 1fr) minmax(360px, 1.65fr);
+            align-items: center;
+            gap: 18px;
+            min-height: 124px;
+            padding: 12px 18px 12px 12px;
+            margin: -6px 0 22px;
+            border: 1px solid rgba(34, 211, 238, 0.26);
+            border-radius: 20px;
+            overflow: hidden;
+            background:
+                linear-gradient(110deg, rgba(34, 211, 238, 0.1), rgba(99, 102, 241, 0.08) 45%, rgba(251, 113, 133, 0.06)),
+                rgba(3, 6, 14, 0.68);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 16px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .live-deck::after {
+            content: '';
+            position: absolute;
+            inset: auto 0 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), var(--violet), var(--rose), transparent);
+            opacity: 0.7;
+        }
+
+        .deck-art-shell {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 18px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.15), rgba(3, 6, 14, 0.55) 68%);
+            border: 1px solid var(--line);
+        }
+
+        .deck-art {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.42));
+            transform: scale(0.9);
+        }
+
+        .deck-art.hit {
+            animation: deckSpriteHit 0.3s cubic-bezier(.2,.9,.25,1);
+        }
+
+        .deck-copy {
+            min-width: 0;
+        }
+
+        .deck-kicker {
+            display: block;
+            margin-bottom: 5px;
+            font-family: var(--font-disp);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.28em;
+            color: var(--cyan);
+        }
+
+        .deck-copy strong {
+            display: block;
+            overflow: hidden;
+            color: var(--text-hi);
+            font-family: var(--font-disp);
+            font-size: clamp(18px, 2vw, 26px);
+            letter-spacing: 0.06em;
+            line-height: 1.15;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .deck-copy p {
+            margin-top: 7px;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            letter-spacing: 0.08em;
+        }
+
+        .deck-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(72px, 1fr));
+            gap: 8px;
+        }
+
+        .deck-metric {
+            min-width: 0;
+            padding: 11px 10px 10px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.035);
+        }
+
+        .deck-metric small {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-dim);
+            font-family: var(--font-disp);
+            font-size: 8px;
+            letter-spacing: 0.16em;
+        }
+
+        .deck-metric b {
+            display: block;
+            overflow: hidden;
+            color: var(--text-hi);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .deck-metric:first-child b { color: var(--gold); }
+
+        @keyframes deckSpriteHit {
+            0% { transform: scale(0.84); filter: brightness(1) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.42)); }
+            38% { transform: scale(1.08); filter: brightness(1.35) drop-shadow(0 0 18px var(--sound-color, var(--cyan))); }
+            100% { transform: scale(0.9); filter: brightness(1) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.42)); }
+        }
+
+        @media (max-width: 900px) {
+            .live-deck {
+                grid-template-columns: 90px minmax(150px, 1fr);
+                gap: 12px;
+            }
+
+            .deck-art-shell {
+                width: 84px;
+                height: 84px;
+            }
+
+            .deck-metrics {
+                grid-column: 1 / -1;
+            }
+        }
+
         @media (max-width: 768px) {
             .mode-selector {
                 gap: 8px;
@@ -225,6 +392,50 @@
                 padding: 10px 6px;
                 font-size: 12px;
                 white-space: nowrap;
+            }
+
+            .live-deck {
+                grid-template-columns: 70px minmax(0, 1fr);
+                gap: 10px;
+                min-height: 0;
+                margin: 0 0 14px;
+                padding: 9px 10px;
+                border-radius: 15px;
+            }
+
+            .deck-art-shell {
+                width: 66px;
+                height: 66px;
+                border-radius: 13px;
+            }
+
+            .deck-copy strong {
+                font-size: 16px;
+            }
+
+            .deck-copy p {
+                margin-top: 4px;
+                font-size: 9px;
+            }
+
+            .deck-metrics {
+                grid-column: 1 / -1;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 5px;
+            }
+
+            .deck-metric {
+                padding: 7px 6px;
+                border-radius: 9px;
+            }
+
+            .deck-metric small {
+                margin-bottom: 3px;
+                font-size: 6.8px;
+            }
+
+            .deck-metric b {
+                font-size: 10.5px;
             }
 
             .mode-btn .icon {
@@ -698,9 +909,15 @@
         /* ───────── 슬라이더 ───────── */
         .slider-rack {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 18px;
             margin: 18px 0 14px;
+        }
+
+        @media (max-width: 1100px) {
+            .slider-rack {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
         @media (max-width: 768px) {
@@ -1076,6 +1293,13 @@
             flex: none;
         }
 
+        .sound-label .label-art {
+            width: 25px;
+            height: 25px;
+            border-radius: 6px;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.48));
+        }
+
         .sound-label .label-name {
             flex: 1;
             font-size: 12px;
@@ -1115,6 +1339,11 @@
             .sound-label .key-chip {
                 font-size: 9px;
                 padding: 1px 4px;
+            }
+
+            .sound-label .label-art {
+                width: 20px;
+                height: 20px;
             }
 
             .sound-label .label-name {
@@ -1293,7 +1522,7 @@
 
         .drum-kit-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(5, minmax(112px, 1fr));
             gap: 12px;
         }
 
@@ -1310,7 +1539,8 @@
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            padding: 18px 10px 16px;
+            min-height: 162px;
+            padding: 9px 10px 13px;
             border-radius: 16px;
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
             border: 1px solid var(--line);
@@ -1345,6 +1575,12 @@
             transform: translateY(0) scale(0.96);
         }
 
+        .pad:focus-visible {
+            outline: 2px solid var(--sound-color);
+            outline-offset: 3px;
+            border-color: var(--sound-color);
+        }
+
         .pad.hit {
             animation: padHit 0.28s ease;
         }
@@ -1369,6 +1605,24 @@
             text-shadow: 0 0 14px color-mix(in srgb, var(--sound-color) 55%, transparent);
         }
 
+        .pad-art {
+            width: 92px;
+            height: 92px;
+            margin: -3px auto -3px;
+            filter: drop-shadow(0 9px 10px rgba(0, 0, 0, 0.45));
+            transition: transform 0.18s ease, filter 0.18s ease;
+            pointer-events: none;
+        }
+
+        .pad:hover .pad-art {
+            transform: scale(1.06) translateY(-2px);
+            filter: brightness(1.1) drop-shadow(0 11px 12px rgba(0, 0, 0, 0.5));
+        }
+
+        .pad.hit .pad-art {
+            filter: brightness(1.25) drop-shadow(0 0 14px var(--sound-color));
+        }
+
         .pad-name {
             font-size: 12.5px;
             font-weight: 500;
@@ -1389,7 +1643,14 @@
 
         @media (max-width: 768px) {
             .pad {
-                padding: 12px 6px 12px;
+                min-height: 126px;
+                padding: 6px 5px 9px;
+            }
+
+            .pad-art {
+                width: 66px;
+                height: 66px;
+                margin-bottom: -2px;
             }
 
             .pad-key {
@@ -1610,12 +1871,12 @@
         <symbol id="i-autoscroll" viewBox="0 0 24 24"><path d="M8 8 3.5 12 8 16M16 8l4.5 4-4.5 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     </svg>
 
-    <div class="container">
+    <main class="container">
         <header class="app-header">
             <div class="logo-mark"><svg class="icon"><use href="#i-drum"/></svg></div>
             <div class="title-block">
-                <h1>프로페셔널 <span class="grad-text">드럼머신</span> <span class="ver-badge">PRO V2.0</span></h1>
-                <p class="tagline">Pro Beat Station &middot; Web Audio Engine</p>
+                <h1><span class="grad-text">BEATBOX STUDIO</span> <span class="ver-badge">PRO V3.0</span></h1>
+                <p class="tagline">Live Groove Workstation &middot; Web Audio Engine</p>
             </div>
         </header>
 
@@ -1623,6 +1884,23 @@
             <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')"><svg class="icon"><use href="#i-drum"/></svg> 일반 드럼 모드</button>
             <button class="mode-btn" data-mode="custom" onclick="setMode('custom')"><svg class="icon"><use href="#i-mic"/></svg> 커스텀 비트박스 모드</button>
         </div>
+
+        <section class="live-deck" id="liveDeck" aria-labelledby="liveDeckTitle">
+            <div class="deck-art-shell" aria-hidden="true">
+                <span class="deck-art atlas-sprite atlas-groovebox" id="liveDeckSprite"></span>
+            </div>
+            <div class="deck-copy">
+                <h2 class="deck-kicker" id="liveDeckTitle">LIVE GROOVE DECK</h2>
+                <strong id="liveInstrumentName">GROOVEBOX</strong>
+                <p id="liveInstrumentMeta">READY · TAP A PAD</p>
+            </div>
+            <div class="deck-metrics" aria-label="현재 연주 상태">
+                <div class="deck-metric"><small>STEP</small><b id="deckStep">01/16</b></div>
+                <div class="deck-metric"><small>BPM</small><b id="deckBpm">120</b></div>
+                <div class="deck-metric"><small>SWING</small><b id="deckSwing">0%</b></div>
+                <div class="deck-metric"><small>KIT</small><b id="deckKit">ACOUSTIC</b></div>
+            </div>
+        </section>
 
         <div class="desktop-layout">
             <div class="control-section">
@@ -1658,11 +1936,11 @@
                     <select id="euclidInst" class="euclid-select" title="유클리드 리듬을 채울 악기"></select>
                     <div class="euclid-field">
                         <span class="euclid-lbl">펄스 <b id="euclidPulsesVal">4</b></span>
-                        <input type="range" id="euclidPulses" min="0" max="16" value="4" style="--val: 25%" oninput="updateEuclidUI()">
+                        <input type="range" id="euclidPulses" min="0" max="16" value="4" aria-label="유클리드 리듬 펄스 수" style="--val: 25%" oninput="updateEuclidUI()">
                     </div>
                     <div class="euclid-field">
                         <span class="euclid-lbl">회전 <b id="euclidRotateVal">0</b></span>
-                        <input type="range" id="euclidRotate" min="0" max="15" value="0" style="--val: 0%" oninput="updateEuclidUI()">
+                        <input type="range" id="euclidRotate" min="0" max="15" value="0" aria-label="유클리드 리듬 회전량" style="--val: 0%" oninput="updateEuclidUI()">
                     </div>
                     <button class="euclid-apply" onclick="applyEuclid()"><svg class="icon"><use href="#i-grid"/></svg> 적용</button>
                 </div>
@@ -1688,6 +1966,20 @@
                             <span class="slider-value"><span id="swingValue">0</span><small>%</small></span>
                         </div>
                         <input type="range" id="swing" min="0" max="70" value="0" style="--val: 0%" oninput="updateSwing(this.value)">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-head">
+                            <label for="humanize"><svg class="icon"><use href="#i-wave"/></svg> 휴머나이즈</label>
+                            <span class="slider-value"><span id="humanizeValue">18</span><small>%</small></span>
+                        </div>
+                        <input type="range" id="humanize" min="0" max="100" value="18" style="--val: 18%" oninput="updateHumanize(this.value)">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-head">
+                            <label for="masterVolume"><svg class="icon"><use href="#i-sliders"/></svg> 마스터</label>
+                            <span class="slider-value"><span id="masterVolumeValue">85</span><small>%</small></span>
+                        </div>
+                        <input type="range" id="masterVolume" min="0" max="100" value="85" style="--val: 85%" oninput="updateMasterVolume(this.value)">
                     </div>
                 </div>
 
@@ -1752,7 +2044,7 @@
             </div>
         </div>
 
-        <div class="status" id="status">준비됨 - 드럼 패턴을 만들어보세요!</div>
+        <div class="status" id="status" role="status" aria-live="polite">준비됨 - 드럼 패턴을 만들어보세요!</div>
 
         <div class="control-section" id="normalModeControls">
             <h3><svg class="icon"><use href="#i-drum"/></svg> 드럼 키트 패드 <span class="sec-no">MODULE 03</span></h3>
@@ -1800,8 +2092,8 @@
             </div>
         </div>
 
-        <footer class="app-footer">Pro Drum Machine v2.0 <span class="dot">&middot;</span> 16 / 24 Step Sequencer <span class="dot">&middot;</span> Web Audio API</footer>
-    </div>
+        <footer class="app-footer">Beatbox Studio Pro v3.0 <span class="dot">&middot;</span> Live Groove Sequencer <span class="dot">&middot;</span> Web Audio API</footer>
+    </main>
 
     <script>
         // 커스텀 사운드 행/패드에 순환 적용되는 색상 팔레트
@@ -1814,8 +2106,20 @@
                 this.currentBeat = 0;
                 this.tempo = 120;
                 this.swing = 0;
+                this.humanize = 18;
+                this.masterVolume = 85;
                 this.pattern = {};
-                this.intervalId = null;
+                this.intervalId = null; // lookahead scheduler timer
+                this.schedulerLookahead = 25;
+                this.scheduleAheadTime = 0.1;
+                this.nextNoteTime = 0;
+                this.nextStep = 0;
+                this.lastScheduledNoteTime = null;
+                this.lastScheduledStep = null;
+                this.uiTimers = new Set();
+                this.scheduledSources = new Set();
+                this.lastRenderedStep = null;
+                this.scheduledVoiceTime = null;
                 this.mode = 'normal'; // 'normal' or 'custom'
                 this.customSounds = new Map();
                 this.normalSounds = new Map();
@@ -1827,6 +2131,7 @@
                 this.recordedChunks = [];
                 this.recordingSound = null;
                 this.recordingTimer = null;
+                this.microphoneGeneration = 0;
                 this.gridMode = '16'; // '16' or '24'
                 this.kit = 'acoustic'; // 'acoustic' | 'tr808' | 'electro'
                 this.openHatEnvs = null;
@@ -1844,14 +2149,23 @@
                 this.bassPattern = [];   // step → synthRows 인덱스 | null
                 this.synthRows = [];     // 오름차순 MIDI 노트 배열
 
+                // 렌더링 참조 캐시: 재생 tick마다 전체 DOM을 검색하지 않는다
+                this.beatCellRefs = new Map();
+                this.beatCellsByStep = [];
+                this.beatHeaderRefs = [];
+                this.synthCellsByStep = [];
+                this.synthHeaderRefs = [];
+
                 this.initializeAudio();
                 this.createNormalDrumSounds();
                 this.initializePattern();
                 this.createBeatGrid();
                 this.updateDrumKitGrid();
                 this.initSynthLane();
+                this.updateDeckMetrics(0);
                 this.setupKeyboardListeners();
                 this.setupResizeListener();
+                window.addEventListener('pagehide', () => this.releaseMicrophone());
             }
 
             // 화면 회전/리사이즈로 모바일↔데스크톱이 바뀌면 그리드 셀 크기를 다시 계산
@@ -1874,13 +2188,34 @@
             }
 
             async initializeAudio() {
+                if (this.audioContext) return true;
                 try {
-                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContextClass) {
+                        this.updateStatus('이 브라우저는 Web Audio를 지원하지 않습니다.');
+                        return false;
+                    }
+                    this.audioContext = new AudioContextClass();
                     this.buildAudioGraph();
                     this.updateStatus('오디오 시스템 준비 완료');
+                    return true;
                 } catch (error) {
                     console.error('오디오 컨텍스트 초기화 실패:', error);
+                    this.audioContext = null;
                     this.updateStatus('오디오 시스템 오류');
+                    return false;
+                }
+            }
+
+            async ensureAudioReady() {
+                if (!this.audioContext && !(await this.initializeAudio())) return false;
+                try {
+                    if (this.audioContext.state === 'suspended') await this.audioContext.resume();
+                    return this.audioContext.state !== 'closed';
+                } catch (error) {
+                    console.error('오디오 활성화 실패:', error);
+                    this.updateStatus('오디오를 시작할 수 없습니다. 화면을 한 번 누른 뒤 다시 시도해주세요.');
+                    return false;
                 }
             }
 
@@ -1930,7 +2265,7 @@
                 const ctx = this.audioContext;
 
                 this.masterGain = ctx.createGain();
-                this.masterGain.gain.value = 0.85;
+                this.masterGain.gain.value = this.masterVolume / 100;
 
                 this.saturator = ctx.createWaveShaper();
                 this.saturator.curve = this.makeSaturationCurve(1.8);
@@ -1993,11 +2328,29 @@
                 return buffer;
             }
 
+            getHumanizeScale() {
+                return (Math.min(100, Math.max(0, this.humanize)) / 100) * 2.2;
+            }
+
+            getVoiceStartTime(offset = 0) {
+                const base = this.scheduledVoiceTime == null
+                    ? this.audioContext.currentTime
+                    : Math.max(this.scheduledVoiceTime, this.audioContext.currentTime);
+                return base + offset;
+            }
+
+            registerSource(source) {
+                this.scheduledSources.add(source);
+                source.addEventListener('ended', () => this.scheduledSources.delete(source), { once: true });
+                return source;
+            }
+
             // 톤 헬퍼: 피치 스윕 + 엔벨로프 + 필터/드라이브, 히트마다 ±2% 피치·±6% 게인 랜덤(휴머나이즈)
             playTone({ type = 'sine', freq, sweepTo, sweepTime = 0.05, gain = 0.5, attack = 0.001, decay = 0.3, filterType, filterFreq, Q = 1, drive = 0, send = 0, when = 0 }) {
                 const ctx = this.audioContext;
-                const t = ctx.currentTime + when;
-                const jitter = 1 + (Math.random() - 0.5) * 0.04;
+                const t = this.getVoiceStartTime(when);
+                const humanize = this.getHumanizeScale();
+                const jitter = 1 + (Math.random() - 0.5) * 0.04 * humanize;
 
                 const osc = ctx.createOscillator();
                 osc.type = type;
@@ -2008,7 +2361,7 @@
 
                 const env = ctx.createGain();
                 env.gain.setValueAtTime(0, t);
-                env.gain.linearRampToValueAtTime(gain * (1 + (Math.random() - 0.5) * 0.12), t + attack);
+                env.gain.linearRampToValueAtTime(gain * (1 + (Math.random() - 0.5) * 0.12 * humanize), t + attack);
                 env.gain.exponentialRampToValueAtTime(0.001, t + attack + decay);
 
                 let node = osc;
@@ -2037,13 +2390,15 @@
 
                 osc.start(t);
                 osc.stop(t + attack + decay + 0.05);
+                this.registerSource(osc);
                 return env;
             }
 
             // 노이즈 헬퍼: 캐시된 버퍼를 랜덤 오프셋으로 재생해 히트마다 다른 질감
             playNoise({ gain = 0.5, attack = 0.001, decay = 0.2, filterType = 'highpass', filterFreq = 1000, Q = 1, filter2Type, filter2Freq, Q2 = 1, send = 0, when = 0 }) {
                 const ctx = this.audioContext;
-                const t = ctx.currentTime + when;
+                const t = this.getVoiceStartTime(when);
+                const humanize = this.getHumanizeScale();
 
                 const src = ctx.createBufferSource();
                 src.buffer = this.noiseBuffer;
@@ -2051,7 +2406,7 @@
 
                 const env = ctx.createGain();
                 env.gain.setValueAtTime(0, t);
-                env.gain.linearRampToValueAtTime(gain * (1 + (Math.random() - 0.5) * 0.12), t + attack);
+                env.gain.linearRampToValueAtTime(gain * (1 + (Math.random() - 0.5) * 0.12 * humanize), t + attack);
                 env.gain.exponentialRampToValueAtTime(0.001, t + attack + decay);
 
                 let node = src;
@@ -2080,6 +2435,7 @@
 
                 src.start(t, Math.random() * 0.9);
                 src.stop(t + attack + decay + 0.05);
+                this.registerSource(src);
                 return env;
             }
 
@@ -2087,7 +2443,8 @@
             // 화이트노이즈만 쓰는 것보다 하이햇/심벌의 금속성이 훨씬 리얼해진다
             playMetal({ baseFreq = 40, ratios = [2, 3, 4.16, 5.43, 6.79, 8.21], gain = 0.3, attack = 0.001, decay = 0.1, bandFreq = 10000, bandQ = 1, hipassFreq = 7000, send = 0, when = 0 }) {
                 const ctx = this.audioContext;
-                const t = ctx.currentTime + when;
+                const t = this.getVoiceStartTime(when);
+                const humanize = this.getHumanizeScale();
 
                 const band = ctx.createBiquadFilter();
                 band.type = 'bandpass';
@@ -2100,7 +2457,7 @@
 
                 const env = ctx.createGain();
                 env.gain.setValueAtTime(0, t);
-                env.gain.linearRampToValueAtTime(gain * (1 + (Math.random() - 0.5) * 0.12), t + attack);
+                env.gain.linearRampToValueAtTime(gain * (1 + (Math.random() - 0.5) * 0.12 * humanize), t + attack);
                 env.gain.exponentialRampToValueAtTime(0.001, t + attack + decay);
 
                 band.connect(hipass);
@@ -2113,7 +2470,7 @@
                     sendGain.connect(this.reverb);
                 }
 
-                const jitter = 1 + (Math.random() - 0.5) * 0.03;
+                const jitter = 1 + (Math.random() - 0.5) * 0.03 * humanize;
                 ratios.forEach(ratio => {
                     const osc = ctx.createOscillator();
                     osc.type = 'square';
@@ -2121,6 +2478,7 @@
                     osc.connect(band);
                     osc.start(t);
                     osc.stop(t + attack + decay + 0.05);
+                    this.registerSource(osc);
                 });
                 return env;
             }
@@ -2128,18 +2486,23 @@
             // 오픈햇 초크: 실제 하이햇처럼 닫힌 햇/재타격이 열린 햇 울림을 끊는다
             chokeOpenHat() {
                 if (!this.openHatEnvs) return;
-                const t = this.audioContext.currentTime;
+                const t = this.getVoiceStartTime(0);
                 this.openHatEnvs.forEach(env => {
-                    env.gain.cancelScheduledValues(t);
-                    env.gain.setValueAtTime(Math.max(env.gain.value, 0.001), t);
+                    if (typeof env.gain.cancelAndHoldAtTime === 'function') {
+                        env.gain.cancelAndHoldAtTime(t);
+                    } else {
+                        env.gain.cancelScheduledValues(t);
+                        env.gain.setValueAtTime(Math.max(env.gain.value, 0.08), t);
+                    }
                     env.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
                 });
                 this.openHatEnvs = null;
             }
 
             // 킥: 비터 클릭(어택) + 쉘 바디(피치 스윕) + 서브 울림, 킷별 캐릭터
-            createKickSound() {
+            createKickSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 const kit = this.kit;
                 if (kit === 'tr808') {
                     this.playTone({ freq: 58, sweepTo: 41, sweepTime: 0.09, gain: 1.15, decay: 0.85, drive: 2.4, filterType: 'lowpass', filterFreq: 380 });
@@ -2155,8 +2518,9 @@
             }
 
             // 스네어: 드럼 헤드 공진 모드 2개 + 스내피(와이어) 노이즈 레이어
-            createSnareSound() {
+            createSnareSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 const kit = this.kit;
                 if (kit === 'tr808') {
                     this.playTone({ freq: 185, gain: 0.5, decay: 0.11 });
@@ -2174,8 +2538,9 @@
             }
 
             // 클로즈드 하이햇: 금속성 배음 뱅크 + 오픈햇 초크
-            createHihatSound() {
+            createHihatSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 this.chokeOpenHat();
                 const kit = this.kit;
                 if (kit === 'tr808') {
@@ -2190,8 +2555,9 @@
             }
 
             // 오픈 하이햇: 긴 울림 + 초크 대상으로 등록
-            createOpenHatSound() {
+            createOpenHatSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 this.chokeOpenHat();
                 const kit = this.kit;
                 const envs = [];
@@ -2207,8 +2573,9 @@
             }
 
             // 크래시: 금속 뱅크(쉬머) + 노이즈 워시 + 초기 임팩트
-            createCrashSound() {
+            createCrashSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 const kit = this.kit;
                 if (kit === 'electro') {
                     this.playNoise({ gain: 0.4, decay: 1.3, filterType: 'highpass', filterFreq: 5800, send: 0.2 });
@@ -2223,8 +2590,9 @@
             }
 
             // 라이드: 스틱 핑(타점) + 금속 워시
-            createRideSound() {
+            createRideSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 const kit = this.kit;
                 if (kit === 'electro') {
                     this.playNoise({ gain: 0.22, decay: 0.45, filterType: 'highpass', filterFreq: 6500 });
@@ -2252,24 +2620,28 @@
                 }
             }
 
-            createTom1Sound() {
+            createTom1Sound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 this.playTom(240, 128, 0.4, 0.75);
             }
 
-            createTom2Sound() {
+            createTom2Sound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 this.playTom(185, 95, 0.5, 0.8);
             }
 
-            createFloorTomSound() {
+            createFloorTomSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 this.playTom(130, 62, 0.65, 0.95);
             }
 
             // 박수: 여러 손이 어긋나게 치는 버스트 3개 + 룸 테일
-            createClapSound() {
+            createClapSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 const kit = this.kit;
                 const spread = kit === 'tr808' ? 0.009 : 0.011;
                 for (let i = 0; i < 3; i++) {
@@ -2279,38 +2651,43 @@
             }
 
             // 카우벨: 스퀘어파 2개(540+800Hz)를 밴드패스로 깎는 클래식 방식
-            createCowbellSound() {
+            createCowbellSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 const decay = this.kit === 'acoustic' ? 0.32 : 0.24;
                 this.playTone({ type: 'square', freq: 540, gain: 0.3, decay: decay, filterType: 'bandpass', filterFreq: 850, Q: 2.5 });
                 this.playTone({ type: 'square', freq: 800, gain: 0.3, decay: decay * 0.8, filterType: 'bandpass', filterFreq: 850, Q: 2.5 });
             }
 
             // 림샷: 스틱 클릭 + 림 금속 울림 + 짧은 헤드 톤
-            createRimshotSound() {
+            createRimshotSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 this.playTone({ type: 'square', freq: 1720, gain: 0.16, decay: 0.045, filterType: 'bandpass', filterFreq: 1800, Q: 3 });
                 this.playTone({ freq: 476, gain: 0.4, decay: 0.055, drive: 2.2 });
                 this.playNoise({ gain: 0.25, decay: 0.012, filterType: 'highpass', filterFreq: 3200 });
             }
 
             // 콩가: 손바닥 타격의 짧은 피치 드롭 + 옥타브 배음
-            createCongaSound() {
+            createCongaSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 this.playTone({ freq: 215, sweepTo: 185, sweepTime: 0.02, gain: 0.65, decay: 0.28, send: 0.08 });
                 this.playTone({ freq: 430, gain: 0.12, decay: 0.08 });
                 this.playNoise({ gain: 0.12, decay: 0.008, filterType: 'bandpass', filterFreq: 1200 });
             }
 
             // 쉐이커: 느린 어택의 밴드패스 노이즈 (알갱이 쏠리는 질감)
-            createShakerSound() {
+            createShakerSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 this.playNoise({ gain: 0.3, attack: 0.012, decay: 0.07, filterType: 'bandpass', filterFreq: 6800, Q: 1.4, filter2Type: 'highpass', filter2Freq: 4500 });
             }
 
             // 탬버린: 고역 징글 뱅크 + 이중 타격 쉬머
-            createTambourineSound() {
+            createTambourineSound(noteTime = null) {
                 if (!this.audioContext || !this.masterGain) return;
+                if (noteTime != null) this.scheduledVoiceTime = noteTime;
                 this.playMetal({ baseFreq: 400, ratios: [14.3, 16.9, 19.8, 22.4], gain: 0.2, decay: 0.14, bandFreq: 8600, bandQ: 0.9, hipassFreq: 6200, send: 0.12 });
                 this.playNoise({ gain: 0.12, decay: 0.1, filterType: 'highpass', filterFreq: 7600, when: 0.012 });
             }
@@ -2323,6 +2700,9 @@
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 const groupSize = this.gridMode === '24' ? 3 : 4;
                 const isMobile = window.innerWidth <= 768;
+                this.beatCellRefs = new Map();
+                this.beatCellsByStep = Array.from({ length: maxSteps }, () => []);
+                this.beatHeaderRefs = Array(maxSteps);
 
                 // 그리드 컬럼 설정 업데이트 (모바일은 셀을 키워 탭하기 쉽게, 스크롤로 열람)
                 grid.style.gridTemplateColumns = isMobile
@@ -2345,6 +2725,7 @@
                         ? `<span class="beat-no">${Math.floor(i / groupSize) + 1}</span>${subNo}`
                         : subNo;
                     grid.appendChild(header);
+                    this.beatHeaderRefs[i] = header;
                 }
 
                 // 각 사운드별 행
@@ -2361,10 +2742,13 @@
                     label.className = `sound-label ${soundClass}` + (isMuted ? ' muted' : '');
                     label.dataset.sound = key;
                     label.title = '클릭하여 뮤트/해제';
-                    label.innerHTML = `<span class="key-chip">${key}</span><span class="label-name">${sound.name}</span>`;
+                    label.innerHTML = `<span class="key-chip">${key}</span><span class="label-art atlas-sprite atlas-${sound.id || 'groovebox'}" aria-hidden="true"></span><span class="label-name">${this.escapeHTML(sound.name)}</span>`;
                     if (customColor) label.style.setProperty('--sound-color', customColor);
                     label.onclick = () => this.toggleMute(key);
                     grid.appendChild(label);
+
+                    const rowRefs = [];
+                    this.beatCellRefs.set(key, rowRefs);
 
                     for (let i = 0; i < maxSteps; i++) {
                         const cell = document.createElement('div');
@@ -2377,6 +2761,8 @@
                         this.attachLongPress(cell, () => this.cycleStepProbability(key, i));
                         if (customColor) cell.style.setProperty('--sound-color', customColor);
                         grid.appendChild(cell);
+                        rowRefs[i] = cell;
+                        this.beatCellsByStep[i].push(cell);
                     }
                 });
 
@@ -2409,8 +2795,9 @@
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 
                 sounds.forEach((sound, key) => {
+                    const rowRefs = this.beatCellRefs.get(key) || [];
                     for (let i = 0; i < maxSteps; i++) {
-                        const cell = document.querySelector(`[data-sound="${key}"][data-beat="${i}"]`);
+                        const cell = rowRefs[i];
                         if (cell) {
                             const isActive = !!(this.pattern[key] && this.pattern[key][i]);
                             cell.classList.toggle('active', isActive);
@@ -2442,12 +2829,26 @@
                 });
 
                 // 스텝 넘버링에 현재 재생 위치 표시
-                document.querySelectorAll('#beatGrid .step-num').forEach(header => {
-                    header.classList.toggle(
-                        'current',
-                        this.isPlaying && parseInt(header.dataset.step) === this.currentBeat
-                    );
+                this.beatHeaderRefs.forEach((header, step) => {
+                    if (header) header.classList.toggle('current', this.isPlaying && step === this.currentBeat);
                 });
+            }
+
+            renderPlayhead(step) {
+                const previous = this.lastRenderedStep;
+                if (previous != null && previous !== step) {
+                    (this.beatCellsByStep[previous] || []).forEach(cell => cell.classList.remove('playing'));
+                    if (this.beatHeaderRefs[previous]) this.beatHeaderRefs[previous].classList.remove('current');
+                    (this.synthCellsByStep[previous] || []).forEach(cell => cell.classList.remove('playing'));
+                    if (this.synthHeaderRefs[previous]) this.synthHeaderRefs[previous].classList.remove('current');
+                }
+                if (step != null && this.isPlaying) {
+                    (this.beatCellsByStep[step] || []).forEach(cell => cell.classList.add('playing'));
+                    if (this.beatHeaderRefs[step]) this.beatHeaderRefs[step].classList.add('current');
+                    (this.synthCellsByStep[step] || []).forEach(cell => cell.classList.add('playing'));
+                    if (this.synthHeaderRefs[step]) this.synthHeaderRefs[step].classList.add('current');
+                }
+                this.lastRenderedStep = step;
             }
 
             // 재생 중 현재 스텝이 화면 밖으로 나가면 그리드를 가로로 자동 스크롤 (오토스크롤)
@@ -2498,7 +2899,11 @@
                     const item = document.createElement('div');
                     item.className = `pad sound-${sound.id}`;
                     item.dataset.key = key;
+                    item.setAttribute('role', 'button');
+                    item.tabIndex = 0;
+                    item.setAttribute('aria-label', `${sound.name} 연주, 키 ${key}`);
                     item.innerHTML = `
+                        <span class="pad-art atlas-sprite atlas-${sound.id}" aria-hidden="true"></span>
                         <span class="pad-key">${key}</span>
                         <span class="pad-name">${sound.name}</span>
                         <span class="pad-tag">SYNTH</span>
@@ -2514,6 +2919,12 @@
                 el.addEventListener('pointerdown', (e) => {
                     if (guardButtons && e.target.closest('button')) return; // 녹음 버튼 등은 제외
                     if (e.pointerType === 'mouse' && e.button !== 0) return; // 마우스는 좌클릭만
+                    this.playSound(key);
+                });
+                el.addEventListener('keydown', (e) => {
+                    if (guardButtons && e.target.closest('button')) return;
+                    if (e.key !== 'Enter' && e.key !== ' ') return;
+                    e.preventDefault();
                     this.playSound(key);
                 });
             }
@@ -2680,6 +3091,8 @@
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 const groupSize = this.gridMode === '24' ? 3 : 4;
                 const isMobile = window.innerWidth <= 768;
+                this.synthCellsByStep = Array.from({ length: maxSteps }, () => []);
+                this.synthHeaderRefs = Array(maxSteps);
                 grid.style.gridTemplateColumns = isMobile
                     ? `84px repeat(${maxSteps}, 42px)`
                     : `132px repeat(${maxSteps}, minmax(30px, 1fr))`;
@@ -2699,6 +3112,7 @@
                         ? `<span class="beat-no">${Math.floor(i / groupSize) + 1}</span>${subNo}`
                         : subNo;
                     grid.appendChild(header);
+                    this.synthHeaderRefs[i] = header;
                 }
 
                 // 위(고음)→아래(저음) 순서로 행 렌더
@@ -2717,6 +3131,7 @@
                         cell.dataset.beat = i;
                         cell.onclick = () => this.setSynthNote(i, r);
                         grid.appendChild(cell);
+                        this.synthCellsByStep[i].push(cell);
                     }
                 }
                 this.updateSynthGrid();
@@ -2742,16 +3157,16 @@
                     cell.classList.toggle('active', this.bassPattern[i] === r);
                     cell.classList.toggle('playing', this.isPlaying && i === this.currentBeat);
                 });
-                grid.querySelectorAll('.step-num').forEach(h => {
-                    h.classList.toggle('current', this.isPlaying && parseInt(h.dataset.step) === this.currentBeat);
+                this.synthHeaderRefs.forEach((header, step) => {
+                    if (header) header.classList.toggle('current', this.isPlaying && step === this.currentBeat);
                 });
             }
 
             // 신스 보이스: 오실레이터 + 서브 + 필터 엔벨로프(플럭 베이스)
-            playSynthNote(midi) {
+            playSynthNote(midi, noteTime = null) {
                 if (!this.audioContext || !this.masterGain || midi == null) return;
                 const ctx = this.audioContext;
-                const t = ctx.currentTime;
+                const t = noteTime == null ? ctx.currentTime : Math.max(noteTime, ctx.currentTime);
                 const freq = 440 * Math.pow(2, (midi - 69) / 12);
                 const dur = 0.38;
                 const vol = 0.5 * this.bassVolume;
@@ -2788,6 +3203,8 @@
 
                 osc.start(t); osc.stop(t + dur + 0.05);
                 sub.start(t); sub.stop(t + dur + 0.05);
+                this.registerSource(osc);
+                this.registerSource(sub);
             }
 
             populateSynthSelectors() {
@@ -2899,34 +3316,89 @@
                 });
             }
 
-            playSound(key) {
-                if (this.audioContext.state === 'suspended') {
-                    this.audioContext.resume();
+            playSound(key, noteTime = null) {
+                if (!this.audioContext || !this.masterGain) {
+                    this.updateStatus('오디오 시스템을 사용할 수 없습니다.');
+                    return false;
                 }
-                
+                if (this.audioContext.state === 'suspended') this.audioContext.resume().catch(() => {});
+
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 const sound = sounds.get(key);
-                
+
                 if (sound) {
-                    if (sound.generator) {
-                        sound.generator();
-                    } else if (sound.audioBuffer) {
-                        const source = this.audioContext.createBufferSource();
-                        source.buffer = sound.audioBuffer;
-                        source.connect(this.audioContext.destination);
-                        source.start();
+                    const startTime = noteTime == null
+                        ? this.audioContext.currentTime
+                        : Math.max(noteTime, this.audioContext.currentTime);
+                    this.scheduledVoiceTime = startTime;
+                    try {
+                        if (sound.generator) {
+                            sound.generator(startTime);
+                        } else if (sound.audioBuffer) {
+                            const source = this.audioContext.createBufferSource();
+                            source.buffer = sound.audioBuffer;
+                            source.connect(this.masterGain);
+                            source.start(startTime);
+                            this.registerSource(source);
+                        }
+                    } finally {
+                        this.scheduledVoiceTime = null;
                     }
-                    this.flashPad(key);
+                    this.scheduleVisualAt(startTime, () => {
+                        this.flashPad(key);
+                        this.updateLiveDeck(sound, key);
+                    });
+                    return true;
                 }
+                return false;
+            }
+
+            scheduleVisualAt(noteTime, callback) {
+                if (!this.audioContext) return;
+                const delay = Math.max(0, (noteTime - this.audioContext.currentTime) * 1000);
+                if (delay < 4) {
+                    requestAnimationFrame(callback);
+                    return;
+                }
+                const timer = setTimeout(() => {
+                    this.uiTimers.delete(timer);
+                    requestAnimationFrame(callback);
+                }, delay);
+                this.uiTimers.add(timer);
             }
 
             flashPad(key) {
-                const pad = document.querySelector(`.pad[data-key="${key}"]`);
+                const scope = this.mode === 'normal' ? '#drumKitGrid' : '#soundGrid';
+                const pad = document.querySelector(`${scope} .pad[data-key="${key}"]`);
                 if (pad) {
                     pad.classList.remove('hit');
                     void pad.offsetWidth; // 애니메이션 재시작을 위한 리플로우
                     pad.classList.add('hit');
                 }
+            }
+
+            updateLiveDeck(sound, key) {
+                const sprite = document.getElementById('liveDeckSprite');
+                const name = document.getElementById('liveInstrumentName');
+                const meta = document.getElementById('liveInstrumentMeta');
+                if (!sprite || !sound) return;
+                const atlasId = sound.id || 'groovebox';
+                sprite.className = `deck-art atlas-sprite atlas-${atlasId}`;
+                sprite.classList.remove('hit');
+                void sprite.offsetWidth;
+                sprite.classList.add('hit');
+                name.textContent = sound.name.toUpperCase();
+                meta.textContent = `${key} KEY · LIVE HIT`;
+            }
+
+            updateDeckMetrics(step = this.currentBeat) {
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                const safeStep = ((Number(step) || 0) % maxSteps + maxSteps) % maxSteps;
+                document.getElementById('deckStep').textContent = `${String(safeStep + 1).padStart(2, '0')}/${maxSteps}`;
+                document.getElementById('deckBpm').textContent = this.tempo;
+                document.getElementById('deckSwing').textContent = `${this.swing}%`;
+                const names = { acoustic: 'ACOUSTIC', tr808: '808', electro: 'ELECTRO' };
+                document.getElementById('deckKit').textContent = names[this.kit] || String(this.kit).toUpperCase();
             }
 
             generateBeat() {
@@ -3004,48 +3476,49 @@
 
             generateFillIn() {
                 if (this.mode !== 'normal') return;
-                
+
                 this.clearBeat();
-                
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                const last = maxSteps - 1;
+                const half = Math.floor(maxSteps / 2);
+                const group = this.gridMode === '24' ? 6 : 4;
+                const safeSet = (key, step) => {
+                    const i = Math.max(0, Math.min(last, Math.round(step)));
+                    if (this.pattern[key]) this.pattern[key][i] = true;
+                };
+
                 const fillPatterns = [
                     // 스네어 롤
                     () => {
-                        for (let i = 8; i < 16; i++) {
-                            this.pattern['W'][i] = true;
-                        }
-                        this.pattern['Y'][15] = true; // 크래시로 끝
+                        for (let i = half; i < maxSteps - 1; i++) this.pattern['W'][i] = true;
+                        safeSet('T', last); // 크래시로 끝
                     },
                     // 탐 필
                     () => {
-                        this.pattern['S'][0] = true;
-                        this.pattern['S'][2] = true;
-                        this.pattern['D'][4] = true;
-                        this.pattern['D'][6] = true;
-                        this.pattern['F'][8] = true;
-                        this.pattern['F'][10] = true;
-                        this.pattern['F'][12] = true;
-                        this.pattern['Q'][14] = true;
-                        this.pattern['Y'][15] = true;
+                        safeSet('A', half);
+                        safeSet('A', half + group / 2);
+                        safeSet('S', half + group);
+                        safeSet('S', half + group * 1.5);
+                        safeSet('D', maxSteps - group);
+                        safeSet('D', maxSteps - Math.ceil(group / 2));
+                        safeSet('Q', last - 1);
+                        safeSet('T', last);
                     },
                     // 복합 필
                     () => {
-                        for (let i = 0; i < 16; i += 4) {
-                            this.pattern['Q'][i] = true;
-                        }
-                        for (let i = 2; i < 16; i += 4) {
-                            this.pattern['W'][i] = true;
-                        }
-                        for (let i = 12; i < 16; i++) {
+                        for (let i = 0; i < maxSteps; i += group) safeSet('Q', i);
+                        for (let i = Math.floor(group / 2); i < maxSteps; i += group) safeSet('W', i);
+                        for (let i = maxSteps - group; i < maxSteps - 1; i++) {
                             this.pattern['S'][i] = Math.random() > 0.5;
                             this.pattern['D'][i] = Math.random() > 0.5;
                         }
-                        this.pattern['Y'][15] = true;
+                        safeSet('T', last);
                     }
                 ];
-                
+
                 const pattern = fillPatterns[Math.floor(Math.random() * fillPatterns.length)];
                 pattern();
-                
+
                 this.updateBeatGrid();
                 this.updatePatternDisplay();
                 this.updateStatus('필인 패턴이 생성되었습니다!');
@@ -3053,12 +3526,13 @@
 
             loadGenrePattern(genre) {
                 if (this.mode !== 'normal') return;
+                const wasPlaying = this.isPlaying;
                 
                 // 재즈와 셔플은 24스텝 그리드로 자동 전환
                 if (genre === 'jazz' || genre === 'shuffle') {
-                    this.setGridMode('24');
+                    this.setGridMode('24', false);
                 } else {
-                    this.setGridMode('16');
+                    this.setGridMode('16', false);
                 }
                 
                 this.clearBeat();
@@ -3324,6 +3798,7 @@
                         btn.classList.toggle('active', btn.dataset.genre === genre);
                     });
                     this.updateStatus(`${genre.toUpperCase()} 패턴이 로드되었습니다!`);
+                    if (wasPlaying) this.startPlayback();
                 }
             }
 
@@ -3340,72 +3815,85 @@
                 this.updatePatternDisplay();
             }
 
-            togglePlayback() {
-                if (!this.audioContext) {
-                    this.initializeAudio();
-                    return;
-                }
-                
-                if (this.audioContext.state === 'suspended') {
-                    this.audioContext.resume();
-                }
-                
+            async togglePlayback() {
                 if (this.isPlaying) {
                     this.stopPlayback();
                 } else {
+                    if (!(await this.ensureAudioReady())) return;
                     this.startPlayback();
                 }
             }
 
             startPlayback() {
+                if (!this.audioContext || !this.masterGain || this.isPlaying) return;
                 this.isPlaying = true;
                 this.currentBeat = 0;
-                
-                const maxSteps = this.gridMode === '24' ? 24 : 16;
-                const beatDuration = (60 / this.tempo / 4) * 1000;
-                
-                const playBeat = () => {
-                    const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
-                    
-                    sounds.forEach((sound, key) => {
-                        if (this.pattern[key] && this.pattern[key][this.currentBeat] && !this.mutedSounds.has(key)) {
-                            const prob = this.getProb(key, this.currentBeat);
-                            if (prob >= 100 || Math.random() * 100 < prob) {
-                                this.playSound(key);
-                            }
-                        }
-                    });
+                this.nextStep = 0;
+                this.nextNoteTime = this.audioContext.currentTime + 0.04;
+                this.lastScheduledNoteTime = null;
+                this.lastScheduledStep = null;
+                this.lastRenderedStep = null;
 
-                    // 베이스/멜로디 신스 레인
-                    if (this.bassEnabled && this.bassPattern[this.currentBeat] != null) {
-                        this.playSynthNote(this.synthRows[this.bassPattern[this.currentBeat]]);
-                    }
-
-                    this.updateBeatGrid();
-                    this.updateSynthGrid();
-                    this.autoScrollToStep();
-                    this.currentBeat = (this.currentBeat + 1) % maxSteps;
-                };
-                
-                playBeat(); // 즉시 첫 비트 재생
-                
-                // 스윙 적용
-                const swing = this.swing / 100;
-                let nextBeatTime = beatDuration;
-                
-                this.intervalId = setInterval(() => {
-                    playBeat();
-                    
-                    // 스윙 타이밍 조정 (짝수 비트에만 적용)
-                    if (this.currentBeat % 2 === 0) {
-                        nextBeatTime = beatDuration * (1 + swing);
-                    } else {
-                        nextBeatTime = beatDuration * (1 - swing);
-                    }
-                }, beatDuration);
-
+                this.scheduler();
+                this.intervalId = setInterval(() => this.scheduler(), this.schedulerLookahead);
                 this.setPlayButton(true);
                 this.updateStatus('재생 중...');
+            }
+
+            getStepDuration(step) {
+                const base = (60 / this.tempo) / (this.gridMode === '24' ? 6 : 4);
+                const swingDepth = Math.min(0.35, Math.max(0, this.swing) / 200);
+                return base * (step % 2 === 0 ? 1 + swingDepth : 1 - swingDepth);
+            }
+
+            scheduler() {
+                if (!this.isPlaying || !this.audioContext) return;
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                const now = this.audioContext.currentTime;
+                const minimumLead = now + 0.005;
+                let skipped = 0;
+                while (this.nextNoteTime < minimumLead && skipped < maxSteps * 4) {
+                    this.nextNoteTime += this.getStepDuration(this.nextStep);
+                    this.nextStep = (this.nextStep + 1) % maxSteps;
+                    skipped++;
+                }
+                if (skipped > 0) {
+                    this.lastScheduledNoteTime = null;
+                    this.lastScheduledStep = null;
+                }
+                if (this.nextNoteTime < minimumLead) {
+                    this.nextNoteTime = now + 0.025;
+                }
+                let scheduled = 0;
+                while (this.nextNoteTime < now + this.scheduleAheadTime && scheduled < maxSteps * 2) {
+                    this.scheduleStep(this.nextStep, this.nextNoteTime);
+                    this.lastScheduledNoteTime = this.nextNoteTime;
+                    this.lastScheduledStep = this.nextStep;
+                    this.nextNoteTime += this.getStepDuration(this.nextStep);
+                    this.nextStep = (this.nextStep + 1) % maxSteps;
+                    scheduled++;
+                }
+            }
+
+            scheduleStep(step, noteTime) {
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                sounds.forEach((sound, key) => {
+                    if (!this.pattern[key] || !this.pattern[key][step] || this.mutedSounds.has(key)) return;
+                    const prob = this.getProb(key, step);
+                    if (prob >= 100 || Math.random() * 100 < prob) this.playSound(key, noteTime);
+                });
+
+                if (this.bassEnabled && this.bassPattern[step] != null) {
+                    this.playSynthNote(this.synthRows[this.bassPattern[step]], noteTime);
+                }
+
+                this.scheduleVisualAt(noteTime, () => {
+                    if (!this.isPlaying) return;
+                    this.currentBeat = step;
+                    this.renderPlayhead(step);
+                    this.updateDeckMetrics(step);
+                    this.autoScrollToStep();
+                });
             }
 
             stopPlayback() {
@@ -3414,8 +3902,16 @@
                     clearInterval(this.intervalId);
                     this.intervalId = null;
                 }
-                this.updateBeatGrid();
-                this.updateSynthGrid();
+                this.uiTimers.forEach(timer => clearTimeout(timer));
+                this.uiTimers.clear();
+                const now = this.audioContext ? this.audioContext.currentTime : 0;
+                this.scheduledSources.forEach(source => {
+                    try { source.stop(now); } catch (_) { /* 이미 종료된 source */ }
+                });
+                this.scheduledSources.clear();
+                this.openHatEnvs = null;
+                this.renderPlayhead(null);
+                this.lastRenderedStep = null;
                 this.setPlayButton(false);
                 this.updateStatus('정지됨');
             }
@@ -3430,6 +3926,12 @@
             }
 
             setMode(mode) {
+                if (mode === this.mode) {
+                    document.querySelectorAll('.mode-btn').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.mode === mode);
+                    });
+                    return;
+                }
                 this.mode = mode;
                 this.stopPlayback();
                 this.initializePattern();
@@ -3442,6 +3944,7 @@
                 document.getElementById('normalModeHints').style.display = mode === 'normal' ? '' : 'none';
 
                 if (mode === 'normal') {
+                    this.releaseMicrophone();
                     document.getElementById('normalModeControls').style.display = 'block';
                     document.querySelectorAll('.custom-mode-only').forEach(el => {
                         el.style.display = 'none';
@@ -3468,16 +3971,19 @@
             createDefaultCustomSounds() {
                 this.customSounds.set('K', {
                     name: '킥',
+                    id: 'kick',
                     audioBuffer: null,
                     generator: this.createKickSound.bind(this)
                 });
                 this.customSounds.set('S', {
                     name: '스네어',
+                    id: 'snare',
                     audioBuffer: null,
                     generator: this.createSnareSound.bind(this)
                 });
                 this.customSounds.set('H', {
                     name: '하이햇',
+                    id: 'hihat',
                     audioBuffer: null,
                     generator: this.createHihatSound.bind(this)
                 });
@@ -3513,21 +4019,50 @@
                 document.getElementById('status').textContent = message;
             }
 
+            escapeHTML(value) {
+                return String(value).replace(/[&<>'"]/g, char => ({
+                    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+                })[char]);
+            }
+
             updateTempo(value) {
                 this.tempo = parseInt(value);
+                this.retimeNextStep();
                 document.getElementById('tempoValue').textContent = value;
                 this.updateSliderFill('tempo');
-
-                if (this.isPlaying) {
-                    this.stopPlayback();
-                    this.startPlayback();
-                }
+                this.updateDeckMetrics();
             }
 
             updateSwing(value) {
                 this.swing = parseInt(value);
+                this.retimeNextStep();
                 document.getElementById('swingValue').textContent = value;
                 this.updateSliderFill('swing');
+                this.updateDeckMetrics();
+            }
+
+            retimeNextStep() {
+                if (!this.isPlaying || !this.audioContext || this.lastScheduledNoteTime == null || this.lastScheduledStep == null) return;
+                this.nextNoteTime = Math.max(
+                    this.audioContext.currentTime + 0.005,
+                    this.lastScheduledNoteTime + this.getStepDuration(this.lastScheduledStep)
+                );
+            }
+
+            updateHumanize(value) {
+                this.humanize = parseInt(value);
+                document.getElementById('humanizeValue').textContent = value;
+                this.updateSliderFill('humanize');
+            }
+
+            updateMasterVolume(value) {
+                this.masterVolume = parseInt(value);
+                document.getElementById('masterVolumeValue').textContent = value;
+                this.updateSliderFill('masterVolume');
+                if (this.masterGain && this.audioContext) {
+                    this.masterGain.gain.cancelScheduledValues(this.audioContext.currentTime);
+                    this.masterGain.gain.setTargetAtTime(this.masterVolume / 100, this.audioContext.currentTime, 0.015);
+                }
             }
 
             updateSliderFill(id) {
@@ -3539,7 +4074,12 @@
 
             setupKeyboardListeners() {
                 document.addEventListener('keydown', (e) => {
-                    if (e.target.tagName === 'INPUT') return;
+                    const target = e.target;
+                    const isInteractive = target && (
+                        target.isContentEditable ||
+                        (typeof target.closest === 'function' && target.closest('input, select, textarea, button, a[href], [role="button"], [contenteditable="true"]'))
+                    );
+                    if (isInteractive || e.altKey || e.ctrlKey || e.metaKey) return;
                     
                     const key = e.key.toUpperCase();
                     
@@ -3572,12 +4112,16 @@
                     const item = document.createElement('div');
                     item.className = `pad sound-item ${sound.audioBuffer ? 'has-custom' : ''}`;
                     item.dataset.key = key;
+                    item.setAttribute('role', 'button');
+                    item.tabIndex = 0;
+                    item.setAttribute('aria-label', `${sound.name} 연주, 키 ${key}`);
                     item.style.setProperty('--sound-color', CUSTOM_COLORS[padIndex % CUSTOM_COLORS.length]);
                     padIndex++;
                     item.innerHTML = `
+                        <span class="pad-art atlas-sprite atlas-${sound.id || 'groovebox'}" aria-hidden="true"></span>
                         <span class="pad-key">${key}</span>
-                        <span class="pad-name">${sound.name}</span>
-                        <span class="pad-tag">${sound.audioBuffer ? '&#9679; 녹음 완료' : '기본 신스'}</span>
+                        <span class="pad-name">${this.escapeHTML(sound.name)}</span>
+                        <span class="pad-tag">${sound.audioBuffer ? '&#9679; 녹음 완료' : sound.generator ? '기본 신스' : sound.missingSample ? '샘플 재녹음 필요' : '샘플 없음'}</span>
                         <button class="record-btn" onclick="recordCustomSound('${key}')">
                             <svg class="icon"><use href="#i-rec"/></svg> ${sound.audioBuffer ? '재녹음' : '녹음'}
                         </button>
@@ -3611,9 +4155,9 @@
                 const micStatus = document.getElementById('micStatus');
                 switch(state) {
                     case 'granted':
-                        micStatus.textContent = '마이크 상태: ✅ 허용됨';
+                        micStatus.textContent = this.hasLiveMicrophoneStream() ? '마이크 상태: ✅ 준비됨' : '마이크 상태: 권한 허용됨 · 연결 필요';
                         micStatus.style.color = '#34d399';
-                        this.hasPermission = true;
+                        this.hasPermission = this.hasLiveMicrophoneStream();
                         break;
                     case 'denied':
                         micStatus.textContent = '마이크 상태: ❌ 거부됨';
@@ -3625,6 +4169,16 @@
                         micStatus.style.color = '#fbbf24';
                         this.hasPermission = false;
                         break;
+                    case 'unavailable':
+                        micStatus.textContent = '마이크 상태: 연결된 장치 없음';
+                        micStatus.style.color = '#fbbf24';
+                        this.hasPermission = false;
+                        break;
+                    case 'busy':
+                        micStatus.textContent = '마이크 상태: 다른 앱에서 사용 중';
+                        micStatus.style.color = '#fbbf24';
+                        this.hasPermission = false;
+                        break;
                     default:
                         micStatus.textContent = '마이크 상태: ❓ 확인 불가';
                         micStatus.style.color = '#6b7597';
@@ -3632,15 +4186,53 @@
                 }
             }
 
+            hasLiveMicrophoneStream() {
+                return !!(this.microphoneStream && this.microphoneStream.getAudioTracks().some(track => track.readyState === 'live'));
+            }
+
+            releaseMicrophone() {
+                this.microphoneGeneration++;
+                if (this.recordingTimer) {
+                    clearTimeout(this.recordingTimer);
+                    this.recordingTimer = null;
+                }
+                if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                    this.mediaRecorder.onstop = null;
+                    try { this.mediaRecorder.stop(); } catch (_) { /* 이미 종료 중 */ }
+                }
+                if (this.microphoneStream) {
+                    this.microphoneStream.getTracks().forEach(track => track.stop());
+                }
+                this.microphoneStream = null;
+                this.mediaRecorder = null;
+                this.hasPermission = false;
+                this.isRecording = false;
+                this.recordingSound = null;
+                this.recordedChunks = [];
+            }
+
+            isMicrophoneRequestCurrent(token) {
+                return token === this.microphoneGeneration
+                    && this.mode === 'custom'
+                    && !document.hidden
+                    && document.visibilityState !== 'hidden';
+            }
+
             async requestMicrophonePermission() {
+                const requestToken = ++this.microphoneGeneration;
                 try {
                     this.updateStatus('마이크 권한을 요청하고 있습니다...');
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        this.updateMicStatus('unavailable');
+                        this.updateStatus('이 브라우저에서는 마이크 녹음을 지원하지 않습니다.');
+                        return false;
+                    }
                     
                     // 모바일에서 HTTPS 체크
                     if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
                         alert('모바일에서 마이크를 사용하려면 HTTPS 연결이 필요합니다.\n\n로컬에서 테스트하려면:\n1. localhost로 접속하거나\n2. ngrok 같은 터널링 서비스를 사용하세요.');
                         this.updateStatus('HTTPS 연결이 필요합니다.');
-                        return;
+                        return false;
                     }
                     
                     if (this.microphoneStream) {
@@ -3664,47 +4256,76 @@
                     }
                     
                     const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    
+
+                    if (!this.isMicrophoneRequestCurrent(requestToken)) {
+                        stream.getTracks().forEach(track => track.stop());
+                        return false;
+                    }
                     this.microphoneStream = stream;
                     this.hasPermission = true;
                     this.updateMicStatus('granted');
                     this.updateStatus('마이크가 준비되었습니다!');
+                    return true;
                     
                 } catch (error) {
                     console.error('마이크 권한 요청 실패:', error);
+                    if (requestToken !== this.microphoneGeneration) return false;
                     this.hasPermission = false;
-                    this.updateMicStatus('denied');
-                    
+
                     if (error.name === 'NotAllowedError') {
+                        this.updateMicStatus('denied');
                         this.updateStatus('마이크 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
                     } else if (error.name === 'NotFoundError') {
+                        this.updateMicStatus('unavailable');
                         this.updateStatus('마이크가 연결되어 있지 않습니다.');
                     } else if (error.name === 'NotReadableError') {
+                        this.updateMicStatus('busy');
                         this.updateStatus('마이크가 다른 앱에서 사용 중입니다.');
                     } else if (error.name === 'OverconstrainedError') {
                         // 제약 조건이 너무 엄격한 경우 단순한 설정으로 재시도
                         try {
                             const simpleStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                            if (!this.isMicrophoneRequestCurrent(requestToken)) {
+                                simpleStream.getTracks().forEach(track => track.stop());
+                                return false;
+                            }
                             this.microphoneStream = simpleStream;
                             this.hasPermission = true;
                             this.updateMicStatus('granted');
                             this.updateStatus('마이크가 준비되었습니다! (기본 설정)');
+                            return true;
                         } catch (retryError) {
+                            if (requestToken !== this.microphoneGeneration) return false;
+                            this.updateMicStatus(retryError.name === 'NotFoundError' ? 'unavailable' : retryError.name === 'NotReadableError' ? 'busy' : 'unknown');
                             this.updateStatus('마이크 접근 실패: ' + retryError.message);
                         }
                     } else {
+                        this.updateMicStatus('unknown');
                         this.updateStatus('마이크 접근 오류: ' + error.message);
                     }
+                    return false;
                 }
             }
 
             exportPattern() {
                 const data = {
+                    schemaVersion: 3,
                     mode: this.mode,
+                    gridMode: this.gridMode,
+                    kit: this.kit,
                     pattern: this.pattern,
                     probability: this.probability,
                     tempo: this.tempo,
                     swing: this.swing,
+                    humanize: this.humanize,
+                    masterVolume: this.masterVolume,
+                    mutedSounds: [...this.mutedSounds],
+                    customSounds: [...this.customSounds].map(([key, sound]) => ({
+                        key,
+                        name: sound.name,
+                        id: sound.id || 'groovebox',
+                        kind: sound.audioBuffer ? 'recorded' : sound.generator ? 'synth' : 'placeholder'
+                    })),
                     synth: {
                         enabled: this.bassEnabled,
                         scale: this.bassScale,
@@ -3720,12 +4341,182 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `drum-pattern-${new Date().getTime()}.json`;
+                a.download = `beatbox-studio-v3-${new Date().getTime()}.json`;
                 a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 0);
             }
 
             importPattern() {
                 document.getElementById('fileInput').click();
+            }
+
+            buildImportDraft(data) {
+                const isPlainObject = value => !!value && typeof value === 'object' && !Array.isArray(value);
+                if (!isPlainObject(data)) throw new Error('루트 객체가 아닙니다.');
+                if (data.pattern != null && !isPlainObject(data.pattern)) throw new Error('패턴 형식 오류');
+
+                const clampInt = (value, fallback, min, max) => {
+                    const parsed = Number(value);
+                    return Number.isFinite(parsed) ? Math.min(max, Math.max(min, Math.round(parsed))) : fallback;
+                };
+                const rawPattern = isPlainObject(data.pattern) ? data.pattern : {};
+                const rawProbability = isPlainObject(data.probability) ? data.probability : {};
+                const rawSynth = isPlainObject(data.synth) ? data.synth : {};
+                const mode = ['normal', 'custom'].includes(data.mode) ? data.mode : 'normal';
+                const inferred24 = Object.values(rawPattern).some(row => Array.isArray(row) && row.length > 16)
+                    || (Array.isArray(rawSynth.pattern) && rawSynth.pattern.length > 16);
+                const gridMode = ['16', '24'].includes(String(data.gridMode)) ? String(data.gridMode) : (inferred24 ? '24' : '16');
+                const maxSteps = gridMode === '24' ? 24 : 16;
+                const kit = ['acoustic', 'tr808', 'electro'].includes(data.kit) ? data.kit : 'acoustic';
+                const atlasIds = new Set(['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'floortom', 'clap', 'cowbell', 'rimshot', 'conga', 'shaker', 'tambourine', 'groovebox']);
+
+                const customByKey = new Map();
+                const addCustomMeta = meta => {
+                    if (!isPlainObject(meta)) return;
+                    const key = String(meta.key || '').toUpperCase();
+                    if (!/^[A-Z]$/.test(key) || customByKey.has(key)) return;
+                    const rawName = typeof meta.name === 'string' ? meta.name.trim() : '';
+                    const name = (rawName || key).slice(0, 60);
+                    const id = atlasIds.has(meta.id) ? meta.id : 'groovebox';
+                    const kind = ['recorded', 'synth', 'placeholder'].includes(meta.kind) ? meta.kind : 'placeholder';
+                    customByKey.set(key, { key, name, id, kind });
+                };
+
+                if (mode === 'custom') {
+                    if (Array.isArray(data.customSounds)) {
+                        data.customSounds.forEach(addCustomMeta);
+                    } else {
+                        this.customSounds.forEach((sound, key) => addCustomMeta({
+                            key,
+                            name: sound.name,
+                            id: sound.id || 'groovebox',
+                            kind: sound.audioBuffer ? 'recorded' : sound.generator ? 'synth' : 'placeholder'
+                        }));
+                    }
+                    Object.keys(rawPattern).forEach(key => addCustomMeta({ key, name: key, id: 'groovebox', kind: 'placeholder' }));
+                    if (!customByKey.size) {
+                        [['K', '킥', 'kick'], ['S', '스네어', 'snare'], ['H', '하이햇', 'hihat']].forEach(([key, name, id]) => {
+                            customByKey.set(key, { key, name, id, kind: 'synth' });
+                        });
+                    }
+                }
+
+                const soundKeys = mode === 'normal' ? [...this.normalSounds.keys()] : [...customByKey.keys()];
+                const normalizedPattern = {};
+                const normalizedProbability = {};
+                soundKeys.forEach(key => {
+                    const source = Array.isArray(rawPattern[key]) ? rawPattern[key] : [];
+                    normalizedPattern[key] = Array.from({ length: maxSteps }, (_, i) => source[i] === true || source[i] === 1);
+                    const probSource = isPlainObject(rawProbability[key]) ? rawProbability[key] : {};
+                    const row = {};
+                    for (let i = 0; i < maxSteps; i++) {
+                        if (probSource[i] == null) continue;
+                        row[i] = clampInt(probSource[i], 100, 0, 100);
+                    }
+                    if (Object.keys(row).length) normalizedProbability[key] = row;
+                });
+
+                const bassScale = Object.prototype.hasOwnProperty.call(DrumMachine.SCALES, rawSynth.scale) ? rawSynth.scale : 'minorPent';
+                const synthRowCount = DrumMachine.SCALES[bassScale].steps.length * 2 + 1;
+                const rawBass = Array.isArray(rawSynth.pattern) ? rawSynth.pattern : [];
+                const bassPattern = Array.from({ length: maxSteps }, (_, i) => {
+                    const note = Number(rawBass[i]);
+                    return Number.isInteger(note) && note >= 0 && note < synthRowCount ? note : null;
+                });
+
+                return {
+                    mode,
+                    gridMode,
+                    kit,
+                    tempo: clampInt(data.tempo, 120, 60, 200),
+                    swing: clampInt(data.swing, 0, 0, 70),
+                    humanize: clampInt(data.humanize, 18, 0, 100),
+                    masterVolume: clampInt(data.masterVolume, 85, 0, 100),
+                    customSounds: [...customByKey.values()],
+                    pattern: normalizedPattern,
+                    probability: normalizedProbability,
+                    mutedSounds: Array.isArray(data.mutedSounds) ? data.mutedSounds.filter(key => soundKeys.includes(key)) : [],
+                    synth: {
+                        enabled: rawSynth.enabled !== false,
+                        scale: bassScale,
+                        rootNote: clampInt(rawSynth.rootNote, 0, 0, 11),
+                        octave: clampInt(rawSynth.octave, 2, 1, 4),
+                        wave: ['sawtooth', 'square', 'triangle', 'sine'].includes(rawSynth.wave) ? rawSynth.wave : 'sawtooth',
+                        pattern: bassPattern
+                    }
+                };
+            }
+
+            materializeCustomSounds(metadata) {
+                const previous = this.customSounds;
+                const generators = {
+                    kick: this.createKickSound.bind(this),
+                    snare: this.createSnareSound.bind(this),
+                    hihat: this.createHihatSound.bind(this)
+                };
+                const next = new Map();
+                metadata.forEach(meta => {
+                    const existing = previous.get(meta.key);
+                    const retainedBuffer = meta.kind === 'recorded' && existing && existing.audioBuffer ? existing.audioBuffer : null;
+                    next.set(meta.key, {
+                        name: meta.name,
+                        id: meta.id,
+                        audioBuffer: retainedBuffer,
+                        generator: meta.kind === 'synth' ? (generators[meta.id] || null) : null,
+                        missingSample: meta.kind === 'recorded' && !retainedBuffer
+                    });
+                });
+                return next;
+            }
+
+            applyImportDraft(draft) {
+                const importedCustomSounds = draft.mode === 'custom' ? this.materializeCustomSounds(draft.customSounds) : this.customSounds;
+                this.stopPlayback();
+                if (draft.mode === 'custom') this.customSounds = importedCustomSounds;
+                this.setMode(draft.mode);
+
+                this.gridMode = draft.gridMode;
+                this.kit = draft.kit;
+                this.currentBeat = 0;
+                this.nextStep = 0;
+                this.pattern = draft.pattern;
+                this.probability = draft.probability;
+                this.mutedSounds = new Set(draft.mutedSounds);
+                this.tempo = draft.tempo;
+                this.swing = draft.swing;
+                this.humanize = draft.humanize;
+                this.masterVolume = draft.masterVolume;
+                this.bassEnabled = draft.synth.enabled;
+                this.bassScale = draft.synth.scale;
+                this.bassRootNote = draft.synth.rootNote;
+                this.bassOctave = draft.synth.octave;
+                this.bassWave = draft.synth.wave;
+                this.bassPattern = draft.synth.pattern;
+                this.buildSynthScale();
+
+                document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === draft.mode));
+                document.querySelectorAll('#grid16Btn, #grid24Btn').forEach(btn => btn.classList.toggle('active', btn.dataset.grid === draft.gridMode));
+                document.querySelectorAll('.kit-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.kit === draft.kit));
+                [['tempo', draft.tempo], ['swing', draft.swing], ['humanize', draft.humanize], ['masterVolume', draft.masterVolume]].forEach(([id, value]) => {
+                    document.getElementById(id).value = value;
+                    document.getElementById(id + 'Value').textContent = value;
+                    this.updateSliderFill(id);
+                });
+                if (this.masterGain && this.audioContext) {
+                    this.masterGain.gain.cancelScheduledValues(this.audioContext.currentTime);
+                    this.masterGain.gain.setValueAtTime(draft.masterVolume / 100, this.audioContext.currentTime);
+                }
+
+                if (draft.mode === 'custom') this.updateSoundGrid();
+                else this.updateDrumKitGrid();
+                this.createBeatGrid();
+                this.updateBeatGrid();
+                this.populateSynthSelectors();
+                this.createSynthGrid();
+                this.syncSynthToggle();
+                this.updatePatternDisplay();
+                this.updateDeckMetrics(0);
+                this.updateStatus('패턴이 불러와졌습니다!');
             }
 
             loadPattern(input) {
@@ -3735,54 +4526,32 @@
                     reader.onload = (e) => {
                         try {
                             const data = JSON.parse(e.target.result);
-                            
-                            if (data.mode) {
-                                this.setMode(data.mode);
-                            }
-                            
-                            this.pattern = data.pattern || {};
-                            this.probability = data.probability || {};
-                            this.tempo = data.tempo || 120;
-                            this.swing = data.swing || 0;
-
-                            // 신스 레인 복원 (구버전 파일이면 유지)
-                            if (data.synth) {
-                                const s = data.synth;
-                                this.bassEnabled = s.enabled !== false;
-                                this.bassScale = s.scale || this.bassScale;
-                                this.bassRootNote = s.rootNote != null ? s.rootNote : this.bassRootNote;
-                                this.bassOctave = s.octave != null ? s.octave : this.bassOctave;
-                                this.bassWave = s.wave || this.bassWave;
-                                const maxSteps = this.gridMode === '24' ? 24 : 16;
-                                this.bassPattern = Array.isArray(s.pattern) ? s.pattern.slice(0, maxSteps) : Array(maxSteps).fill(null);
-                                while (this.bassPattern.length < maxSteps) this.bassPattern.push(null);
-                            }
-
-                            document.getElementById('tempo').value = this.tempo;
-                            document.getElementById('tempoValue').textContent = this.tempo;
-                            document.getElementById('swing').value = this.swing;
-                            document.getElementById('swingValue').textContent = this.swing;
-
-                            this.updateBeatGrid();
-                            this.populateSynthSelectors();
-                            this.buildSynthScale();
-                            this.createSynthGrid();
-                            this.syncSynthToggle();
-                            this.updatePatternDisplay();
-                            this.updateStatus('패턴이 불러와졌습니다!');
+                            const draft = this.buildImportDraft(data);
+                            this.applyImportDraft(draft);
                         } catch (error) {
+                            console.error('패턴 불러오기 실패:', error);
                             this.updateStatus('파일 형식이 올바르지 않습니다.');
+                        } finally {
+                            input.value = '';
                         }
+                    };
+                    reader.onerror = () => {
+                        input.value = '';
+                        this.updateStatus('파일을 읽을 수 없습니다.');
                     };
                     reader.readAsText(file);
                 }
             }
 
-            setGridMode(mode) {
+            setGridMode(mode, resumePlayback = true) {
+                const wasPlaying = this.isPlaying;
+                if (wasPlaying) this.stopPlayback();
                 this.gridMode = mode;
                 
                 // 그리드 모드에 따라 패턴 배열 크기 조정
                 const maxSteps = mode === '24' ? 24 : 16;
+                this.currentBeat %= maxSteps;
+                this.nextStep %= maxSteps;
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 
                 // 기존 패턴을 새로운 크기로 조정
@@ -3817,6 +4586,8 @@
                     btn.classList.remove('active');
                 });
                 document.getElementById(mode === '24' ? 'grid24Btn' : 'grid16Btn').classList.add('active');
+                this.updateDeckMetrics();
+                if (wasPlaying && resumePlayback) this.startPlayback();
             }
 
             setDrumKit(kit) {
@@ -3826,18 +4597,24 @@
                 });
                 const names = { acoustic: '어쿠스틱', tr808: '808 클래식', electro: '일렉트로' };
                 this.updateStatus(`드럼 킷: ${names[kit] || kit} 사운드로 전환되었습니다`);
+                this.updateDeckMetrics();
             }
 
             async startCustomRecording(key, name) {
-                if (!this.hasPermission) {
+                if (!this.hasLiveMicrophoneStream()) {
                     await this.requestMicrophonePermission();
-                    if (!this.hasPermission) {
-                        this.updateStatus('마이크 권한이 필요합니다.');
+                    if (!this.hasLiveMicrophoneStream()) {
+                        this.hasPermission = false;
+                        this.updateStatus('녹음을 시작하려면 실제 마이크 연결이 필요합니다.');
                         return;
                     }
                 }
-                
+
                 try {
+                    if (typeof MediaRecorder === 'undefined') {
+                        this.updateStatus('이 브라우저에서는 녹음 기능을 지원하지 않습니다.');
+                        return;
+                    }
                     this.isRecording = true;
                     this.recordingSound = key;
                     this.recordedChunks = [];
@@ -3909,6 +4686,8 @@
             
             async processRecording(key, name) {
                 try {
+                    if (!this.recordedChunks.length) throw new Error('녹음 데이터가 없습니다.');
+                    if (!(await this.ensureAudioReady())) throw new Error('오디오 디코더를 사용할 수 없습니다.');
                     const blob = new Blob(this.recordedChunks, { type: this.recordedChunks[0].type });
                     
                     // Blob을 ArrayBuffer로 변환
@@ -3923,6 +4702,7 @@
                     // 커스텀 사운드로 저장
                     this.customSounds.set(key, {
                         name: name,
+                        id: 'groovebox',
                         audioBuffer: trimmedBuffer,
                         generator: null
                     });
@@ -3935,6 +4715,7 @@
                     
                     this.updateSoundGrid();
                     this.createBeatGrid();
+                    this.updateBeatGrid();
                     this.updateStatus(`✅ "${name}" 사운드가 ${key} 키에 저장되었습니다!`);
                     
                     // 폼 초기화
@@ -3949,6 +4730,7 @@
                 
                 this.recordingSound = null;
                 this.recordedChunks = [];
+                this.mediaRecorder = null;
             }
             
             trimSilence(audioBuffer) {
@@ -4067,6 +4849,14 @@
 
         function updateSwing(value) {
             drumMachine.updateSwing(value);
+        }
+
+        function updateHumanize(value) {
+            drumMachine.updateHumanize(value);
+        }
+
+        function updateMasterVolume(value) {
+            drumMachine.updateMasterVolume(value);
         }
 
         function requestMicrophonePermission() {
