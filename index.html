@@ -854,6 +854,18 @@
             color: var(--cyan);
         }
 
+        /* 드럼 전체 뮤트: 활성화되면 장미색 (뮤트 = 위험/정지 계열) */
+        .muteall-toggle.active {
+            border-color: rgba(251, 113, 133, 0.6);
+            background: linear-gradient(135deg, rgba(251, 113, 133, 0.25), rgba(244, 63, 94, 0.2));
+            color: var(--text-hi);
+            box-shadow: 0 0 12px rgba(251, 113, 133, 0.3);
+        }
+
+        .muteall-toggle.active .icon {
+            color: var(--rose);
+        }
+
         .beat-grid {
             position: relative;
             display: grid;
@@ -1608,6 +1620,7 @@
         <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v15.5h16.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14.5l3.2-4.2 3 2.4 4.4-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
         <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-3.7 10.7c.7.6 1.2 1.4 1.2 2.3h5c0-.9.5-1.7 1.2-2.3A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 19.5h4M10.7 22h2.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
         <symbol id="i-autoscroll" viewBox="0 0 24 24"><path d="M8 8 3.5 12 8 16M16 8l4.5 4-4.5 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5H4z" fill="currentColor"/><path d="M15.5 9.5l5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     </svg>
 
     <div class="container">
@@ -1694,6 +1707,10 @@
                 <div class="grid-hint">
                     <svg class="icon"><use href="#i-bulb"/></svg>
                     <span class="hint-text">클릭: 비트 켜기/끄기 · 우클릭/길게누르기: 발음 확률(100→75→50→25%)</span>
+                    <button class="autoscroll-toggle muteall-toggle" id="muteAllToggle" onclick="toggleMuteAll()" aria-pressed="false" title="드럼 전체 뮤트/해제 (신스는 계속 재생)">
+                        <svg class="icon"><use href="#i-mute"/></svg>
+                        <span>드럼 뮤트 <b>OFF</b></span>
+                    </button>
                     <button class="autoscroll-toggle" id="autoScrollToggle" onclick="toggleAutoScroll()" aria-pressed="false" title="재생 중 현재 스텝을 자동으로 따라가도록 스크롤">
                         <svg class="icon"><use href="#i-autoscroll"/></svg>
                         <span>오토스크롤 <b>OFF</b></span>
@@ -1715,6 +1732,7 @@
                     <svg class="icon"><use href="#i-music"/></svg>
                     <span>신스 <b>ON</b></span>
                 </button>
+                <button class="generate-btn" onclick="generateBassline()" title="현재 스케일 안에서 베이스라인을 자동 생성"><svg class="icon"><use href="#i-dice"/></svg> 베이스 자동 생성</button>
                 <label class="synth-ctl">스케일
                     <select id="synthScale" onchange="updateSynthConfig()"></select>
                 </label>
@@ -2382,6 +2400,7 @@
 
                 this.populateEuclidInstruments();
                 this.updateEuclidUI();
+                this.syncMuteAllButton();
             }
 
             // 롱프레스(모바일): 셀을 길게 누르면 콜백 실행, 이후 탭(토글)은 억제
@@ -2873,6 +2892,71 @@
                 this.updateStatus('신스 레인을 초기화했습니다');
             }
 
+            // 베이스라인 자동 생성: 스케일 안에서 3가지 스타일 중 랜덤 (루트 드라이브/신코페이션/옥타브 바운스)
+            generateBassline() {
+                const maxSteps = this.gridMode === '24' ? 24 : 16;
+                const groupSize = this.gridMode === '24' ? 3 : 4;
+                this.bassPattern = Array(maxSteps).fill(null);
+
+                const scaleLen = (DrumMachine.SCALES[this.bassScale] || DrumMachine.SCALES.minorPent).steps.length;
+                const clamp = (r) => Math.max(0, Math.min(r, this.synthRows.length - 1));
+                const root = 0;
+                const octave = clamp(scaleLen);                    // 한 옥타브 위 루트
+                const fifth = clamp(scaleLen >= 6 ? 4 : 3);        // 완전5도 근처 음도
+                const third = clamp(scaleLen >= 6 ? 2 : 1);        // 3도 근처 음도
+
+                const styles = ['rootDrive', 'syncopated', 'octaveBounce'];
+                const style = styles[Math.floor(Math.random() * styles.length)];
+
+                if (style === 'rootDrive') {
+                    // 다운비트마다 루트 + 마디 끝 픽업 노트 (록/펑크 베이스)
+                    for (let i = 0; i < maxSteps; i += groupSize) {
+                        this.bassPattern[i] = root;
+                        if (Math.random() > 0.45) {
+                            const pickup = i + groupSize - 1;
+                            const choices = [fifth, octave, third];
+                            if (pickup < maxSteps) this.bassPattern[pickup] = choices[Math.floor(Math.random() * choices.length)];
+                        }
+                    }
+                    // 후반부에 5도 변주로 진행감
+                    if (Math.random() > 0.5) this.bassPattern[Math.floor(maxSteps / 2)] = fifth;
+                } else if (style === 'syncopated') {
+                    // 루트 시작 + 스케일 안 랜덤 워크 (펑크/힙합 신코페이션)
+                    this.bassPattern[0] = root;
+                    let cur = root;
+                    for (let i = 1; i < maxSteps; i++) {
+                        const isDown = i % groupSize === 0;
+                        if (Math.random() < (isDown ? 0.55 : 0.32)) {
+                            const move = [-2, -1, -1, 0, 1, 1, 2, 3][Math.floor(Math.random() * 8)];
+                            cur = clamp(Math.min(cur + move, scaleLen + 1)); // 저역 위주 워크
+                            this.bassPattern[i] = (isDown && Math.random() < 0.45) ? root : cur;
+                        }
+                    }
+                    if (this.bassPattern.every(v => v == null)) this.bassPattern[0] = root; // 안전망
+                } else {
+                    // 옥타브 바운스: 정박 루트 + 업비트 옥타브 (디스코/EDM)
+                    const half = Math.max(1, Math.floor(groupSize / 2));
+                    for (let i = 0; i < maxSteps; i += groupSize) {
+                        this.bassPattern[i] = root;
+                        const up = i + half;
+                        if (up < maxSteps && Math.random() > 0.15) this.bassPattern[up] = octave;
+                    }
+                    // 마지막 마디는 5도로 턴어라운드
+                    if (Math.random() > 0.5 && maxSteps - groupSize >= 0) {
+                        this.bassPattern[maxSteps - groupSize] = fifth;
+                    }
+                }
+
+                // 생성했으면 레인을 켠다
+                if (!this.bassEnabled) {
+                    this.bassEnabled = true;
+                    this.syncSynthToggle();
+                }
+                this.updateSynthGrid();
+                const styleNames = { rootDrive: '루트 드라이브', syncopated: '신코페이션', octaveBounce: '옥타브 바운스' };
+                this.updateStatus(`베이스라인 생성: ${styleNames[style]} 🎸`);
+            }
+
             // 악기(행) 뮤트 토글: 시퀀서 재생 시 해당 악기 소리를 건너뛴다
             toggleMute(key) {
                 if (this.mutedSounds.has(key)) {
@@ -2881,12 +2965,41 @@
                     this.mutedSounds.add(key);
                 }
                 this.applyMuteState();
+                this.syncMuteAllButton();
 
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 const sound = sounds.get(key);
                 const name = sound ? sound.name : key;
                 const muted = this.mutedSounds.has(key);
                 this.updateStatus(`${name} ${muted ? '🔇 뮤트됨' : '🔊 뮤트 해제'}`);
+            }
+
+            // 드럼 전체 뮤트/해제 토글 (신스 레인은 영향 없음)
+            toggleMuteAll() {
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const keys = [...sounds.keys()];
+                const allMuted = keys.length > 0 && keys.every(k => this.mutedSounds.has(k));
+                if (allMuted) {
+                    keys.forEach(k => this.mutedSounds.delete(k));
+                } else {
+                    keys.forEach(k => this.mutedSounds.add(k));
+                }
+                this.applyMuteState();
+                this.syncMuteAllButton();
+                this.updateStatus(allMuted ? '드럼 전체 뮤트 해제 🔊' : '드럼 전체 뮤트 🔇 (신스는 계속 재생됩니다)');
+            }
+
+            // 뮤트 전체 버튼 상태 동기화: 모든 행이 뮤트일 때만 활성
+            syncMuteAllButton() {
+                const btn = document.getElementById('muteAllToggle');
+                if (!btn) return;
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const keys = [...sounds.keys()];
+                const allMuted = keys.length > 0 && keys.every(k => this.mutedSounds.has(k));
+                btn.classList.toggle('active', allMuted);
+                btn.setAttribute('aria-pressed', String(allMuted));
+                const b = btn.querySelector('b');
+                if (b) b.textContent = allMuted ? 'ON' : 'OFF';
             }
 
             // 뮤트 상태를 라벨/셀 클래스에 반영 (그리드 재생성 없이 갱신)
@@ -4138,6 +4251,14 @@
 
         function clearSynth() {
             drumMachine.clearSynth();
+        }
+
+        function generateBassline() {
+            drumMachine.generateBassline();
+        }
+
+        function toggleMuteAll() {
+            drumMachine.toggleMuteAll();
         }
     </script>
 </body>
