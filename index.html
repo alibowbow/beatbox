@@ -1732,6 +1732,10 @@
                     <svg class="icon"><use href="#i-music"/></svg>
                     <span>신스 <b>ON</b></span>
                 </button>
+                <button class="autoscroll-toggle muteall-toggle" id="bassMuteToggle" onclick="toggleBassMute()" aria-pressed="false" title="베이스·멜로디 신스 뮤트/해제">
+                    <svg class="icon"><use href="#i-mute"/></svg>
+                    <span>베이스 뮤트 <b>OFF</b></span>
+                </button>
                 <button class="generate-btn" onclick="generateBassline()" title="현재 스케일 안에서 베이스라인을 자동 생성"><svg class="icon"><use href="#i-dice"/></svg> 베이스 자동 생성</button>
                 <label class="synth-ctl">스케일
                     <select id="synthScale" onchange="updateSynthConfig()"></select>
@@ -1854,6 +1858,7 @@
 
                 // 베이스/멜로디 신스 레인 (그루브박스)
                 this.bassEnabled = true;
+                this.bassMuted = false;
                 this.bassScale = 'minorPent';
                 this.bassRootNote = 0;   // 0=C … 11=B
                 this.bassOctave = 2;     // 과학적 옥타브 (C2 = MIDI 36)
@@ -2677,6 +2682,7 @@
                 this.buildSynthScale();
                 this.createSynthGrid();
                 this.syncSynthToggle();
+                this.syncBassMuteToggle();
             }
 
             buildSynthScale() {
@@ -2883,6 +2889,21 @@
                     if (b) b.textContent = this.bassEnabled ? 'ON' : 'OFF';
                 }
                 if (lane) lane.classList.toggle('lane-off', !this.bassEnabled);
+            }
+
+            toggleBassMute() {
+                this.bassMuted = !this.bassMuted;
+                this.syncBassMuteToggle();
+                this.updateStatus(this.bassMuted ? '베이스/멜로디 신스 뮤트 🔇' : '베이스/멜로디 신스 뮤트 해제 🔊');
+            }
+
+            syncBassMuteToggle() {
+                const btn = document.getElementById('bassMuteToggle');
+                if (!btn) return;
+                btn.classList.toggle('active', this.bassMuted);
+                btn.setAttribute('aria-pressed', String(this.bassMuted));
+                const b = btn.querySelector('b');
+                if (b) b.textContent = this.bassMuted ? 'ON' : 'OFF';
             }
 
             clearSynth() {
@@ -3490,7 +3511,7 @@
                     });
 
                     // 베이스/멜로디 신스 레인
-                    if (this.bassEnabled && this.bassPattern[this.currentBeat] != null) {
+                    if (this.bassEnabled && !this.bassMuted && this.bassPattern[this.currentBeat] != null) {
                         this.playSynthNote(this.synthRows[this.bassPattern[this.currentBeat]]);
                     }
 
@@ -3820,6 +3841,7 @@
                     swing: this.swing,
                     synth: {
                         enabled: this.bassEnabled,
+                        muted: this.bassMuted,
                         scale: this.bassScale,
                         rootNote: this.bassRootNote,
                         octave: this.bassOctave,
@@ -3862,6 +3884,7 @@
                             if (data.synth) {
                                 const s = data.synth;
                                 this.bassEnabled = s.enabled !== false;
+                                this.bassMuted = s.muted === true;
                                 this.bassScale = s.scale || this.bassScale;
                                 this.bassRootNote = s.rootNote != null ? s.rootNote : this.bassRootNote;
                                 this.bassOctave = s.octave != null ? s.octave : this.bassOctave;
@@ -3881,6 +3904,7 @@
                             this.buildSynthScale();
                             this.createSynthGrid();
                             this.syncSynthToggle();
+                            this.syncBassMuteToggle();
                             this.updatePatternDisplay();
                             this.updateStatus('패턴이 불러와졌습니다!');
                         } catch (error) {
@@ -4259,6 +4283,10 @@
 
         function toggleMuteAll() {
             drumMachine.toggleMuteAll();
+        }
+
+        function toggleBassMute() {
+            drumMachine.toggleBassMute();
         }
     </script>
 </body>
