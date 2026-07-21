@@ -235,40 +235,96 @@
 
         /* ───────── 홍보 영상 스튜디오 ───────── */
         .promo-recorder-panel {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
+            width: fit-content;
+            max-width: 100%;
+            margin: -8px 0 6px auto;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 8px;
+            background: rgba(3, 6, 14, 0.38);
+            box-shadow: none;
+        }
+
+        .promo-recorder-summary {
+            display: flex;
             align-items: center;
-            gap: 18px;
-            margin: 0 0 22px;
-            padding: 16px 18px;
-            border: 1px solid rgba(34, 211, 238, 0.32);
-            border-radius: 16px;
+            justify-content: center;
+            gap: 4px;
+            min-height: 24px;
+            padding: 2px 7px;
+            color: var(--text-dim);
+            font-family: var(--font-disp);
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            list-style: none;
+            opacity: 0.55;
+            user-select: none;
+        }
+
+        .promo-recorder-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .promo-recorder-summary::marker {
+            content: '';
+        }
+
+        .promo-recorder-summary .icon {
+            width: 11px;
+            height: 11px;
+        }
+
+        .promo-recorder-summary::after {
+            content: '\203A';
+            font-size: 11px;
+            line-height: 1;
+            transform: rotate(90deg);
+            transition: transform 0.18s ease;
+        }
+
+        .promo-recorder-panel[open] {
+            width: min(100%, 430px);
+            border-color: rgba(34, 211, 238, 0.24);
             background:
-                linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(167, 139, 250, 0.1)),
-                rgba(3, 6, 14, 0.64);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+                linear-gradient(135deg, rgba(34, 211, 238, 0.07), rgba(167, 139, 250, 0.07)),
+                rgba(3, 6, 14, 0.72);
         }
 
-        .promo-recorder-copy strong {
-            display: block;
-            margin-bottom: 4px;
-            font-size: 13.5px;
-            color: var(--text-hi);
+        .promo-recorder-panel[open] .promo-recorder-summary {
+            justify-content: flex-end;
+            opacity: 0.82;
         }
 
-        .promo-recorder-copy span {
-            display: block;
-            color: var(--text-mid);
-            font-size: 11.5px;
-            line-height: 1.55;
+        .promo-recorder-panel[open] .promo-recorder-summary::after {
+            transform: rotate(-90deg);
+        }
+
+        .promo-recorder-summary:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: -2px;
         }
 
         .promo-recorder-actions {
             display: flex;
             align-items: center;
-            gap: 9px;
+            gap: 6px;
             flex-wrap: wrap;
             justify-content: flex-end;
+            padding: 7px;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .promo-recorder-panel:not([open]) > .promo-recorder-actions {
+            display: none;
+        }
+
+        .promo-recorder-actions button {
+            min-height: 32px;
+            padding: 6px 10px;
+            border-radius: 9px;
+            font-size: 11px;
         }
 
         .promo-record-btn {
@@ -318,10 +374,11 @@
 
         @media (max-width: 768px) {
             .promo-recorder-panel {
-                grid-template-columns: 1fr;
-                gap: 11px;
-                margin-bottom: 14px;
-                padding: 13px;
+                margin-bottom: 5px;
+            }
+
+            .promo-recorder-panel[open] {
+                width: 100%;
             }
 
             .promo-recorder-actions {
@@ -1986,18 +2043,17 @@
             <button class="mode-btn" data-mode="custom" onclick="setMode('custom')"><svg class="icon"><use href="#i-mic"/></svg> 커스텀 비트박스 모드</button>
         </div>
 
-        <section class="promo-recorder-panel" id="promoRecorderPanel" data-beatbox-promo-panel aria-label="홍보 영상 스튜디오">
-            <div class="promo-recorder-copy">
-                <strong>세로형 홍보 영상 스튜디오</strong>
-                <span>브라우저를 세로 비율로 맞춘 뒤 녹화 시 현재 Beatbox 탭을 선택하세요. 실제 화면과 마스터 사운드가 한 파일에 담깁니다.</span>
-            </div>
+        <details class="promo-recorder-panel" id="promoRecorderPanel" data-beatbox-promo-panel>
+            <summary class="promo-recorder-summary" aria-label="홍보 영상 스튜디오 열기" title="홍보 영상 스튜디오">
+                <svg class="icon" aria-hidden="true"><use href="#i-rec"/></svg><span>영상</span>
+            </summary>
             <div class="promo-recorder-actions">
                 <button class="promo-preview-btn" id="promoPreviewBtn" onclick="previewPromo()"><svg class="icon"><use href="#i-play"/></svg> 데모 미리보기</button>
                 <button class="promo-record-btn" id="promoRecordBtn" onclick="recordPromo()"><svg class="icon"><use href="#i-rec"/></svg> 세로 영상 녹화</button>
                 <button class="danger-btn" id="promoCancelBtn" onclick="cancelPromo()" hidden><svg class="icon"><use href="#i-stop"/></svg> 중지</button>
                 <span class="promo-record-state" id="promoRecordState" role="status" aria-live="polite">READY · 1080×1920</span>
             </div>
-        </section>
+        </details>
 
         <div class="desktop-layout">
             <div class="control-section">
@@ -2583,9 +2639,14 @@
                 if (!this.openHatEnvs) return;
                 const t = atTime ?? this.voiceStartTime ?? this.audioContext.currentTime;
                 this.openHatEnvs.forEach(env => {
-                    env.gain.cancelScheduledValues(t);
-                    env.gain.setValueAtTime(Math.max(env.gain.value, 0.001), t);
-                    env.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+                    // cancelAndHoldAtTime은 해당 시점의 실제 볼륨을 그대로 잡아둔다.
+                    // gain.value를 다시 set하면 초크 순간 피크로 튀어 '칫'이 한 번 더 들릴 수 있다.
+                    if (typeof env.gain.cancelAndHoldAtTime === 'function') {
+                        env.gain.cancelAndHoldAtTime(t);
+                    } else {
+                        env.gain.cancelScheduledValues(t);
+                    }
+                    env.gain.setTargetAtTime(0.001, t, 0.006);
                 });
                 this.openHatEnvs = null;
             }
@@ -2642,36 +2703,36 @@
                 }
             }
 
-            // 오픈 하이햇: 긴 울림 + 초크 대상으로 등록
+            // 오픈 하이햇: 단일 노이즈 보이스로 한 번만 발음하고 자연스럽게 길게 감쇠한다.
+            // 금속 오실레이터와 노이즈를 겹치면 비팅이 별도 타격처럼 들릴 수 있어 사용하지 않는다.
             createOpenHatSound() {
                 if (!this.audioContext || !this.masterGain) return;
                 this.chokeOpenHat();
                 const kit = this.kit;
-                const envs = [];
+                let profile;
                 if (kit === 'tr808') {
-                    envs.push(this.playMetal({ gain: 0.3, decay: 0.45, bandFreq: 9200, bandQ: 1, hipassFreq: 7000 }));
+                    profile = { gain: 0.25, attack: 0.002, decay: 0.46, filterType: 'highpass', filterFreq: 6500, filter2Type: 'lowpass', filter2Freq: 12500, Q2: 0.35 };
                 } else if (kit === 'electro') {
-                    envs.push(this.playNoise({ gain: 0.3, decay: 0.42, filterType: 'highpass', filterFreq: 8200 }));
+                    profile = { gain: 0.24, attack: 0.002, decay: 0.4, filterType: 'highpass', filterFreq: 7200, filter2Type: 'lowpass', filter2Freq: 13200, Q2: 0.3 };
                 } else {
-                    envs.push(this.playMetal({ gain: 0.28, decay: 0.5, bandFreq: 9800, bandQ: 0.9, hipassFreq: 6800, send: 0.1 }));
-                    envs.push(this.playNoise({ gain: 0.12, decay: 0.45, filterType: 'highpass', filterFreq: 8400, send: 0.08 }));
+                    profile = { gain: 0.28, attack: 0.002, decay: 0.58, filterType: 'highpass', filterFreq: 5200, filter2Type: 'lowpass', filter2Freq: 11800, Q2: 0.35, send: 0.08 };
                 }
-                this.openHatEnvs = envs;
+                this.openHatEnvs = [this.playNoise(profile)];
             }
 
-            // 크래시: 금속 뱅크(쉬머) + 노이즈 워시 + 초기 임팩트
+            // 크래시: 넓은 노이즈 워시를 중심으로 하고 금속 배음은 잔향용으로만 얇게 섞는다.
             createCrashSound() {
                 if (!this.audioContext || !this.masterGain) return;
                 const kit = this.kit;
                 if (kit === 'electro') {
-                    this.playNoise({ gain: 0.4, decay: 1.3, filterType: 'highpass', filterFreq: 5800, send: 0.2 });
+                    this.playNoise({ gain: 0.36, attack: 0.003, decay: 1.25, filterType: 'highpass', filterFreq: 3600, filter2Type: 'lowpass', filter2Freq: 11200, Q2: 0.35, send: 0.18 });
                 } else if (kit === 'tr808') {
-                    this.playNoise({ gain: 0.38, decay: 1.0, filterType: 'highpass', filterFreq: 4400 });
-                    this.playMetal({ gain: 0.2, decay: 0.5, bandFreq: 7800, bandQ: 0.6, hipassFreq: 5200 });
+                    this.playNoise({ gain: 0.38, attack: 0.003, decay: 1.05, filterType: 'highpass', filterFreq: 3000, filter2Type: 'lowpass', filter2Freq: 10400, Q2: 0.35, send: 0.08 });
+                    this.playMetal({ gain: 0.06, decay: 0.45, bandFreq: 6500, bandQ: 0.35, hipassFreq: 3600 });
                 } else {
-                    this.playMetal({ baseFreq: 55, ratios: [2.1, 3.0, 4.16, 5.43, 6.79, 8.21], gain: 0.42, decay: 1.7, bandFreq: 6200, bandQ: 0.4, hipassFreq: 3600, send: 0.25 });
-                    this.playNoise({ gain: 0.3, decay: 1.5, filterType: 'highpass', filterFreq: 5200, send: 0.22 });
-                    this.playNoise({ gain: 0.2, decay: 0.35, filterType: 'bandpass', filterFreq: 3400, Q: 0.7 });
+                    this.playNoise({ gain: 0.42, attack: 0.004, decay: 1.65, filterType: 'highpass', filterFreq: 1900, filter2Type: 'lowpass', filter2Freq: 9800, Q2: 0.32, send: 0.2 });
+                    this.playNoise({ gain: 0.16, attack: 0.001, decay: 0.24, filterType: 'bandpass', filterFreq: 2600, Q: 0.5, send: 0.08 });
+                    this.playMetal({ baseFreq: 51, ratios: [2.1, 3.03, 4.2, 5.37, 6.84, 8.15], gain: 0.055, decay: 0.62, bandFreq: 5200, bandQ: 0.25, hipassFreq: 2700, send: 0.1 });
                 }
             }
 
@@ -4221,6 +4282,7 @@
                 document.addEventListener('keydown', (e) => {
                     if (e.target instanceof Element &&
                         e.target.closest('input, select, textarea, button, [contenteditable="true"]')) return;
+                    if (e.repeat) return; // 한 번 누른 키가 OS 자동 반복으로 여러 번 발음되는 것 방지
                     
                     const key = e.key.toUpperCase();
                     
@@ -4738,6 +4800,8 @@
             }
 
             window.addEventListener('beatbox-promo-preparing', (event) => {
+                const panel = document.getElementById('promoRecorderPanel');
+                if (panel) panel.removeAttribute('open');
                 setPromoUI(true, event.detail.kind === 'record' ? '화면 선택 중…' : '데모 준비 중…');
             });
             window.addEventListener('beatbox-promo-start', (event) => {
@@ -4753,6 +4817,8 @@
             ['complete', 'cancelled', 'error'].forEach(name => {
                 window.addEventListener(`beatbox-promo-${name}`, () => {
                     document.body.classList.remove('promo-capturing', 'promo-previewing');
+                    const panel = document.getElementById('promoRecorderPanel');
+                    if (panel) panel.removeAttribute('open');
                     const labels = { complete: '완료 · 파일 저장됨', cancelled: '취소됨', error: '녹화 오류' };
                     setPromoUI(false, labels[name]);
                 });

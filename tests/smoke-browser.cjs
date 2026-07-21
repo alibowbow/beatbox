@@ -65,6 +65,93 @@ async function main() {
         const result = await page.evaluate(async () => {
             const machine = drumMachine;
             await machine.audioContext.resume();
+
+            const studioPanel = document.getElementById('promoRecorderPanel');
+            const studioActions = studioPanel.querySelector('.promo-recorder-actions');
+            studioPanel.open = false;
+            const studioClosed = {
+                tagName: studioPanel.tagName,
+                open: studioPanel.open,
+                height: studioPanel.getBoundingClientRect().height,
+                width: studioPanel.getBoundingClientRect().width,
+                actionsVisible: studioActions.getClientRects().length > 0,
+                guidePresent: Boolean(studioPanel.querySelector('.promo-recorder-copy')) ||
+                    studioPanel.textContent.includes('브라우저를 세로 비율로'),
+            };
+            studioPanel.open = true;
+            const studioOpened = {
+                actionsVisible: studioActions.getClientRects().length > 0,
+                previewVisible: document.getElementById('promoPreviewBtn').getClientRects().length > 0,
+                recordVisible: document.getElementById('promoRecordBtn').getClientRects().length > 0,
+            };
+            studioPanel.open = false;
+
+            const originalKit = machine.kit;
+            const originalPlayNoise = machine.playNoise;
+            const originalPlayMetal = machine.playMetal;
+            const openHatRecipes = {};
+            const makeSpyEnv = () => ({ gain: {} });
+            for (const kit of ['acoustic', 'tr808', 'electro']) {
+                const layers = [];
+                machine.kit = kit;
+                machine.openHatEnvs = null;
+                machine.playNoise = options => {
+                    layers.push({ type: 'noise', options: { ...options } });
+                    return makeSpyEnv();
+                };
+                machine.playMetal = options => {
+                    layers.push({ type: 'metal', options: { ...options } });
+                    return makeSpyEnv();
+                };
+                machine.createOpenHatSound();
+                openHatRecipes[kit] = {
+                    layers,
+                    envelopes: machine.openHatEnvs ? machine.openHatEnvs.length : 0,
+                };
+            }
+
+            const crashLayers = [];
+            machine.kit = 'acoustic';
+            machine.openHatEnvs = null;
+            machine.playNoise = options => {
+                crashLayers.push({ type: 'noise', options: { ...options } });
+                return makeSpyEnv();
+            };
+            machine.playMetal = options => {
+                crashLayers.push({ type: 'metal', options: { ...options } });
+                return makeSpyEnv();
+            };
+            machine.createCrashSound();
+            machine.playNoise = originalPlayNoise;
+            machine.playMetal = originalPlayMetal;
+            machine.kit = originalKit;
+            machine.openHatEnvs = null;
+
+            const chokeEvents = [];
+            machine.openHatEnvs = [{
+                gain: {
+                    value: 1,
+                    cancelAndHoldAtTime: time => chokeEvents.push({ type: 'hold', time }),
+                    cancelScheduledValues: time => chokeEvents.push({ type: 'cancel', time }),
+                    setValueAtTime: (value, time) => chokeEvents.push({ type: 'set', value, time }),
+                    exponentialRampToValueAtTime: (value, time) => chokeEvents.push({ type: 'ramp', value, time }),
+                    setTargetAtTime: (value, time, constant) => chokeEvents.push({ type: 'target', value, time, constant }),
+                },
+            }];
+            const chokeAt = machine.audioContext.currentTime + 0.05;
+            machine.chokeOpenHat(chokeAt);
+
+            let openHatPadTriggers = 0;
+            const originalPlaySound = machine.playSound;
+            machine.playSound = key => {
+                if (key === 'R') openHatPadTriggers += 1;
+            };
+            const openHatPad = document.querySelector('.pad[data-key="R"]');
+            openHatPad.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'mouse', button: 0 }));
+            openHatPad.dispatchEvent(new MouseEvent('click', { bubbles: true, button: 0 }));
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', repeat: true, bubbles: true }));
+            machine.playSound = originalPlaySound;
+
             const bassChecks = [];
             for (const scale of Object.keys(machine.constructor.SCALES)) {
                 for (let root = 0; root < 12; root += 1) {
@@ -137,10 +224,43 @@ async function main() {
                 playbackButtonsAfterStop,
                 synthControlMetrics,
                 promoClass: typeof window.BeatboxPromoRecorder,
+                studioClosed,
+                studioOpened,
+                openHatRecipes,
+                crashLayers,
+                chokeEvents,
+                openHatPadTriggers,
             };
         });
 
         assert(result.captureTracks === 1, `capture audio tracks: ${result.captureTracks}`);
+        assert(result.studioClosed.tagName === 'DETAILS', `promo studio is not a disclosure: ${result.studioClosed.tagName}`);
+        assert(!result.studioClosed.open, 'promo studio is open by default');
+        assert(result.studioClosed.height <= 30, `collapsed promo studio is too tall: ${result.studioClosed.height}px`);
+        assert(result.studioClosed.width <= 90, `collapsed promo studio is too wide: ${result.studioClosed.width}px`);
+        assert(!result.studioClosed.actionsVisible, 'promo actions are visible while studio is collapsed');
+        assert(!result.studioClosed.guidePresent, 'promo guidance copy still exists');
+        assert(result.studioOpened.actionsVisible && result.studioOpened.previewVisible && result.studioOpened.recordVisible,
+            `promo actions did not appear when opened: ${JSON.stringify(result.studioOpened)}`);
+        for (const [kit, recipe] of Object.entries(result.openHatRecipes)) {
+            assert(recipe.envelopes === 1, `${kit} open hat created ${recipe.envelopes} envelopes`);
+            assert(recipe.layers.length === 1 && recipe.layers[0].type === 'noise',
+                `${kit} open hat is not a single noise voice: ${JSON.stringify(recipe.layers)}`);
+            assert((recipe.layers[0].options.when || 0) === 0,
+                `${kit} open hat contains a delayed retrigger: ${JSON.stringify(recipe.layers)}`);
+        }
+        assert(result.openHatPadTriggers === 1, `open-hat pad triggered ${result.openHatPadTriggers} times for one press`);
+        assert(result.chokeEvents.map(event => event.type).join(',') === 'hold,target',
+            `open-hat choke can re-attack: ${JSON.stringify(result.chokeEvents)}`);
+        const crashMetalWeight = result.crashLayers
+            .filter(layer => layer.type === 'metal')
+            .reduce((sum, layer) => sum + layer.options.gain * layer.options.decay, 0);
+        const crashNoiseWeight = result.crashLayers
+            .filter(layer => layer.type === 'noise')
+            .reduce((sum, layer) => sum + layer.options.gain * layer.options.decay, 0);
+        assert(crashNoiseWeight > 0, 'acoustic crash has no noise wash');
+        assert(crashMetalWeight <= crashNoiseWeight * 0.25,
+            `acoustic crash is still metal-dominant: metal=${crashMetalWeight}, noise=${crashNoiseWeight}`);
         for (const check of result.bassChecks) {
             assert(check.midi.length > 0, `empty bassline: ${check.scale}/${check.root}`);
             assert(check.midi.every(midi => midi >= 43 && midi <= 54), `bass range escaped: ${JSON.stringify(check)}`);
@@ -276,6 +396,8 @@ async function main() {
                     buttonWidths: buttons.map(element => element.getBoundingClientRect().width),
                     settingHeights: settings.map(element => element.getBoundingClientRect().height),
                     collapsedLibraryHeight: document.getElementById('loopLibrarySection').getBoundingClientRect().height,
+                    collapsedStudioHeight: document.getElementById('promoRecorderPanel').getBoundingClientRect().height,
+                    studioOpen: document.getElementById('promoRecorderPanel').open,
                     synthPlayVisible: getComputedStyle(document.getElementById('synthPlayBtn')).display !== 'none',
                 };
             });
@@ -288,6 +410,8 @@ async function main() {
                 `mobile bass setting heights differ: ${mobileControls.settingHeights.join(',')}`);
             assert(mobileControls.collapsedLibraryHeight <= 44,
                 `mobile collapsed loop library is too tall: ${mobileControls.collapsedLibraryHeight}px`);
+            assert(!mobileControls.studioOpen && mobileControls.collapsedStudioHeight <= 30,
+                `mobile promo studio is not compact: ${JSON.stringify(mobileControls)}`);
             await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 1 });
             await new Promise(resolve => setTimeout(resolve, 260));
 
@@ -335,12 +459,14 @@ async function main() {
                 history: localStorage.getItem(window.BeatboxLoopLibrary.STORAGE_KEY),
                 hash: location.hash,
                 libraryOpen: document.getElementById('loopLibrarySection').open,
+                promoStudioOpen: document.getElementById('promoRecorderPanel').open,
                 autoSaveSuspended: drumMachine.suspendLoopAutoSave,
             }));
             assert(JSON.stringify(afterPromo.state) === JSON.stringify(beforePromo.state), 'promo changed the user loop');
             assert(afterPromo.history === beforePromo.history, 'promo changed the saved loop history');
             assert(afterPromo.hash === beforePromo.hash, 'promo changed the share hash');
             assert(afterPromo.libraryOpen === beforePromo.libraryOpen, 'promo changed the library disclosure state');
+            assert(afterPromo.promoStudioOpen === false, 'promo studio did not collapse after preview');
             assert(afterPromo.autoSaveSuspended === false, 'promo left loop auto-save suspended');
         }
 
