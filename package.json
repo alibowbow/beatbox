@@ -1,0 +1,11 @@
+{
+  "name": "beatbox-pro-drum-machine",
+  "private": true,
+  "scripts": {
+    "test": "node tests/smoke-browser.cjs",
+    "test:promo": "FULL_PROMO=1 node tests/smoke-browser.cjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "24.16.0"
+  }
+}

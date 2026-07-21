@@ -233,6 +233,111 @@
             }
         }
 
+        /* ───────── 홍보 영상 스튜디오 ───────── */
+        .promo-recorder-panel {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 18px;
+            margin: 0 0 22px;
+            padding: 16px 18px;
+            border: 1px solid rgba(34, 211, 238, 0.32);
+            border-radius: 16px;
+            background:
+                linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(167, 139, 250, 0.1)),
+                rgba(3, 6, 14, 0.64);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .promo-recorder-copy strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13.5px;
+            color: var(--text-hi);
+        }
+
+        .promo-recorder-copy span {
+            display: block;
+            color: var(--text-mid);
+            font-size: 11.5px;
+            line-height: 1.55;
+        }
+
+        .promo-recorder-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .promo-record-btn {
+            border-color: rgba(251, 113, 133, 0.55);
+            background: linear-gradient(135deg, rgba(251, 113, 133, 0.32), rgba(244, 63, 94, 0.25));
+        }
+
+        .promo-preview-btn {
+            border-color: rgba(34, 211, 238, 0.45);
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(99, 102, 241, 0.22));
+        }
+
+        .promo-record-state {
+            min-width: 86px;
+            font-family: var(--font-disp);
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            text-align: right;
+        }
+
+        .promo-record-state.active {
+            color: var(--rose);
+        }
+
+        .promo-pulse {
+            animation: promoControlPulse 0.55s ease-out !important;
+        }
+
+        @keyframes promoControlPulse {
+            0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.9); filter: brightness(1.35); }
+            100% { box-shadow: 0 0 0 14px rgba(34, 211, 238, 0); filter: brightness(1); }
+        }
+
+        body.promo-capturing {
+            cursor: none;
+        }
+
+        body.promo-capturing .promo-recorder-panel {
+            display: none;
+        }
+
+        body.promo-capturing *,
+        body.promo-previewing * {
+            scroll-behavior: auto !important;
+        }
+
+        @media (max-width: 768px) {
+            .promo-recorder-panel {
+                grid-template-columns: 1fr;
+                gap: 11px;
+                margin-bottom: 14px;
+                padding: 13px;
+            }
+
+            .promo-recorder-actions {
+                justify-content: stretch;
+            }
+
+            .promo-recorder-actions button {
+                flex: 1 1 42%;
+            }
+
+            .promo-record-state {
+                flex: 1 1 100%;
+                text-align: center;
+            }
+        }
+
         /* ───────── 버튼 시스템 ───────── */
         button {
             display: inline-flex;
@@ -542,11 +647,50 @@
 
         /* ───────── 신스 레인 ───────── */
         .synth-controls {
-            display: flex;
-            align-items: center;
+            display: grid;
             gap: 10px;
-            flex-wrap: wrap;
             margin-bottom: 14px;
+        }
+
+        .synth-action-row,
+        .synth-setting-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .synth-action-row {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+
+        .synth-setting-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .synth-action-row .synth-panel-btn {
+            width: 100%;
+            height: 40px;
+            min-width: 0;
+            padding: 8px 10px;
+            border-radius: 11px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .synth-action-row .synth-panel-btn .icon {
+            width: 15px;
+            height: 15px;
+        }
+
+        .synth-play-btn {
+            border-color: rgba(34, 211, 238, 0.52);
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.32), rgba(99, 102, 241, 0.3));
+            color: var(--text-hi);
+        }
+
+        .synth-play-btn.is-playing {
+            border-color: rgba(251, 113, 133, 0.65);
+            background: linear-gradient(135deg, rgba(251, 113, 133, 0.38), rgba(244, 63, 94, 0.3));
+            box-shadow: 0 0 14px rgba(251, 113, 133, 0.28);
         }
 
         .synth-toggle.active {
@@ -561,22 +705,32 @@
         }
 
         .synth-ctl {
-            display: inline-flex;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
             align-items: center;
             gap: 7px;
+            min-width: 0;
+            height: 40px;
+            padding: 4px 5px 4px 10px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.035);
             font-size: 11.5px;
             font-weight: 700;
             color: var(--text-dim);
         }
 
         .synth-ctl select {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--line);
-            border-radius: 9px;
-            padding: 8px 10px;
+            width: 100%;
+            min-width: 0;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.065);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 0 9px;
             color: var(--text-hi);
             font-family: var(--font-body);
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 500;
             cursor: pointer;
         }
@@ -628,14 +782,14 @@
                 gap: 8px;
             }
 
-            .synth-ctl {
-                flex: 1 1 44%;
-                justify-content: space-between;
+            .synth-action-row,
+            .synth-setting-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .synth-ctl select {
-                flex: 1;
-                min-width: 0;
+            .synth-action-row .synth-panel-btn,
+            .synth-ctl {
+                height: 40px;
             }
         }
 
@@ -1264,6 +1418,200 @@
             border-radius: 99px;
         }
 
+        /* ───────── 드럼 & 베이스 저장소 ───────── */
+        .loop-library {
+            margin-bottom: 6px;
+            padding: 0;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .loop-library-summary {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 34px;
+            padding: 5px 10px;
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+        }
+
+        .loop-library-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .loop-library-summary .icon {
+            width: 15px;
+            height: 15px;
+            color: var(--violet);
+        }
+
+        .loop-library-title {
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: 12.5px;
+            font-weight: 800;
+        }
+
+        .loop-library-summary .sec-no {
+            margin-left: auto;
+        }
+
+        .loop-library-chevron {
+            color: var(--text-dim);
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .loop-library[open] .loop-library-chevron {
+            transform: rotate(180deg);
+        }
+
+        .loop-library-body {
+            padding: 0 14px 14px;
+            border-top: 1px solid var(--line);
+        }
+
+        .loop-library-copy {
+            margin: 15px 0 13px;
+            color: var(--text-mid);
+            font-size: 12.5px;
+            line-height: 1.65;
+        }
+
+        .loop-library-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-bottom: 13px;
+        }
+
+        .loop-share-btn {
+            border-color: rgba(34, 211, 238, 0.48);
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(99, 102, 241, 0.2));
+        }
+
+        .loop-save-btn {
+            border-color: rgba(167, 139, 250, 0.5);
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.23), rgba(244, 114, 182, 0.16));
+        }
+
+        .loop-history-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .loop-history-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: rgba(3, 6, 14, 0.46);
+            transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .loop-history-item:hover {
+            transform: translateY(-1px);
+            border-color: rgba(167, 139, 250, 0.55);
+            background: rgba(167, 139, 250, 0.08);
+        }
+
+        .loop-history-meta {
+            flex: 1 1 auto;
+            min-width: 0;
+            cursor: pointer;
+            display: block;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            text-align: left;
+        }
+
+        .loop-history-meta:hover,
+        .loop-history-meta:active {
+            transform: none;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .loop-history-title,
+        .loop-history-preview {
+            display: block;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .loop-history-title {
+            color: var(--text-hi);
+            font-size: 12.5px;
+            font-weight: 800;
+        }
+
+        .loop-history-preview {
+            margin-top: 3px;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+        }
+
+        .loop-history-delete {
+            flex: none;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border-radius: 10px;
+            color: var(--text-dim);
+            background: transparent;
+        }
+
+        .loop-history-delete:hover {
+            color: var(--rose);
+            border-color: rgba(251, 113, 133, 0.55);
+            background: rgba(251, 113, 133, 0.1);
+        }
+
+        .loop-history-empty {
+            padding: 13px;
+            border: 1px dashed var(--line);
+            border-radius: 12px;
+            color: var(--text-dim);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .loop-library-summary {
+                min-height: 36px;
+                padding: 5px 9px;
+            }
+
+            .loop-library-title {
+                font-size: 12px;
+            }
+
+            .loop-library-summary .sec-no {
+                display: none;
+            }
+
+            .loop-library-body {
+                padding: 0 10px 12px;
+            }
+
+            .loop-library-actions button {
+                flex: 1 1 42%;
+            }
+        }
+
         /* ───────── 상태 바 ───────── */
         .status {
             display: flex;
@@ -1621,6 +1969,7 @@
         <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-3.7 10.7c.7.6 1.2 1.4 1.2 2.3h5c0-.9.5-1.7 1.2-2.3A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 19.5h4M10.7 22h2.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
         <symbol id="i-autoscroll" viewBox="0 0 24 24"><path d="M8 8 3.5 12 8 16M16 8l4.5 4-4.5 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
         <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5H4z" fill="currentColor"/><path d="M15.5 9.5l5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-link" viewBox="0 0 24 24"><path d="M9.5 14.5 14.5 9.5M7.2 16.8l-1.1 1.1a3.5 3.5 0 0 1-5-5l3.6-3.6a3.5 3.5 0 0 1 5 0M16.8 7.2l1.1-1.1a3.5 3.5 0 1 1 5 5l-3.6 3.6a3.5 3.5 0 0 1-5 0" transform="translate(-.05 -.05) scale(.96)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     </svg>
 
     <div class="container">
@@ -1637,12 +1986,25 @@
             <button class="mode-btn" data-mode="custom" onclick="setMode('custom')"><svg class="icon"><use href="#i-mic"/></svg> 커스텀 비트박스 모드</button>
         </div>
 
+        <section class="promo-recorder-panel" id="promoRecorderPanel" data-beatbox-promo-panel aria-label="홍보 영상 스튜디오">
+            <div class="promo-recorder-copy">
+                <strong>세로형 홍보 영상 스튜디오</strong>
+                <span>브라우저를 세로 비율로 맞춘 뒤 녹화 시 현재 Beatbox 탭을 선택하세요. 실제 화면과 마스터 사운드가 한 파일에 담깁니다.</span>
+            </div>
+            <div class="promo-recorder-actions">
+                <button class="promo-preview-btn" id="promoPreviewBtn" onclick="previewPromo()"><svg class="icon"><use href="#i-play"/></svg> 데모 미리보기</button>
+                <button class="promo-record-btn" id="promoRecordBtn" onclick="recordPromo()"><svg class="icon"><use href="#i-rec"/></svg> 세로 영상 녹화</button>
+                <button class="danger-btn" id="promoCancelBtn" onclick="cancelPromo()" hidden><svg class="icon"><use href="#i-stop"/></svg> 중지</button>
+                <span class="promo-record-state" id="promoRecordState" role="status" aria-live="polite">READY · 1080×1920</span>
+            </div>
+        </section>
+
         <div class="desktop-layout">
             <div class="control-section">
                 <h3><svg class="icon"><use href="#i-sliders"/></svg> 비트 &amp; 리듬 시퀀서 <span class="sec-no">MODULE 01</span></h3>
 
                 <div class="transport">
-                    <button class="play-btn" id="playBtn" onclick="togglePlayback()"><svg class="icon"><use href="#i-play"/></svg> 재생</button>
+                    <button class="play-btn" id="playBtn" data-playback-toggle onclick="togglePlayback()" aria-pressed="false"><svg class="icon"><use href="#i-play"/></svg> 재생</button>
                     <button class="generate-btn" onclick="generateBeat()"><svg class="icon"><use href="#i-dice"/></svg> 새 비트 생성</button>
                     <button class="fill-btn" onclick="generateFillIn()"><svg class="icon"><use href="#i-bolt"/></svg> 필인 생성</button>
                 </div>
@@ -1681,8 +2043,8 @@
                 </div>
 
                 <div class="button-row">
-                    <button onclick="exportPattern()"><svg class="icon"><use href="#i-save"/></svg> 저장</button>
-                    <button onclick="importPattern()"><svg class="icon"><use href="#i-folder"/></svg> 불러오기</button>
+                    <button onclick="exportPattern()"><svg class="icon"><use href="#i-save"/></svg> JSON 내보내기</button>
+                    <button onclick="importPattern()"><svg class="icon"><use href="#i-folder"/></svg> JSON 불러오기</button>
                     <button class="danger-btn" onclick="clearBeat()"><svg class="icon"><use href="#i-trash"/></svg> 초기화</button>
                 </div>
                 <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadPattern(this)">
@@ -1725,31 +2087,36 @@
             </div>
         </div>
 
-        <div class="control-section" id="synthLane" style="margin-bottom: 20px;">
+        <div class="control-section" id="synthLane" style="margin-bottom: 8px;">
             <h3><svg class="icon"><use href="#i-music"/></svg> 베이스 · 멜로디 신스 <span class="sec-no">MODULE 05</span></h3>
             <div class="synth-controls">
-                <button class="autoscroll-toggle synth-toggle active" id="synthToggle" onclick="toggleSynthLane()" aria-pressed="true" title="신스 레인 켜기/끄기">
-                    <svg class="icon"><use href="#i-music"/></svg>
-                    <span>신스 <b>ON</b></span>
-                </button>
-                <button class="autoscroll-toggle muteall-toggle" id="bassMuteToggle" onclick="toggleBassMute()" aria-pressed="false" title="베이스·멜로디 신스 뮤트/해제">
-                    <svg class="icon"><use href="#i-mute"/></svg>
-                    <span>베이스 뮤트 <b>OFF</b></span>
-                </button>
-                <button class="generate-btn" onclick="generateBassline()" title="현재 스케일 안에서 베이스라인을 자동 생성"><svg class="icon"><use href="#i-dice"/></svg> 베이스 자동 생성</button>
-                <label class="synth-ctl">스케일
-                    <select id="synthScale" onchange="updateSynthConfig()"></select>
-                </label>
-                <label class="synth-ctl">키
-                    <select id="synthRoot" onchange="updateSynthConfig()"></select>
-                </label>
-                <label class="synth-ctl">옥타브
-                    <select id="synthOctave" onchange="updateSynthConfig()"></select>
-                </label>
-                <label class="synth-ctl">파형
-                    <select id="synthWave" onchange="updateSynthConfig()"></select>
-                </label>
-                <button class="danger-btn" onclick="clearSynth()"><svg class="icon"><use href="#i-trash"/></svg> 레인 초기화</button>
+                <div class="synth-action-row">
+                    <button class="synth-panel-btn synth-play-btn" id="synthPlayBtn" data-playback-toggle data-play-label="루프 재생" data-stop-label="루프 정지" onclick="togglePlayback()" aria-pressed="false" title="드럼과 베이스 루프 함께 재생/정지"><svg class="icon"><use href="#i-play"/></svg> 루프 재생</button>
+                    <button class="synth-panel-btn autoscroll-toggle synth-toggle active" id="synthToggle" onclick="toggleSynthLane()" aria-pressed="true" title="신스 레인 켜기/끄기">
+                        <svg class="icon"><use href="#i-music"/></svg>
+                        <span>신스 <b>ON</b></span>
+                    </button>
+                    <button class="synth-panel-btn autoscroll-toggle muteall-toggle" id="bassMuteToggle" onclick="toggleBassMute()" aria-pressed="false" title="베이스·멜로디 신스 뮤트/해제">
+                        <svg class="icon"><use href="#i-mute"/></svg>
+                        <span>베이스 뮤트 <b>OFF</b></span>
+                    </button>
+                    <button class="synth-panel-btn generate-btn" onclick="generateBassline()" title="현재 스케일 안에서 베이스라인을 자동 생성"><svg class="icon"><use href="#i-dice"/></svg> 베이스 자동 생성</button>
+                    <button class="synth-panel-btn danger-btn" onclick="clearSynth()"><svg class="icon"><use href="#i-trash"/></svg> 레인 초기화</button>
+                </div>
+                <div class="synth-setting-grid">
+                    <label class="synth-ctl">스케일
+                        <select id="synthScale" onchange="updateSynthConfig()"></select>
+                    </label>
+                    <label class="synth-ctl">키
+                        <select id="synthRoot" onchange="updateSynthConfig()"></select>
+                    </label>
+                    <label class="synth-ctl">옥타브
+                        <select id="synthOctave" onchange="updateSynthConfig()"></select>
+                    </label>
+                    <label class="synth-ctl">파형
+                        <select id="synthWave" onchange="updateSynthConfig()"></select>
+                    </label>
+                </div>
             </div>
             <div class="grid-hint">
                 <svg class="icon"><use href="#i-bulb"/></svg>
@@ -1757,6 +2124,24 @@
             </div>
             <div class="beat-grid" id="synthGrid"></div>
         </div>
+
+        <details class="control-section loop-library" id="loopLibrarySection">
+            <summary class="loop-library-summary">
+                <svg class="icon"><use href="#i-folder"/></svg>
+                <span class="loop-library-title">내 드럼 &amp; 베이스 저장소</span>
+                <span class="sec-no">MODULE 06</span>
+                <span class="loop-library-chevron" aria-hidden="true">▾</span>
+            </summary>
+            <div class="loop-library-body">
+                <p class="loop-library-copy">일반 드럼 모드의 패턴과 베이스 멜로디를 함께 저장해 다시 열거나, <strong>#s= 해시 링크</strong> 하나로 그대로 공유하세요. 마이크로 녹음한 커스텀 모드는 저장·공유 대상에서 제외됩니다.</p>
+                <div class="loop-library-actions">
+                    <button class="loop-share-btn" id="shareLoopBtn" onclick="shareCurrentLoop()"><svg class="icon"><use href="#i-link"/></svg> 링크 복사</button>
+                    <button class="loop-save-btn" id="saveLoopBtn" onclick="saveCurrentLoop()"><svg class="icon"><use href="#i-save"/></svg> 현재 루프 저장</button>
+                    <button class="danger-btn" id="clearLoopHistoryBtn" onclick="clearLoopHistory()"><svg class="icon"><use href="#i-trash"/></svg> 목록 비우기</button>
+                </div>
+                <div class="loop-history-list" id="loopHistoryList" aria-live="polite"></div>
+            </div>
+        </details>
 
         <div class="control-section custom-mode-only" style="margin-bottom: 20px;">
             <h3><svg class="icon"><use href="#i-mic"/></svg> 커스텀 사운드 <span class="sec-no">MODULE 04</span></h3>
@@ -1774,8 +2159,6 @@
             </div>
         </div>
 
-        <div class="status" id="status">준비됨 - 드럼 패턴을 만들어보세요!</div>
-
         <div class="control-section" id="normalModeControls">
             <h3><svg class="icon"><use href="#i-drum"/></svg> 드럼 키트 패드 <span class="sec-no">MODULE 03</span></h3>
             <div class="group-label">Drum Kit Select</div>
@@ -1788,6 +2171,8 @@
             </div>
             <div class="drum-kit-grid" id="drumKitGrid"></div>
         </div>
+
+        <div class="status" id="status" role="status" aria-live="polite">준비됨 - 드럼 패턴을 만들어보세요!</div>
 
         <div class="keyboard-hints">
             <h4><svg class="icon"><use href="#i-keys"/></svg> 키보드 단축키</h4>
@@ -1825,6 +2210,8 @@
         <footer class="app-footer">Pro Drum Machine v2.0 <span class="dot">&middot;</span> 16 / 24 Step Sequencer <span class="dot">&middot;</span> Web Audio API</footer>
     </div>
 
+    <script src="./promo-recorder.js"></script>
+    <script src="./loop-library.js"></script>
     <script>
         // 커스텀 사운드 행/패드에 순환 적용되는 색상 팔레트
         const CUSTOM_COLORS = ['#22d3ee', '#a78bfa', '#fb7185', '#fbbf24', '#34d399', '#f472b6', '#60a5fa', '#fb923c'];
@@ -1838,6 +2225,15 @@
                 this.swing = 0;
                 this.pattern = {};
                 this.intervalId = null;
+                this.playbackRunToken = 0;
+                this.nextStepToSchedule = 0;
+                this.nextStepAudioTime = 0;
+                this.visualStepTimers = new Set();
+                this.schedulerLookahead = 0.08;
+                this.schedulerIntervalMs = 20;
+                this.visualLeadSeconds = 0.012;
+                this.voiceStartTime = null;
+                this.scheduledSources = new Set();
                 this.mode = 'normal'; // 'normal' or 'custom'
                 this.customSounds = new Map();
                 this.normalSounds = new Map();
@@ -1866,6 +2262,11 @@
                 this.bassVolume = 0.9;
                 this.bassPattern = [];   // step → synthRows 인덱스 | null
                 this.synthRows = [];     // 오름차순 MIDI 노트 배열
+                this.captureDestination = null;
+                this.promoRecorder = null;
+                this.loopLibrary = null;
+                this.loopLibrarySaveTimer = null;
+                this.suspendLoopAutoSave = false;
 
                 this.initializeAudio();
                 this.createNormalDrumSounds();
@@ -1947,7 +2348,9 @@
 
             /* ───────── 사운드 엔진: 킷 기반 신디사이저 ───────── */
 
-            // 마스터 체인: 개별 사운드 → 마스터 게인 → 소프트 새추레이터 → 컴프레서 → 출력
+            // 마스터 체인: 개별 사운드 → 마스터 게인 → 소프트 새추레이터 → 컴프레서
+            // 컴프레서 뒤에서 모니터 출력과 홍보영상 녹화 출력을 나눈다. 두 경로가 같은
+            // 신호를 쓰므로 별도 탭 오디오 캡처에서 생기던 에코와 A/V 지연을 피할 수 있다.
             // 컴프레서가 여러 사운드를 하나로 묶어주고(글루), 새추레이터가 아날로그풍 배음을 더한다
             buildAudioGraph() {
                 const ctx = this.audioContext;
@@ -1968,7 +2371,13 @@
 
                 this.masterGain.connect(this.saturator);
                 this.saturator.connect(this.compressor);
-                this.compressor.connect(ctx.destination);
+
+                this.monitorGain = ctx.createGain();
+                this.monitorGain.gain.value = 1;
+                this.captureDestination = ctx.createMediaStreamDestination();
+                this.compressor.connect(this.monitorGain);
+                this.monitorGain.connect(ctx.destination);
+                this.compressor.connect(this.captureDestination);
 
                 // 공용 룸 리버브 (센드 방식 - 사운드별로 보낼 양만 조절)
                 this.reverb = ctx.createConvolver();
@@ -2016,10 +2425,28 @@
                 return buffer;
             }
 
+            registerScheduledSource(node, startAt) {
+                const entry = { node, startAt };
+                this.scheduledSources.add(entry);
+                node.addEventListener('ended', () => this.scheduledSources.delete(entry), { once: true });
+                return node;
+            }
+
+            cancelPendingSources() {
+                if (!this.audioContext) return;
+                const now = this.audioContext.currentTime;
+                this.scheduledSources.forEach(entry => {
+                    if (entry.startAt > now + 0.001) {
+                        try { entry.node.stop(now); } catch (_) { /* 이미 종료된 노드 */ }
+                        this.scheduledSources.delete(entry);
+                    }
+                });
+            }
+
             // 톤 헬퍼: 피치 스윕 + 엔벨로프 + 필터/드라이브, 히트마다 ±2% 피치·±6% 게인 랜덤(휴머나이즈)
             playTone({ type = 'sine', freq, sweepTo, sweepTime = 0.05, gain = 0.5, attack = 0.001, decay = 0.3, filterType, filterFreq, Q = 1, drive = 0, send = 0, when = 0 }) {
                 const ctx = this.audioContext;
-                const t = ctx.currentTime + when;
+                const t = (this.voiceStartTime ?? ctx.currentTime) + when;
                 const jitter = 1 + (Math.random() - 0.5) * 0.04;
 
                 const osc = ctx.createOscillator();
@@ -2058,6 +2485,7 @@
                     sendGain.connect(this.reverb);
                 }
 
+                this.registerScheduledSource(osc, t);
                 osc.start(t);
                 osc.stop(t + attack + decay + 0.05);
                 return env;
@@ -2066,7 +2494,7 @@
             // 노이즈 헬퍼: 캐시된 버퍼를 랜덤 오프셋으로 재생해 히트마다 다른 질감
             playNoise({ gain = 0.5, attack = 0.001, decay = 0.2, filterType = 'highpass', filterFreq = 1000, Q = 1, filter2Type, filter2Freq, Q2 = 1, send = 0, when = 0 }) {
                 const ctx = this.audioContext;
-                const t = ctx.currentTime + when;
+                const t = (this.voiceStartTime ?? ctx.currentTime) + when;
 
                 const src = ctx.createBufferSource();
                 src.buffer = this.noiseBuffer;
@@ -2101,6 +2529,7 @@
                     sendGain.connect(this.reverb);
                 }
 
+                this.registerScheduledSource(src, t);
                 src.start(t, Math.random() * 0.9);
                 src.stop(t + attack + decay + 0.05);
                 return env;
@@ -2110,7 +2539,7 @@
             // 화이트노이즈만 쓰는 것보다 하이햇/심벌의 금속성이 훨씬 리얼해진다
             playMetal({ baseFreq = 40, ratios = [2, 3, 4.16, 5.43, 6.79, 8.21], gain = 0.3, attack = 0.001, decay = 0.1, bandFreq = 10000, bandQ = 1, hipassFreq = 7000, send = 0, when = 0 }) {
                 const ctx = this.audioContext;
-                const t = ctx.currentTime + when;
+                const t = (this.voiceStartTime ?? ctx.currentTime) + when;
 
                 const band = ctx.createBiquadFilter();
                 band.type = 'bandpass';
@@ -2142,6 +2571,7 @@
                     osc.type = 'square';
                     osc.frequency.value = baseFreq * ratio * jitter;
                     osc.connect(band);
+                    this.registerScheduledSource(osc, t);
                     osc.start(t);
                     osc.stop(t + attack + decay + 0.05);
                 });
@@ -2149,9 +2579,9 @@
             }
 
             // 오픈햇 초크: 실제 하이햇처럼 닫힌 햇/재타격이 열린 햇 울림을 끊는다
-            chokeOpenHat() {
+            chokeOpenHat(atTime = null) {
                 if (!this.openHatEnvs) return;
-                const t = this.audioContext.currentTime;
+                const t = atTime ?? this.voiceStartTime ?? this.audioContext.currentTime;
                 this.openHatEnvs.forEach(env => {
                     env.gain.cancelScheduledValues(t);
                     env.gain.setValueAtTime(Math.max(env.gain.value, 0.001), t);
@@ -2773,10 +3203,10 @@
             }
 
             // 신스 보이스: 오실레이터 + 서브 + 필터 엔벨로프(플럭 베이스)
-            playSynthNote(midi) {
+            playSynthNote(midi, atTime = null) {
                 if (!this.audioContext || !this.masterGain || midi == null) return;
                 const ctx = this.audioContext;
-                const t = ctx.currentTime;
+                const t = atTime ?? ctx.currentTime;
                 const freq = 440 * Math.pow(2, (midi - 69) / 12);
                 const dur = 0.38;
                 const vol = 0.5 * this.bassVolume;
@@ -2811,6 +3241,8 @@
                 sub.connect(subGain);
                 subGain.connect(this.masterGain);
 
+                this.registerScheduledSource(osc, t);
+                this.registerScheduledSource(sub, t);
                 osc.start(t); osc.stop(t + dur + 0.05);
                 sub.start(t); sub.stop(t + dur + 0.05);
             }
@@ -2920,11 +3352,59 @@
                 this.bassPattern = Array(maxSteps).fill(null);
 
                 const scaleLen = (DrumMachine.SCALES[this.bassScale] || DrumMachine.SCALES.minorPent).steps.length;
-                const clamp = (r) => Math.max(0, Math.min(r, this.synthRows.length - 1));
-                const root = 0;
-                const octave = clamp(scaleLen);                    // 한 옥타브 위 루트
-                const fifth = clamp(scaleLen >= 6 ? 4 : 3);        // 완전5도 근처 음도
-                const third = clamp(scaleLen >= 6 ? 2 : 1);        // 3도 근처 음도
+                const thirdDegree = scaleLen >= 6 ? 2 : 1;
+                const fifthDegree = scaleLen >= 6 ? 4 : 3;
+                const minMidi = 43; // G2: 작은 스피커에서도 존재감이 남는 베이스 하한
+                const maxMidi = 54; // F#3: 베이스 성격을 유지하는 상한
+                const targetMidi = 49;
+                const collectSafeRows = () => this.synthRows
+                    .map((midi, row) => ({ midi, row }))
+                    .filter(({ midi }) => midi >= minMidi && midi <= maxMidi)
+                    .sort((a, b) => a.midi - b.midi)
+                    .map(({ row }) => row);
+
+                let safeRows = collectSafeRows();
+                if (safeRows.length < 3) {
+                    // 손상되거나 구버전인 import 값(NaN root 등)도 자동 생성에서 복구한다.
+                    const parsedRoot = Number(this.bassRootNote);
+                    this.bassRootNote = Number.isFinite(parsedRoot) ? ((parsedRoot % 12) + 12) % 12 : 0;
+                    this.bassOctave = 2;
+                    this.buildSynthScale();
+                    this.populateSynthSelectors();
+                    this.createSynthGrid();
+                    safeRows = collectSafeRows();
+                }
+                const hasSafeDegree = (degree) => [degree, degree + scaleLen]
+                    .some(row => safeRows.includes(row));
+                // 다른 옥타브를 선택해 목표 음역의 스케일 음이 너무 적다면 자동 생성만
+                // 기본 베이스 옥타브로 되돌린다. 수동 배치와 저장된 행 인덱스는 건드리지 않는다.
+                const hasCoreDegrees = [0, thirdDegree, fifthDegree].every(hasSafeDegree);
+                if ((safeRows.length < 3 || !hasCoreDegrees) && this.bassOctave !== 2) {
+                    this.bassOctave = 2;
+                    this.buildSynthScale();
+                    this.populateSynthSelectors();
+                    this.createSynthGrid();
+                    safeRows = collectSafeRows();
+                }
+
+                if (safeRows.length < 2) {
+                    this.updateStatus('베이스 자동 생성에 사용할 수 있는 음역을 찾지 못했습니다.');
+                    return;
+                }
+
+                const safeSet = new Set(safeRows);
+                const closestRow = (rows, midi = targetMidi) => rows.reduce((best, row) =>
+                    Math.abs(this.synthRows[row] - midi) < Math.abs(this.synthRows[best] - midi) ? row : best
+                );
+                const rowForDegree = (degree, midi = targetMidi) => {
+                    const candidates = [degree, degree + scaleLen].filter(row => safeSet.has(row));
+                    return closestRow(candidates.length ? candidates : safeRows, midi);
+                };
+
+                const root = rowForDegree(0, 48);                   // 높은 2옥타브 또는 낮은 3옥타브의 토닉
+                const fifth = rowForDegree(fifthDegree);            // 같은 음역의 완전5도 근처 음도
+                const third = rowForDegree(thirdDegree);            // 같은 음역의 3도 근처 음도
+                const upper = closestRow(safeRows.filter(row => row !== root), 52);
 
                 const styles = ['rootDrive', 'syncopated', 'octaveBounce'];
                 const style = styles[Math.floor(Math.random() * styles.length)];
@@ -2935,7 +3415,7 @@
                         this.bassPattern[i] = root;
                         if (Math.random() > 0.45) {
                             const pickup = i + groupSize - 1;
-                            const choices = [fifth, octave, third];
+                            const choices = [fifth, upper, third];
                             if (pickup < maxSteps) this.bassPattern[pickup] = choices[Math.floor(Math.random() * choices.length)];
                         }
                     }
@@ -2944,23 +3424,23 @@
                 } else if (style === 'syncopated') {
                     // 루트 시작 + 스케일 안 랜덤 워크 (펑크/힙합 신코페이션)
                     this.bassPattern[0] = root;
-                    let cur = root;
+                    let curPos = safeRows.indexOf(root);
                     for (let i = 1; i < maxSteps; i++) {
                         const isDown = i % groupSize === 0;
                         if (Math.random() < (isDown ? 0.55 : 0.32)) {
                             const move = [-2, -1, -1, 0, 1, 1, 2, 3][Math.floor(Math.random() * 8)];
-                            cur = clamp(Math.min(cur + move, scaleLen + 1)); // 저역 위주 워크
-                            this.bassPattern[i] = (isDown && Math.random() < 0.45) ? root : cur;
+                            curPos = Math.max(0, Math.min(curPos + move, safeRows.length - 1));
+                            this.bassPattern[i] = (isDown && Math.random() < 0.45) ? root : safeRows[curPos];
                         }
                     }
                     if (this.bassPattern.every(v => v == null)) this.bassPattern[0] = root; // 안전망
                 } else {
-                    // 옥타브 바운스: 정박 루트 + 업비트 옥타브 (디스코/EDM)
+                    // 옥타브 바운스: 정박 루트 + 업비트 상단 음역 악센트 (디스코/EDM)
                     const half = Math.max(1, Math.floor(groupSize / 2));
                     for (let i = 0; i < maxSteps; i += groupSize) {
                         this.bassPattern[i] = root;
                         const up = i + half;
-                        if (up < maxSteps && Math.random() > 0.15) this.bassPattern[up] = octave;
+                        if (up < maxSteps && Math.random() > 0.15) this.bassPattern[up] = upper;
                     }
                     // 마지막 마디는 5도로 턴어라운드
                     if (Math.random() > 0.5 && maxSteps - groupSize >= 0) {
@@ -2976,6 +3456,7 @@
                 this.updateSynthGrid();
                 const styleNames = { rootDrive: '루트 드라이브', syncopated: '신코페이션', octaveBounce: '옥타브 바운스' };
                 this.updateStatus(`베이스라인 생성: ${styleNames[style]} 🎸`);
+                this.queueGeneratedLoopSave();
             }
 
             // 악기(행) 뮤트 토글: 시퀀서 재생 시 해당 악기 소리를 건너뛴다
@@ -3033,7 +3514,7 @@
                 });
             }
 
-            playSound(key) {
+            playSound(key, atTime = null, flash = true) {
                 if (this.audioContext.state === 'suspended') {
                     this.audioContext.resume();
                 }
@@ -3042,15 +3523,23 @@
                 const sound = sounds.get(key);
                 
                 if (sound) {
-                    if (sound.generator) {
-                        sound.generator();
-                    } else if (sound.audioBuffer) {
-                        const source = this.audioContext.createBufferSource();
-                        source.buffer = sound.audioBuffer;
-                        source.connect(this.audioContext.destination);
-                        source.start();
+                    const previousStartTime = this.voiceStartTime;
+                    this.voiceStartTime = atTime ?? this.audioContext.currentTime;
+                    try {
+                        if (sound.generator) {
+                            sound.generator();
+                        } else if (sound.audioBuffer) {
+                            const source = this.audioContext.createBufferSource();
+                            source.buffer = sound.audioBuffer;
+                            // 커스텀 샘플도 마스터 체인을 지나야 모니터와 녹화 파일이 동일하다.
+                            source.connect(this.masterGain);
+                            this.registerScheduledSource(source, this.voiceStartTime);
+                            source.start(this.voiceStartTime);
+                        }
+                    } finally {
+                        this.voiceStartTime = previousStartTime;
                     }
-                    this.flashPad(key);
+                    if (flash) this.flashPad(key);
                 }
             }
 
@@ -3134,6 +3623,7 @@
                 this.updateBeatGrid();
                 this.updatePatternDisplay();
                 this.updateStatus('새로운 비트 패턴이 생성되었습니다!');
+                this.queueGeneratedLoopSave();
             }
 
             generateFillIn() {
@@ -3458,6 +3948,7 @@
                         btn.classList.toggle('active', btn.dataset.genre === genre);
                     });
                     this.updateStatus(`${genre.toUpperCase()} 패턴이 로드되었습니다!`);
+                    this.queueGeneratedLoopSave();
                 }
             }
 
@@ -3474,14 +3965,14 @@
                 this.updatePatternDisplay();
             }
 
-            togglePlayback() {
+            async togglePlayback() {
                 if (!this.audioContext) {
-                    this.initializeAudio();
+                    await this.initializeAudio();
                     return;
                 }
                 
                 if (this.audioContext.state === 'suspended') {
-                    this.audioContext.resume();
+                    await this.audioContext.resume();
                 }
                 
                 if (this.isPlaying) {
@@ -3492,62 +3983,103 @@
             }
 
             startPlayback() {
+                if (!this.audioContext || this.isPlaying) return;
                 this.isPlaying = true;
                 this.currentBeat = 0;
-                
-                const maxSteps = this.gridMode === '24' ? 24 : 16;
-                const beatDuration = (60 / this.tempo / 4) * 1000;
-                
-                const playBeat = () => {
-                    const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
-                    
-                    sounds.forEach((sound, key) => {
-                        if (this.pattern[key] && this.pattern[key][this.currentBeat] && !this.mutedSounds.has(key)) {
-                            const prob = this.getProb(key, this.currentBeat);
-                            if (prob >= 100 || Math.random() * 100 < prob) {
-                                this.playSound(key);
-                            }
-                        }
-                    });
 
-                    // 베이스/멜로디 신스 레인
-                    if (this.bassEnabled && !this.bassMuted && this.bassPattern[this.currentBeat] != null) {
-                        this.playSynthNote(this.synthRows[this.bassPattern[this.currentBeat]]);
-                    }
-
-                    this.updateBeatGrid();
-                    this.updateSynthGrid();
-                    this.autoScrollToStep();
-                    this.currentBeat = (this.currentBeat + 1) % maxSteps;
-                };
-                
-                playBeat(); // 즉시 첫 비트 재생
-                
-                // 스윙 적용
-                const swing = this.swing / 100;
-                let nextBeatTime = beatDuration;
-                
-                this.intervalId = setInterval(() => {
-                    playBeat();
-                    
-                    // 스윙 타이밍 조정 (짝수 비트에만 적용)
-                    if (this.currentBeat % 2 === 0) {
-                        nextBeatTime = beatDuration * (1 + swing);
-                    } else {
-                        nextBeatTime = beatDuration * (1 - swing);
-                    }
-                }, beatDuration);
+                // 오디오 시계를 유일한 transport 기준으로 사용한다. 메인 스레드 interval은
+                // "언제 소리를 낼지" 결정하지 않고, 미래 Web Audio 이벤트를 채우는 역할만 한다.
+                this.playbackRunToken += 1;
+                this.nextStepToSchedule = 0;
+                this.nextStepAudioTime = this.audioContext.currentTime + 0.07;
+                this.runPlaybackScheduler(this.playbackRunToken);
+                this.intervalId = setInterval(
+                    () => this.runPlaybackScheduler(this.playbackRunToken),
+                    this.schedulerIntervalMs
+                );
 
                 this.setPlayButton(true);
                 this.updateStatus('재생 중...');
             }
 
+            getStepDurationSeconds(step) {
+                const straight = 60 / this.tempo / 4;
+                const swing = this.swing / 100;
+                return straight * (step % 2 === 0 ? 1 + swing : 1 - swing);
+            }
+
+            runPlaybackScheduler(runToken) {
+                if (!this.isPlaying || runToken !== this.playbackRunToken) return;
+                const ctx = this.audioContext;
+                const horizon = ctx.currentTime + this.schedulerLookahead;
+                let guard = 0;
+
+                // 장시간 백그라운드 정지 뒤 여러 비트를 한꺼번에 쏟지 않고 다음 박자로 복구한다.
+                if (this.nextStepAudioTime < ctx.currentTime - 0.02) {
+                    this.nextStepAudioTime = ctx.currentTime + 0.03;
+                }
+
+                while (this.nextStepAudioTime <= horizon && guard < 8) {
+                    const maxSteps = this.gridMode === '24' ? 24 : 16;
+                    const step = this.nextStepToSchedule % maxSteps;
+                    const when = Math.max(this.nextStepAudioTime, ctx.currentTime + 0.003);
+                    this.schedulePlaybackStep(step, when, runToken);
+                    this.nextStepAudioTime += this.getStepDurationSeconds(step);
+                    this.nextStepToSchedule = (step + 1) % maxSteps;
+                    guard += 1;
+                }
+            }
+
+            schedulePlaybackStep(step, when, runToken) {
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const visualHits = [];
+
+                sounds.forEach((sound, key) => {
+                    if (!this.pattern[key] || !this.pattern[key][step] || this.mutedSounds.has(key)) return;
+                    const prob = this.getProb(key, step);
+                    if (prob >= 100 || Math.random() * 100 < prob) {
+                        this.playSound(key, when, false);
+                        visualHits.push(key);
+                    }
+                });
+
+                if (this.bassEnabled && !this.bassMuted && this.bassPattern[step] != null) {
+                    this.playSynthNote(this.synthRows[this.bassPattern[step]], when);
+                }
+
+                // DOM은 다음 paint가 실제 오디오 onset에 맞도록 약 한 프레임 먼저 갱신한다.
+                const delayMs = Math.max(0, (when - this.audioContext.currentTime - this.visualLeadSeconds) * 1000);
+                const timer = setTimeout(() => {
+                    this.visualStepTimers.delete(timer);
+                    if (!this.isPlaying || runToken !== this.playbackRunToken) return;
+                    this.currentBeat = step;
+                    this.updateBeatGrid();
+                    this.updateSynthGrid();
+                    this.autoScrollToStep();
+                    visualHits.forEach(key => this.flashPad(key));
+                    window.dispatchEvent(new CustomEvent('beatbox:step', {
+                        detail: {
+                            step,
+                            gridMode: this.gridMode,
+                            audioTime: when,
+                            renderedAtAudioTime: this.audioContext.currentTime,
+                            visualLeadSeconds: this.visualLeadSeconds,
+                        }
+                    }));
+                }, delayMs);
+                this.visualStepTimers.add(timer);
+            }
+
             stopPlayback() {
                 this.isPlaying = false;
+                this.playbackRunToken += 1;
                 if (this.intervalId) {
                     clearInterval(this.intervalId);
                     this.intervalId = null;
                 }
+                this.visualStepTimers.forEach(timer => clearTimeout(timer));
+                this.visualStepTimers.clear();
+                this.cancelPendingSources();
                 this.updateBeatGrid();
                 this.updateSynthGrid();
                 this.setPlayButton(false);
@@ -3555,12 +4087,15 @@
             }
 
             setPlayButton(playing) {
-                const btn = document.getElementById('playBtn');
-                if (!btn) return;
-                btn.classList.toggle('is-playing', playing);
-                btn.innerHTML = playing
-                    ? '<svg class="icon"><use href="#i-stop"/></svg> 정지'
-                    : '<svg class="icon"><use href="#i-play"/></svg> 재생';
+                document.querySelectorAll('[data-playback-toggle]').forEach(btn => {
+                    const playLabel = btn.dataset.playLabel || '재생';
+                    const stopLabel = btn.dataset.stopLabel || '정지';
+                    btn.classList.toggle('is-playing', playing);
+                    btn.setAttribute('aria-pressed', String(playing));
+                    btn.innerHTML = playing
+                        ? `<svg class="icon"><use href="#i-stop"/></svg> ${stopLabel}`
+                        : `<svg class="icon"><use href="#i-play"/></svg> ${playLabel}`;
+                });
             }
 
             setMode(mode) {
@@ -3647,15 +4182,26 @@
                 document.getElementById('status').textContent = message;
             }
 
+            // baseloop처럼 생성된 결과를 최근 목록에 자동 기록한다. 드럼과 베이스가
+            // 모두 준비된 시점만 저장해 중간 상태가 히스토리를 도배하지 않게 한다.
+            queueGeneratedLoopSave() {
+                if (!this.loopLibrary || this.suspendLoopAutoSave || this.mode !== 'normal') return;
+                clearTimeout(this.loopLibrarySaveTimer);
+                this.loopLibrarySaveTimer = setTimeout(() => {
+                    const hasDrums = Object.values(this.pattern)
+                        .some(row => Array.isArray(row) && row.some(Boolean));
+                    const hasBass = this.bassPattern.some(row => row != null);
+                    if (!hasDrums || !hasBass) return;
+                    this.loopLibrary.updateShareUrl();
+                    this.loopLibrary.saveToHistory(true);
+                }, 350);
+            }
+
             updateTempo(value) {
                 this.tempo = parseInt(value);
                 document.getElementById('tempoValue').textContent = value;
                 this.updateSliderFill('tempo');
-
-                if (this.isPlaying) {
-                    this.stopPlayback();
-                    this.startPlayback();
-                }
+                // 재생을 끊지 않는다. lookahead 이후의 다음 스텝부터 새 BPM이 적용된다.
             }
 
             updateSwing(value) {
@@ -3673,7 +4219,8 @@
 
             setupKeyboardListeners() {
                 document.addEventListener('keydown', (e) => {
-                    if (e.target.tagName === 'INPUT') return;
+                    if (e.target instanceof Element &&
+                        e.target.closest('input, select, textarea, button, [contenteditable="true"]')) return;
                     
                     const key = e.key.toUpperCase();
                     
@@ -3833,30 +4380,41 @@
             }
 
             exportPattern() {
-                const data = {
-                    mode: this.mode,
-                    pattern: this.pattern,
-                    probability: this.probability,
-                    tempo: this.tempo,
-                    swing: this.swing,
-                    synth: {
-                        enabled: this.bassEnabled,
-                        muted: this.bassMuted,
-                        scale: this.bassScale,
-                        rootNote: this.bassRootNote,
-                        octave: this.bassOctave,
-                        wave: this.bassWave,
-                        pattern: this.bassPattern
-                    },
-                    timestamp: new Date().toISOString()
-                };
+                if (this.mode !== 'normal') {
+                    this.updateStatus('커스텀 녹음 음원은 JSON으로 내보낼 수 없습니다. 일반 드럼 모드에서 사용해주세요.');
+                    return;
+                }
+                const data = this.loopLibrary
+                    ? { ...this.loopLibrary.collectState(), exportedAt: new Date().toISOString() }
+                    : {
+                        mode: this.mode,
+                        gridMode: this.gridMode,
+                        kit: this.kit,
+                        pattern: this.pattern,
+                        probability: this.probability,
+                        mutedSounds: [...this.mutedSounds],
+                        tempo: this.tempo,
+                        swing: this.swing,
+                        synth: {
+                            enabled: this.bassEnabled,
+                            muted: this.bassMuted,
+                            scale: this.bassScale,
+                            rootNote: this.bassRootNote,
+                            octave: this.bassOctave,
+                            wave: this.bassWave,
+                            volume: this.bassVolume,
+                            pattern: this.bassPattern
+                        },
+                        exportedAt: new Date().toISOString()
+                    };
                 
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `drum-pattern-${new Date().getTime()}.json`;
+                a.download = `beatbox-loop-${new Date().getTime()}.json`;
                 a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 0);
             }
 
             importPattern() {
@@ -3870,6 +4428,14 @@
                     reader.onload = (e) => {
                         try {
                             const data = JSON.parse(e.target.result);
+
+                            if (this.loopLibrary && this.loopLibrary.applyState(data, { silent: true })) {
+                                this.loopLibrary.updateShareUrl();
+                                this.loopLibrary.saveToHistory(true);
+                                this.updateStatus('드럼 & 베이스 루프 파일을 불러왔습니다!');
+                                input.value = '';
+                                return;
+                            }
                             
                             if (data.mode) {
                                 this.setMode(data.mode);
@@ -3907,8 +4473,10 @@
                             this.syncBassMuteToggle();
                             this.updatePatternDisplay();
                             this.updateStatus('패턴이 불러와졌습니다!');
+                            input.value = '';
                         } catch (error) {
                             this.updateStatus('파일 형식이 올바르지 않습니다.');
+                            input.value = '';
                         }
                     };
                     reader.readAsText(file);
@@ -4159,7 +4727,91 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             drumMachine = new DrumMachine();
+            window.drumMachine = drumMachine;
+            if (typeof window.BeatboxPromoRecorder === 'function') {
+                drumMachine.promoRecorder = new window.BeatboxPromoRecorder(drumMachine);
+            }
+            if (typeof window.BeatboxLoopLibrary === 'function') {
+                drumMachine.loopLibrary = new window.BeatboxLoopLibrary(drumMachine);
+                drumMachine.loopLibrary.restoreStateFromUrl();
+                drumMachine.loopLibrary.renderHistory();
+            }
+
+            window.addEventListener('beatbox-promo-preparing', (event) => {
+                setPromoUI(true, event.detail.kind === 'record' ? '화면 선택 중…' : '데모 준비 중…');
+            });
+            window.addEventListener('beatbox-promo-start', (event) => {
+                document.body.classList.toggle('promo-capturing', event.detail.kind === 'record');
+                document.body.classList.toggle('promo-previewing', event.detail.kind === 'preview');
+                setPromoUI(true, event.detail.kind === 'record' ? 'REC · 00 / 25s' : 'PLAY · 00 / 25s');
+            });
+            window.addEventListener('beatbox-promo-progress', (event) => {
+                const elapsed = String(Math.min(25, Math.floor(event.detail.elapsed))).padStart(2, '0');
+                const prefix = event.detail.kind === 'preview' ? 'PLAY' : 'REC';
+                setPromoUI(true, `${prefix} · ${elapsed} / 25s`);
+            });
+            ['complete', 'cancelled', 'error'].forEach(name => {
+                window.addEventListener(`beatbox-promo-${name}`, () => {
+                    document.body.classList.remove('promo-capturing', 'promo-previewing');
+                    const labels = { complete: '완료 · 파일 저장됨', cancelled: '취소됨', error: '녹화 오류' };
+                    setPromoUI(false, labels[name]);
+                });
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && drumMachine.promoRecorder) {
+                    drumMachine.promoRecorder.cancel('escape-key');
+                }
+            });
         });
+
+        function setPromoUI(active, message) {
+            const state = document.getElementById('promoRecordState');
+            const previewButton = document.getElementById('promoPreviewBtn');
+            const recordButton = document.getElementById('promoRecordBtn');
+            const cancelButton = document.getElementById('promoCancelBtn');
+            if (state) {
+                state.textContent = message;
+                state.classList.toggle('active', active);
+            }
+            if (previewButton) previewButton.disabled = active;
+            if (recordButton) recordButton.disabled = active;
+            if (cancelButton) cancelButton.hidden = !active;
+        }
+
+        async function previewPromo() {
+            if (!drumMachine.promoRecorder) {
+                setPromoUI(false, '이 브라우저에서는 사용할 수 없음');
+                return;
+            }
+            try {
+                await drumMachine.promoRecorder.preview();
+            } catch (error) {
+                if (error && error.name !== 'AbortError') {
+                    console.error('홍보 데모 오류:', error);
+                    setPromoUI(false, '데모 오류');
+                }
+            }
+        }
+
+        async function recordPromo() {
+            if (!drumMachine.promoRecorder) {
+                setPromoUI(false, '화면 녹화를 지원하지 않음');
+                return;
+            }
+            try {
+                // record()가 이 클릭 스택에서 즉시 getDisplayMedia를 호출해야 권한 창이 열린다.
+                await drumMachine.promoRecorder.record();
+            } catch (error) {
+                if (error && error.name !== 'AbortError') {
+                    console.error('홍보 영상 녹화 오류:', error);
+                    setPromoUI(false, error.name === 'NotAllowedError' ? '화면 선택이 취소됨' : '녹화 오류');
+                }
+            }
+        }
+
+        function cancelPromo() {
+            if (drumMachine.promoRecorder) drumMachine.promoRecorder.cancel();
+        }
 
         // 전역 함수들
         function setMode(mode) {
@@ -4192,6 +4844,18 @@
 
         function importPattern() {
             drumMachine.importPattern();
+        }
+
+        async function shareCurrentLoop() {
+            if (drumMachine.loopLibrary) await drumMachine.loopLibrary.shareCurrentState();
+        }
+
+        function saveCurrentLoop() {
+            if (drumMachine.loopLibrary) drumMachine.loopLibrary.saveToHistory(false);
+        }
+
+        function clearLoopHistory() {
+            if (drumMachine.loopLibrary) drumMachine.loopLibrary.clearHistory();
         }
 
         function loadPattern(input) {
