@@ -89,6 +89,7 @@ async function main() {
             const originalKit = machine.kit;
             const originalPlayNoise = machine.playNoise;
             const originalPlayMetal = machine.playMetal;
+            const originalPlayCrashCymbal = machine.playCrashCymbal;
             const openHatRecipes = {};
             const makeSpyEnv = () => ({ gain: {} });
             for (const kit of ['acoustic', 'tr808', 'electro']) {
@@ -110,20 +111,37 @@ async function main() {
                 };
             }
 
-            const crashLayers = [];
-            machine.kit = 'acoustic';
-            machine.openHatEnvs = null;
+            const crashRecipes = {};
+            const crashLegacyLayers = [];
             machine.playNoise = options => {
-                crashLayers.push({ type: 'noise', options: { ...options } });
+                crashLegacyLayers.push({ type: 'noise', options: { ...options } });
                 return makeSpyEnv();
             };
             machine.playMetal = options => {
-                crashLayers.push({ type: 'metal', options: { ...options } });
+                crashLegacyLayers.push({ type: 'metal', options: { ...options } });
                 return makeSpyEnv();
             };
-            machine.createCrashSound();
+            machine.playCrashCymbal = options => {
+                crashRecipes[machine.kit] = { ...options };
+                return makeSpyEnv();
+            };
+            for (const kit of ['acoustic', 'tr808', 'electro']) {
+                machine.kit = kit;
+                machine.createCrashSound();
+            }
             machine.playNoise = originalPlayNoise;
             machine.playMetal = originalPlayMetal;
+            machine.playCrashCymbal = originalPlayCrashCymbal;
+
+            const sourcesBeforeCrash = new Set(machine.scheduledSources);
+            machine.kit = 'acoustic';
+            machine.voiceStartTime = machine.audioContext.currentTime + 0.04;
+            machine.createCrashSound();
+            const crashVoiceSources = [...machine.scheduledSources]
+                .filter(entry => !sourcesBeforeCrash.has(entry))
+                .map(entry => ({ loop: entry.node.loop, startAt: entry.startAt }));
+            machine.cancelPendingSources();
+            machine.voiceStartTime = null;
             machine.kit = originalKit;
             machine.openHatEnvs = null;
 
@@ -227,7 +245,10 @@ async function main() {
                 studioClosed,
                 studioOpened,
                 openHatRecipes,
-                crashLayers,
+                crashRecipes,
+                crashLegacyLayers,
+                crashVoiceSources,
+                noiseBufferDuration: machine.noiseBuffer.duration,
                 chokeEvents,
                 openHatPadTriggers,
             };
@@ -252,15 +273,29 @@ async function main() {
         assert(result.openHatPadTriggers === 1, `open-hat pad triggered ${result.openHatPadTriggers} times for one press`);
         assert(result.chokeEvents.map(event => event.type).join(',') === 'hold,target',
             `open-hat choke can re-attack: ${JSON.stringify(result.chokeEvents)}`);
-        const crashMetalWeight = result.crashLayers
-            .filter(layer => layer.type === 'metal')
-            .reduce((sum, layer) => sum + layer.options.gain * layer.options.decay, 0);
-        const crashNoiseWeight = result.crashLayers
-            .filter(layer => layer.type === 'noise')
-            .reduce((sum, layer) => sum + layer.options.gain * layer.options.decay, 0);
-        assert(crashNoiseWeight > 0, 'acoustic crash has no noise wash');
-        assert(crashMetalWeight <= crashNoiseWeight * 0.25,
-            `acoustic crash is still metal-dominant: metal=${crashMetalWeight}, noise=${crashNoiseWeight}`);
+        assert(result.noiseBufferDuration >= 4.4,
+            `noise buffer is too short for a non-looping crash: ${result.noiseBufferDuration}s`);
+        assert(result.crashLegacyLayers.length === 0,
+            `crash still uses legacy noise/metal stacks: ${JSON.stringify(result.crashLegacyLayers)}`);
+        assert(result.crashVoiceSources.length === 1,
+            `acoustic crash did not create exactly one source voice: ${JSON.stringify(result.crashVoiceSources)}`);
+        assert(result.crashVoiceSources.every(source => source.loop === false),
+            `acoustic crash source loops: ${JSON.stringify(result.crashVoiceSources)}`);
+        assert(Object.keys(result.crashRecipes).sort().join(',') === 'acoustic,electro,tr808',
+            `crash kit recipes are incomplete: ${Object.keys(result.crashRecipes).join(',')}`);
+        for (const [kit, recipe] of Object.entries(result.crashRecipes)) {
+            assert(recipe.impactGain >= 0.18, `${kit} crash has no defined impact: ${JSON.stringify(recipe)}`);
+            assert(recipe.bodyGain > recipe.airGain * 2, `${kit} crash is air/noise dominant: ${JSON.stringify(recipe)}`);
+            assert(recipe.bodyOpen >= recipe.bodyClose * 2, `${kit} crash tail does not darken: ${JSON.stringify(recipe)}`);
+            assert(recipe.airDecay <= 0.65, `${kit} crash air layer hisses too long: ${JSON.stringify(recipe)}`);
+            assert(recipe.modeCount >= 10, `${kit} crash has too few distributed modes: ${JSON.stringify(recipe)}`);
+            assert(recipe.resonanceGain <= 0.1, `${kit} crash resonances can dominate: ${JSON.stringify(recipe)}`);
+            assert(recipe.reverbSend <= 0.1, `${kit} crash reverb can smear into noise: ${JSON.stringify(recipe)}`);
+        }
+        const acousticCrash = result.crashRecipes.acoustic;
+        assert(acousticCrash.duration >= 3, `acoustic crash tail is too short: ${JSON.stringify(acousticCrash)}`);
+        assert(acousticCrash.bodyHighpass <= 500, `acoustic crash has no low-mid bronze body: ${JSON.stringify(acousticCrash)}`);
+        assert(acousticCrash.modeCount >= 18, `acoustic crash modal field is too sparse: ${JSON.stringify(acousticCrash)}`);
         for (const check of result.bassChecks) {
             assert(check.midi.length > 0, `empty bassline: ${check.scale}/${check.root}`);
             assert(check.midi.every(midi => midi >= 43 && midi <= 54), `bass range escaped: ${JSON.stringify(check)}`);
@@ -448,8 +483,11 @@ async function main() {
                 `first promo step was not planned at 0.20s: ${firstStep && firstStep.plannedCtx - promo.timeline.epochCtx}`);
             assert(skips.length === 0, `promo transport skipped ${skips.length} time(s)`);
             const actionMaxLatenessMs = Math.max(...actions.map(event => event.latenessMs || 0));
+            const lateActions = actions
+                .filter(event => (event.latenessMs || 0) > 15)
+                .map(event => ({ name: event.name, latenessMs: event.latenessMs }));
             assert(actionMaxLatenessMs <= 15,
-                `promo action lateness exceeded 15ms: ${actionMaxLatenessMs}`);
+                `promo action lateness exceeded 15ms: ${actionMaxLatenessMs}; ${JSON.stringify(lateActions)}`);
             assert(actionNames.includes('save-drum-and-bass') && actionNames.includes('prepare-share-link'),
                 'promo did not demonstrate loop save and hash sharing');
             const savedLoopRows = await page.evaluate(() => document.querySelectorAll('#loopHistoryList .loop-history-item').length);
