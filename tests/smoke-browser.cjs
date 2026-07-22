@@ -61,6 +61,7 @@ async function main() {
             timeout: 30000,
         });
         await page.waitForFunction(() => typeof drumMachine !== 'undefined' && drumMachine.audioContext && document.querySelectorAll('#beatGrid .beat-cell').length > 0);
+        await page.waitForFunction(() => drumMachine.crashSamplePromise && drumMachine.crashSample, { timeout: 10000 });
 
         const result = await page.evaluate(async () => {
             const machine = drumMachine;
@@ -90,6 +91,7 @@ async function main() {
             const originalPlayNoise = machine.playNoise;
             const originalPlayMetal = machine.playMetal;
             const originalPlayCrashCymbal = machine.playCrashCymbal;
+            const originalPlayCrashSample = machine.playCrashSample;
             const openHatRecipes = {};
             const makeSpyEnv = () => ({ gain: {} });
             for (const kit of ['acoustic', 'tr808', 'electro']) {
@@ -111,7 +113,8 @@ async function main() {
                 };
             }
 
-            const crashRecipes = {};
+            const crashSampleRecipes = {};
+            const crashFallbackRecipes = {};
             const crashLegacyLayers = [];
             machine.playNoise = options => {
                 crashLegacyLayers.push({ type: 'noise', options: { ...options } });
@@ -121,17 +124,34 @@ async function main() {
                 crashLegacyLayers.push({ type: 'metal', options: { ...options } });
                 return makeSpyEnv();
             };
+            machine.playCrashSample = options => {
+                crashSampleRecipes[machine.kit] = { ...options };
+                return true;
+            };
             machine.playCrashCymbal = options => {
-                crashRecipes[machine.kit] = { ...options };
+                crashLegacyLayers.push({ type: 'unexpected-fallback', options: { ...options } });
                 return makeSpyEnv();
             };
             for (const kit of ['acoustic', 'tr808', 'electro']) {
                 machine.kit = kit;
                 machine.createCrashSound();
             }
+            machine.playCrashSample = originalPlayCrashSample;
+            const decodedCrashSample = machine.crashSample;
+            machine.crashSample = null;
+            machine.playCrashCymbal = options => {
+                crashFallbackRecipes[machine.kit] = { ...options };
+                return makeSpyEnv();
+            };
+            for (const kit of ['acoustic', 'tr808', 'electro']) {
+                machine.kit = kit;
+                machine.createCrashSound();
+            }
+            machine.crashSample = decodedCrashSample;
             machine.playNoise = originalPlayNoise;
             machine.playMetal = originalPlayMetal;
             machine.playCrashCymbal = originalPlayCrashCymbal;
+            machine.playCrashSample = originalPlayCrashSample;
 
             const sourcesBeforeCrash = new Set(machine.scheduledSources);
             machine.kit = 'acoustic';
@@ -139,8 +159,31 @@ async function main() {
             machine.createCrashSound();
             const crashVoiceSources = [...machine.scheduledSources]
                 .filter(entry => !sourcesBeforeCrash.has(entry))
-                .map(entry => ({ loop: entry.node.loop, startAt: entry.startAt }));
+                .map(entry => ({
+                    kind: entry.node instanceof OscillatorNode ? 'mode' : 'sample',
+                    oscillatorType: entry.node instanceof OscillatorNode ? entry.node.type : null,
+                    loop: 'loop' in entry.node ? entry.node.loop : null,
+                    startAt: entry.startAt,
+                }));
             machine.cancelPendingSources();
+            const crashSourcesRemaining = [...machine.scheduledSources]
+                .filter(entry => !sourcesBeforeCrash.has(entry)).length;
+
+            machine.crashSample = null;
+            const sourcesBeforeFallback = new Set(machine.scheduledSources);
+            machine.voiceStartTime = machine.audioContext.currentTime + 0.04;
+            machine.createCrashSound();
+            const crashFallbackSources = [...machine.scheduledSources]
+                .filter(entry => !sourcesBeforeFallback.has(entry))
+                .map(entry => ({
+                    kind: entry.node instanceof OscillatorNode ? 'mode' : 'noise',
+                    oscillatorType: entry.node instanceof OscillatorNode ? entry.node.type : null,
+                    loop: 'loop' in entry.node ? entry.node.loop : null,
+                }));
+            machine.cancelPendingSources();
+            const crashFallbackSourcesRemaining = [...machine.scheduledSources]
+                .filter(entry => !sourcesBeforeFallback.has(entry)).length;
+            machine.crashSample = decodedCrashSample;
             machine.voiceStartTime = null;
             machine.kit = originalKit;
             machine.openHatEnvs = null;
@@ -245,9 +288,18 @@ async function main() {
                 studioClosed,
                 studioOpened,
                 openHatRecipes,
-                crashRecipes,
+                crashSampleRecipes,
+                crashFallbackRecipes,
                 crashLegacyLayers,
                 crashVoiceSources,
+                crashSourcesRemaining,
+                crashFallbackSources,
+                crashFallbackSourcesRemaining,
+                crashSampleInfo: {
+                    duration: machine.crashSample.duration,
+                    channels: machine.crashSample.numberOfChannels,
+                    sampleRate: machine.crashSample.sampleRate,
+                },
                 noiseBufferDuration: machine.noiseBuffer.duration,
                 chokeEvents,
                 openHatPadTriggers,
@@ -275,27 +327,43 @@ async function main() {
             `open-hat choke can re-attack: ${JSON.stringify(result.chokeEvents)}`);
         assert(result.noiseBufferDuration >= 4.4,
             `noise buffer is too short for a non-looping crash: ${result.noiseBufferDuration}s`);
+        assert(result.crashSampleInfo.duration >= 3.7 && result.crashSampleInfo.channels === 2,
+            `decoded crash sample is missing its stereo tail: ${JSON.stringify(result.crashSampleInfo)}`);
         assert(result.crashLegacyLayers.length === 0,
-            `crash still uses legacy noise/metal stacks: ${JSON.stringify(result.crashLegacyLayers)}`);
-        assert(result.crashVoiceSources.length === 1,
-            `acoustic crash did not create exactly one source voice: ${JSON.stringify(result.crashVoiceSources)}`);
-        assert(result.crashVoiceSources.every(source => source.loop === false),
-            `acoustic crash source loops: ${JSON.stringify(result.crashVoiceSources)}`);
-        assert(Object.keys(result.crashRecipes).sort().join(',') === 'acoustic,electro,tr808',
-            `crash kit recipes are incomplete: ${Object.keys(result.crashRecipes).join(',')}`);
-        for (const [kit, recipe] of Object.entries(result.crashRecipes)) {
-            assert(recipe.impactGain >= 0.18, `${kit} crash has no defined impact: ${JSON.stringify(recipe)}`);
-            assert(recipe.bodyGain > recipe.airGain * 2, `${kit} crash is air/noise dominant: ${JSON.stringify(recipe)}`);
-            assert(recipe.bodyOpen >= recipe.bodyClose * 2, `${kit} crash tail does not darken: ${JSON.stringify(recipe)}`);
-            assert(recipe.airDecay <= 0.65, `${kit} crash air layer hisses too long: ${JSON.stringify(recipe)}`);
-            assert(recipe.modeCount >= 10, `${kit} crash has too few distributed modes: ${JSON.stringify(recipe)}`);
-            assert(recipe.resonanceGain <= 0.1, `${kit} crash resonances can dominate: ${JSON.stringify(recipe)}`);
-            assert(recipe.reverbSend <= 0.1, `${kit} crash reverb can smear into noise: ${JSON.stringify(recipe)}`);
+            `loaded crash unexpectedly used the procedural fallback: ${JSON.stringify(result.crashLegacyLayers)}`);
+        assert(Object.keys(result.crashSampleRecipes).sort().join(',') === 'acoustic,electro,tr808',
+            `sample crash kit recipes are incomplete: ${Object.keys(result.crashSampleRecipes).join(',')}`);
+        assert(result.crashSampleRecipes.acoustic.duration >= 3.4,
+            `acoustic sample tail is too short: ${JSON.stringify(result.crashSampleRecipes.acoustic)}`);
+        assert(result.crashSampleRecipes.acoustic.highpass <= 200 && result.crashSampleRecipes.acoustic.lowpass >= 15000,
+            `acoustic sample loses its bronze spectrum: ${JSON.stringify(result.crashSampleRecipes.acoustic)}`);
+        assert(result.crashVoiceSources.length === 1 && result.crashVoiceSources[0].kind === 'sample' && result.crashVoiceSources[0].loop === false,
+            `acoustic crash is not one non-looping sample voice: ${JSON.stringify(result.crashVoiceSources)}`);
+        assert(result.crashSourcesRemaining === 0,
+            `scheduled sample crash survived cancellation: ${result.crashSourcesRemaining}`);
+        assert(result.crashFallbackSources.length === 17,
+            `acoustic fallback did not create one wash and 16 modes: ${JSON.stringify(result.crashFallbackSources)}`);
+        assert(result.crashFallbackSources.filter(source => source.kind === 'mode').every(source => source.oscillatorType === 'sine'),
+            `acoustic fallback contains a harsh non-sine mode: ${JSON.stringify(result.crashFallbackSources)}`);
+        assert(result.crashFallbackSources.filter(source => source.kind === 'noise').every(source => source.loop === false),
+            `acoustic fallback wash loops: ${JSON.stringify(result.crashFallbackSources)}`);
+        assert(result.crashFallbackSourcesRemaining === 0,
+            `scheduled fallback crash survived cancellation: ${result.crashFallbackSourcesRemaining}`);
+        assert(Object.keys(result.crashFallbackRecipes).sort().join(',') === 'acoustic,electro,tr808',
+            `procedural fallback recipes are incomplete: ${Object.keys(result.crashFallbackRecipes).join(',')}`);
+        for (const [kit, recipe] of Object.entries(result.crashFallbackRecipes)) {
+            assert(recipe.impactGain >= 0.18 && recipe.impactDecay <= 0.055,
+                `${kit} fallback has no clear transient: ${JSON.stringify(recipe)}`);
+            assert(recipe.bodyGain >= 0.1 && recipe.bodyGain <= 0.15,
+                `${kit} fallback noise body is out of range: ${JSON.stringify(recipe)}`);
+            assert(recipe.bodyDecay >= 1 && recipe.bodyDecay <= 2.4,
+                `${kit} fallback wash length is out of range: ${JSON.stringify(recipe)}`);
+            assert(recipe.metallicGain >= 0.008 && recipe.metallicGain <= 0.02,
+                `${kit} fallback metallic texture can disappear or clang: ${JSON.stringify(recipe)}`);
+            assert(recipe.metallicDecay < recipe.bodyDecay,
+                `${kit} fallback leaves a pitched modal tail: ${JSON.stringify(recipe)}`);
+            assert(recipe.modeCount >= 13, `${kit} fallback modal field is too sparse: ${JSON.stringify(recipe)}`);
         }
-        const acousticCrash = result.crashRecipes.acoustic;
-        assert(acousticCrash.duration >= 3, `acoustic crash tail is too short: ${JSON.stringify(acousticCrash)}`);
-        assert(acousticCrash.bodyHighpass <= 500, `acoustic crash has no low-mid bronze body: ${JSON.stringify(acousticCrash)}`);
-        assert(acousticCrash.modeCount >= 18, `acoustic crash modal field is too sparse: ${JSON.stringify(acousticCrash)}`);
         for (const check of result.bassChecks) {
             assert(check.midi.length > 0, `empty bassline: ${check.scale}/${check.root}`);
             assert(check.midi.every(midi => midi >= 43 && midi <= 54), `bass range escaped: ${JSON.stringify(check)}`);

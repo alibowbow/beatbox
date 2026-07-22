@@ -2304,6 +2304,8 @@
                 this.gridMode = '16'; // '16' or '24'
                 this.kit = 'acoustic'; // 'acoustic' | 'tr808' | 'electro'
                 this.openHatEnvs = null;
+                this.crashSample = null;
+                this.crashSamplePromise = null;
                 this.mutedSounds = new Set(); // 뮤트된 악기 키 모음
                 this.probability = {}; // 스텝별 발음 확률 { key: { stepIdx: 0~100 } } · 없으면 100%
                 this.autoScroll = false; // 재생 중 플레이헤드 따라 자동 스크롤 (기본 꺼짐)
@@ -2445,6 +2447,7 @@
 
                 // 긴 크래시도 버퍼 경계 없이 한 번만 재생되도록 충분히 긴 노이즈를 캐시한다.
                 this.noiseBuffer = this.makeNoiseBuffer(4.5);
+                this.crashSamplePromise = this.loadCrashSample();
             }
 
             makeSaturationCurve(amount) {
@@ -2479,6 +2482,21 @@
                     data[i] = Math.random() * 2 - 1;
                 }
                 return buffer;
+            }
+
+            async loadCrashSample() {
+                try {
+                    const url = new URL('./assets/crash-acoustic.mp3', document.baseURI);
+                    const response = await fetch(url, { cache: 'force-cache' });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const encoded = await response.arrayBuffer();
+                    this.crashSample = await this.audioContext.decodeAudioData(encoded.slice(0));
+                    return this.crashSample;
+                } catch (error) {
+                    // file:// 실행이나 일시적인 로딩 실패에서도 아래 절차형 폴백이 즉시 소리를 낸다.
+                    console.info('실제 크래시 샘플을 불러오지 못해 합성 폴백을 사용합니다.', error.message);
+                    return null;
+                }
             }
 
             registerScheduledSource(node, startAt) {
@@ -2593,30 +2611,86 @@
                 return env;
             }
 
-            // 크래시 전용 보이스. 한 개의 비반복 노이즈 소스를 타격·바디·에어와
-            // 비정수 공진 모드로 나눠 실제 심벌의 "탁 → 촤앙—" 에너지 이동을 만든다.
-            // square 오실레이터 뱅크를 쓰지 않아 좁고 날카로운 쇳소리가 튀지 않는다.
+            // CC0 실제 크래시 원샷. 합성음에서 생기기 쉬운 모래 질감과 고정된 쇳소리를 피하고,
+            // 킷별 재생 속도·필터·길이만 조정해 같은 심벌의 자연스러운 캐릭터를 유지한다.
+            playCrashSample({
+                gain = 0.82,
+                duration = 3.55,
+                playbackRate = 1,
+                highpass = 160,
+                lowpass = 16500,
+                reverbSend = 0.025,
+            } = {}) {
+                if (!this.crashSample || !this.audioContext || !this.masterGain) return false;
+                const ctx = this.audioContext;
+                const t = this.voiceStartTime ?? ctx.currentTime;
+                const rate = playbackRate * (1 + (Math.random() - 0.5) * 0.012);
+                const audibleDuration = Math.min(duration, this.crashSample.duration / rate);
+
+                const source = ctx.createBufferSource();
+                source.buffer = this.crashSample;
+                source.playbackRate.setValueAtTime(rate, t);
+
+                const highpassFilter = ctx.createBiquadFilter();
+                highpassFilter.type = 'highpass';
+                highpassFilter.frequency.value = highpass;
+                highpassFilter.Q.value = 0.35;
+                const lowpassFilter = ctx.createBiquadFilter();
+                lowpassFilter.type = 'lowpass';
+                lowpassFilter.frequency.value = Math.min(lowpass, ctx.sampleRate * 0.44);
+                lowpassFilter.Q.value = 0.25;
+
+                const env = ctx.createGain();
+                const fadeStart = Math.max(0.08, audibleDuration - 0.28);
+                env.gain.setValueAtTime(0, t);
+                env.gain.linearRampToValueAtTime(gain, t + 0.002);
+                env.gain.setValueAtTime(gain, t + fadeStart);
+                env.gain.exponentialRampToValueAtTime(0.0001, t + audibleDuration);
+
+                source.connect(highpassFilter);
+                highpassFilter.connect(lowpassFilter);
+                lowpassFilter.connect(env);
+                env.connect(this.masterGain);
+                if (reverbSend > 0) {
+                    const sendGain = ctx.createGain();
+                    sendGain.gain.value = reverbSend;
+                    env.connect(sendGain);
+                    sendGain.connect(this.reverb);
+                }
+
+                this.registerScheduledSource(source, t);
+                source.start(t);
+                source.stop(t + audibleDuration + 0.02);
+                return true;
+            }
+
+            // 크래시 전용 보이스. 노이즈는 타격 직후의 짧은 워시만 담당하고,
+            // 긴 꼬리는 비정수 사인 모드가 만든다. 모든 레이어를 노이즈에서 뽑으면
+            // 모래처럼 들리고, square 모드를 쓰면 좁은 "깡" 소리가 나기 때문이다.
             playCrashCymbal({
-                duration = 3.1,
-                impactGain = 0.22,
-                bodyGain = 0.3,
-                airGain = 0.1,
+                duration = 2.55,
+                impactGain = 0.21,
+                impactDecay = 0.052,
+                bodyGain = 0.14,
+                bodyDecay = 2.35,
+                airGain = 0.052,
                 bodyHighpass = 460,
                 bodyOpen = 12000,
                 bodyClose = 4200,
                 airHighpass = 5200,
                 airLowpass = 14500,
-                airDecay = 0.55,
-                resonanceGain = 0.09,
-                modeCount = 18,
+                airDecay = 0.4,
+                metallicGain = 0.016,
+                metallicDecay = 1.05,
+                modeCount = 16,
                 pitchScale = 1,
-                reverbSend = 0.1,
-                stereoWidth = 0.24,
+                reverbSend = 0.055,
+                stereoWidth = 0.27,
             } = {}) {
                 const ctx = this.audioContext;
                 const t = this.voiceStartTime ?? ctx.currentTime;
-                const voiceDuration = Math.min(duration + 0.08, this.noiseBuffer.duration);
-                const maxOffset = Math.max(0, this.noiseBuffer.duration - voiceDuration);
+                const noiseDuration = Math.min(Math.max(0.1, bodyDecay, airDecay) + 0.08, this.noiseBuffer.duration);
+                const maxOffset = Math.max(0, this.noiseBuffer.duration - noiseDuration);
 
                 const source = ctx.createBufferSource();
                 source.buffer = this.noiseBuffer;
@@ -2643,12 +2717,12 @@
                 const impactEnv = ctx.createGain();
                 impactEnv.gain.setValueAtTime(0, t);
                 impactEnv.gain.linearRampToValueAtTime(impactGain, t + 0.0015);
-                impactEnv.gain.exponentialRampToValueAtTime(0.001, t + 0.075);
+                impactEnv.gain.exponentialRampToValueAtTime(0.001, t + impactDecay);
                 source.connect(impactFilter);
                 impactFilter.connect(impactEnv);
                 impactEnv.connect(output);
 
-                // 2) 브론즈 바디: 저중역을 남기고, 밝게 열린 어택이 점차 어두워지게 한다.
+                // 2) 짧은 워시: 심벌이 열린 직후의 폭발감만 남기고 모래 같은 긴 노이즈는 끊는다.
                 const bodyHighpassFilter = ctx.createBiquadFilter();
                 bodyHighpassFilter.type = 'highpass';
                 bodyHighpassFilter.frequency.value = bodyHighpass;
@@ -2657,12 +2731,12 @@
                 bodyLowpassFilter.type = 'lowpass';
                 bodyLowpassFilter.Q.value = 0.28;
                 bodyLowpassFilter.frequency.setValueAtTime(bodyOpen, t);
-                bodyLowpassFilter.frequency.exponentialRampToValueAtTime(bodyClose, t + duration);
+                bodyLowpassFilter.frequency.exponentialRampToValueAtTime(bodyClose, t + bodyDecay);
                 const bodyEnv = ctx.createGain();
                 bodyEnv.gain.setValueAtTime(0, t);
-                bodyEnv.gain.linearRampToValueAtTime(bodyGain, t + 0.012);
-                bodyEnv.gain.exponentialRampToValueAtTime(bodyGain * 0.72, t + 0.11);
-                bodyEnv.gain.exponentialRampToValueAtTime(0.001, t + duration);
+                bodyEnv.gain.linearRampToValueAtTime(bodyGain, t + 0.006);
+                bodyEnv.gain.exponentialRampToValueAtTime(bodyGain * 0.58, t + 0.085);
+                bodyEnv.gain.exponentialRampToValueAtTime(0.001, t + bodyDecay);
                 source.connect(bodyHighpassFilter);
                 bodyHighpassFilter.connect(bodyLowpassFilter);
                 bodyLowpassFilter.connect(bodyEnv);
@@ -2685,45 +2759,72 @@
                 airLowpassFilter.connect(airEnv);
                 airEnv.connect(output);
 
-                // 4) 동판 공진: 로그 간격의 넓은 band-pass 모드를 서로 다른 속도로 감쇠한다.
-                // 낮은 모드는 길게, 높은 모드는 늦게 피었다 빨리 사라져 라이드의 "딩"과 구분된다.
-                const modeMin = 330 * pitchScale;
-                const modeMax = Math.min(13500 * pitchScale, ctx.sampleRate * 0.42);
-                let modeLeftOutput = output;
-                let modeRightOutput = output;
+                // 4) 청동 공진: 조화배가 아닌 촘촘한 사인 모드를 빠르게 열어 금속 질감을 만든다.
+                // 중역 모드는 길게, 양 끝은 빨리 감쇠해 종·징처럼 특정 음정이 남는 것을 막는다.
+                const allModalFrequencies = [
+                    359, 467, 617, 823, 1087, 1429, 1871, 2437,
+                    3163, 4099, 5281, 6757, 8543, 10687, 13103, 14939,
+                ];
+                const activeModeCount = Math.max(1, Math.min(modeCount, allModalFrequencies.length));
+                const modalFrequencies = Array.from({ length: activeModeCount }, (_, i) => {
+                    const index = activeModeCount === 1
+                        ? 0
+                        : Math.round(i * (allModalFrequencies.length - 1) / (activeModeCount - 1));
+                    return allModalFrequencies[index];
+                });
+                const modalHighpass = ctx.createBiquadFilter();
+                modalHighpass.type = 'highpass';
+                modalHighpass.frequency.value = 310 * pitchScale;
+                modalHighpass.Q.value = 0.35;
+                const modalLowpass = ctx.createBiquadFilter();
+                modalLowpass.type = 'lowpass';
+                modalLowpass.frequency.value = Math.min(14200 * pitchScale, ctx.sampleRate * 0.43);
+                modalLowpass.Q.value = 0.25;
+                modalHighpass.connect(modalLowpass);
+                modalLowpass.connect(output);
+
+                let modeLeftOutput = modalHighpass;
+                let modeRightOutput = modalHighpass;
                 if (typeof ctx.createStereoPanner === 'function' && stereoWidth > 0) {
                     modeLeftOutput = ctx.createStereoPanner();
                     modeRightOutput = ctx.createStereoPanner();
                     modeLeftOutput.pan.value = -stereoWidth;
                     modeRightOutput.pan.value = stereoWidth;
-                    modeLeftOutput.connect(output);
-                    modeRightOutput.connect(output);
+                    modeLeftOutput.connect(modalHighpass);
+                    modeRightOutput.connect(modalHighpass);
                 }
-                for (let i = 0; i < modeCount; i++) {
-                    const position = modeCount === 1 ? 0 : i / (modeCount - 1);
-                    const spacingJitter = 1 + (Math.random() - 0.5) * 0.055;
-                    const frequency = modeMin * Math.pow(modeMax / modeMin, position) * spacingJitter;
-                    const modeFilter = ctx.createBiquadFilter();
-                    modeFilter.type = 'bandpass';
-                    modeFilter.frequency.value = frequency;
-                    modeFilter.Q.value = 7 + position * 6;
+                modalFrequencies.forEach((frequency, i) => {
+                    const position = modalFrequencies.length === 1 ? 0.5 : i / (modalFrequencies.length - 1);
+                    const oscillator = ctx.createOscillator();
+                    oscillator.type = 'sine';
+                    const hitJitter = 1 + (Math.random() - 0.5) * 0.012;
+                    const startFrequency = Math.min(frequency * pitchScale * hitJitter, ctx.sampleRate * 0.43);
+                    const endBend = 1 - 0.0025 - Math.random() * 0.0035;
+                    oscillator.frequency.setValueAtTime(startFrequency, t);
+                    oscillator.frequency.exponentialRampToValueAtTime(startFrequency * endBend, t + duration);
 
+                    const centreWeight = 0.48 + 0.72 * Math.pow(Math.sin(Math.PI * position), 0.7);
+                    const edgeDecay = 0.45 + 0.55 * Math.pow(Math.sin(Math.PI * position), 0.7);
+                    const modeDecay = Math.max(0.42, Math.min(duration, metallicDecay * edgeDecay));
+                    const attack = 0.0015 + (1 - position) * 0.0045;
                     const modeEnv = ctx.createGain();
-                    const peak = (resonanceGain / Math.sqrt(modeCount)) * (0.82 + Math.random() * 0.36);
-                    const attack = 0.003 + position * 0.018;
-                    const modeDecay = Math.max(0.38, duration * (1 - position * 0.46));
+                    const peak = (metallicGain / Math.sqrt(modalFrequencies.length)) * centreWeight * (0.88 + Math.random() * 0.24);
                     modeEnv.gain.setValueAtTime(0, t);
                     modeEnv.gain.linearRampToValueAtTime(peak, t + attack);
                     modeEnv.gain.exponentialRampToValueAtTime(0.001, t + modeDecay);
 
-                    source.connect(modeFilter);
-                    modeFilter.connect(modeEnv);
-                    modeEnv.connect(i % 2 === 0 ? modeLeftOutput : modeRightOutput);
-                }
+                    oscillator.connect(modeEnv);
+                    // 불규칙한 좌·중·우 배치로 넓게 퍼지되, 모드마다 panner를 만들지는 않는다.
+                    const lane = [0, 2, 1, 2, 0, 1, 2, 1][i % 8];
+                    modeEnv.connect(lane === 0 ? modeLeftOutput : lane === 1 ? modeRightOutput : modalHighpass);
+                    this.registerScheduledSource(oscillator, t);
+                    oscillator.start(t);
+                    oscillator.stop(t + modeDecay + 0.06);
+                });
 
                 this.registerScheduledSource(source, t);
-                source.start(t, Math.random() * maxOffset, voiceDuration);
-                source.stop(t + voiceDuration + 0.01);
+                source.start(t, Math.random() * maxOffset, noiseDuration);
+                source.stop(t + noiseDuration + 0.01);
                 return output;
             }
 
@@ -2856,16 +2957,19 @@
                 this.openHatEnvs = [this.playNoise(profile)];
             }
 
-            // 크래시: 전용 공진 보이스로 강한 어택, 넓은 브론즈 바디, 자연스러운 긴 테일을 만든다.
+            // 크래시: 실제 원샷을 우선 사용하고, 샘플 로딩 실패 때만 절차형 보이스로 전환한다.
             createCrashSound() {
                 if (!this.audioContext || !this.masterGain) return;
                 const kit = this.kit;
                 if (kit === 'electro') {
-                    this.playCrashCymbal({ duration: 1.65, impactGain: 0.19, bodyGain: 0.25, airGain: 0.1, bodyHighpass: 900, bodyOpen: 12500, bodyClose: 4800, airHighpass: 6000, airDecay: 0.42, resonanceGain: 0.052, modeCount: 10, pitchScale: 1.12, reverbSend: 0.07, stereoWidth: 0.3 });
+                    if (this.playCrashSample({ gain: 0.68, duration: 1.5, playbackRate: 1.13, highpass: 900, lowpass: 13800, reverbSend: 0.02 })) return;
+                    this.playCrashCymbal({ duration: 1.2, impactGain: 0.18, impactDecay: 0.038, bodyGain: 0.105, bodyDecay: 1.05, airGain: 0.045, bodyHighpass: 900, bodyOpen: 12500, bodyClose: 4800, airHighpass: 6000, airDecay: 0.32, metallicGain: 0.01, metallicDecay: 0.58, modeCount: 13, pitchScale: 1.12, reverbSend: 0.035, stereoWidth: 0.3 });
                 } else if (kit === 'tr808') {
-                    this.playCrashCymbal({ duration: 1.9, impactGain: 0.2, bodyGain: 0.27, airGain: 0.08, bodyHighpass: 700, bodyOpen: 10500, bodyClose: 3600, airHighpass: 5200, airLowpass: 11800, airDecay: 0.46, resonanceGain: 0.06, modeCount: 12, pitchScale: 0.94, reverbSend: 0.05, stereoWidth: 0.2 });
+                    if (this.playCrashSample({ gain: 0.72, duration: 1.85, playbackRate: 1.065, highpass: 620, lowpass: 11600, reverbSend: 0.018 })) return;
+                    this.playCrashCymbal({ duration: 1.45, impactGain: 0.19, impactDecay: 0.044, bodyGain: 0.12, bodyDecay: 1.3, airGain: 0.04, bodyHighpass: 700, bodyOpen: 10500, bodyClose: 3600, airHighpass: 5200, airLowpass: 11800, airDecay: 0.35, metallicGain: 0.012, metallicDecay: 0.72, modeCount: 14, pitchScale: 0.94, reverbSend: 0.03, stereoWidth: 0.2 });
                 } else {
-                    this.playCrashCymbal({ duration: 3.15, impactGain: 0.23, bodyGain: 0.31, airGain: 0.105, bodyHighpass: 440, bodyOpen: 12000, bodyClose: 4100, airHighpass: 5100, airLowpass: 14500, airDecay: 0.58, resonanceGain: 0.095, modeCount: 18, pitchScale: 1, reverbSend: 0.1, stereoWidth: 0.26 });
+                    if (this.playCrashSample({ gain: 0.82, duration: 3.55, playbackRate: 1, highpass: 160, lowpass: 16500, reverbSend: 0.025 })) return;
+                    this.playCrashCymbal({ duration: 2.55, impactGain: 0.21, impactDecay: 0.052, bodyGain: 0.14, bodyDecay: 2.35, airGain: 0.052, bodyHighpass: 430, bodyOpen: 11800, bodyClose: 3900, airHighpass: 5100, airLowpass: 14200, airDecay: 0.4, metallicGain: 0.016, metallicDecay: 1.05, modeCount: 16, pitchScale: 1, reverbSend: 0.055, stereoWidth: 0.27 });
                 }
             }
 
