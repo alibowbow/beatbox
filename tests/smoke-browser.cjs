@@ -336,16 +336,19 @@ async function main() {
         const acousticCrashSample = result.crashSampleRecipes.acoustic;
         const tr808CrashSample = result.crashSampleRecipes.tr808;
         const electroCrashSample = result.crashSampleRecipes.electro;
-        assert(acousticCrashSample.duration >= 2 && acousticCrashSample.duration <= 2.2,
-            `acoustic sample tail is not compact: ${JSON.stringify(acousticCrashSample)}`);
+        assert(acousticCrashSample.duration >= 1.1 && acousticCrashSample.duration <= 1.2,
+            `acoustic sample tail is not tightly controlled: ${JSON.stringify(acousticCrashSample)}`);
         assert(electroCrashSample.duration < tr808CrashSample.duration && tr808CrashSample.duration < acousticCrashSample.duration,
             `sample crash tails are not ordered by kit: ${JSON.stringify(result.crashSampleRecipes)}`);
         for (const [kit, recipe] of Object.entries(result.crashSampleRecipes)) {
-            assert(recipe.duration <= 2.2, `${kit} sample crash tail is too long: ${JSON.stringify(recipe)}`);
-            assert(recipe.fadeDuration >= 0.3 && recipe.fadeDuration <= 0.6,
+            const fadeStart = recipe.duration - recipe.fadeDuration;
+            assert(recipe.duration <= 1.2, `${kit} sample crash tail is too long: ${JSON.stringify(recipe)}`);
+            assert(recipe.fadeDuration >= 0.3 && recipe.fadeDuration <= 0.52,
                 `${kit} sample crash fade is abrupt or too slow: ${JSON.stringify(recipe)}`);
-            assert(recipe.reverbSend <= 0.012,
-                `${kit} sample crash adds too much room tail: ${JSON.stringify(recipe)}`);
+            assert(fadeStart >= 0.5 && fadeStart <= 0.68,
+                `${kit} sample crash does not preserve a compact attack before fading: ${JSON.stringify(recipe)}`);
+            assert(recipe.reverbSend === 0,
+                `${kit} sample crash still adds a separate room tail: ${JSON.stringify(recipe)}`);
         }
         assert(result.crashSampleRecipes.acoustic.highpass <= 200 && result.crashSampleRecipes.acoustic.lowpass >= 15000,
             `acoustic sample loses its bronze spectrum: ${JSON.stringify(result.crashSampleRecipes.acoustic)}`);
@@ -370,15 +373,19 @@ async function main() {
                 `${kit} fallback noise body is out of range: ${JSON.stringify(recipe)}`);
             assert(recipe.duration <= result.crashSampleRecipes[kit].duration,
                 `${kit} fallback outlasts the sample crash: ${JSON.stringify(recipe)}`);
-            assert(recipe.bodyDecay >= 0.85 && recipe.bodyDecay <= 1.7,
+            assert(recipe.duration <= 1.05,
+                `${kit} fallback crash tail is too long: ${JSON.stringify(recipe)}`);
+            assert(recipe.bodyDecay >= 0.58 && recipe.bodyDecay <= 0.82,
                 `${kit} fallback wash length is out of range: ${JSON.stringify(recipe)}`);
             assert(recipe.metallicGain >= 0.008 && recipe.metallicGain <= 0.02,
                 `${kit} fallback metallic texture can disappear or clang: ${JSON.stringify(recipe)}`);
             assert(recipe.metallicDecay < recipe.bodyDecay,
                 `${kit} fallback leaves a pitched modal tail: ${JSON.stringify(recipe)}`);
             assert(recipe.modeCount >= 13, `${kit} fallback modal field is too sparse: ${JSON.stringify(recipe)}`);
-            assert(recipe.reverbSend <= 0.03,
-                `${kit} fallback adds too much room tail: ${JSON.stringify(recipe)}`);
+            assert(recipe.airDecay <= 0.28,
+                `${kit} fallback leaves too much high-frequency air: ${JSON.stringify(recipe)}`);
+            assert(recipe.reverbSend === 0,
+                `${kit} fallback still adds a separate room tail: ${JSON.stringify(recipe)}`);
         }
         for (const check of result.bassChecks) {
             assert(check.midi.length > 0, `empty bassline: ${check.scale}/${check.root}`);
