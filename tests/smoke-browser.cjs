@@ -364,6 +364,11 @@ async function main() {
             `acoustic fallback wash loops: ${JSON.stringify(result.crashFallbackSources)}`);
         assert(result.crashFallbackSourcesRemaining === 0,
             `scheduled fallback crash survived cancellation: ${result.crashFallbackSourcesRemaining}`);
+        const fallbackImplementation = await page.evaluate(() => drumMachine.playCrashCymbal.toString());
+        assert(!fallbackImplementation.includes('Math.max(0.42'),
+            'fallback modal decays are still clamped to one long shared value');
+        assert(fallbackImplementation.includes('exponentialRampToValueAtTime(0.00001'),
+            'fallback modes do not fade close enough to silence before stopping');
         assert(Object.keys(result.crashFallbackRecipes).sort().join(',') === 'acoustic,electro,tr808',
             `procedural fallback recipes are incomplete: ${Object.keys(result.crashFallbackRecipes).join(',')}`);
         for (const [kit, recipe] of Object.entries(result.crashFallbackRecipes)) {
