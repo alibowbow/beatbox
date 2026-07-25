@@ -2814,13 +2814,13 @@
 
                     const centreWeight = 0.48 + 0.72 * Math.pow(Math.sin(Math.PI * position), 0.7);
                     const edgeDecay = 0.45 + 0.55 * Math.pow(Math.sin(Math.PI * position), 0.7);
-                    const modeDecay = Math.max(0.42, Math.min(duration, metallicDecay * edgeDecay));
+                    const modeDecay = Math.max(0.12, Math.min(duration, metallicDecay * edgeDecay));
                     const attack = 0.0015 + (1 - position) * 0.0045;
                     const modeEnv = ctx.createGain();
                     const peak = (metallicGain / Math.sqrt(modalFrequencies.length)) * centreWeight * (0.88 + Math.random() * 0.24);
                     modeEnv.gain.setValueAtTime(0, t);
                     modeEnv.gain.linearRampToValueAtTime(peak, t + attack);
-                    modeEnv.gain.exponentialRampToValueAtTime(0.001, t + modeDecay);
+                    modeEnv.gain.exponentialRampToValueAtTime(0.00001, t + modeDecay);
 
                     oscillator.connect(modeEnv);
                     // 불규칙한 좌·중·우 배치로 넓게 퍼지되, 모드마다 panner를 만들지는 않는다.
@@ -2828,7 +2828,7 @@
                     modeEnv.connect(lane === 0 ? modeLeftOutput : lane === 1 ? modeRightOutput : modalHighpass);
                     this.registerScheduledSource(oscillator, t);
                     oscillator.start(t);
-                    oscillator.stop(t + modeDecay + 0.06);
+                    oscillator.stop(t + modeDecay + 0.02);
                 });
 
                 this.registerScheduledSource(source, t);
