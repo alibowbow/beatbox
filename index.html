@@ -2615,8 +2615,8 @@
             // 킷별 재생 속도·필터·길이만 조정해 같은 심벌의 자연스러운 캐릭터를 유지한다.
             playCrashSample({
                 gain = 0.82,
-                duration = 1.15,
-                fadeDuration = 0.5,
+                duration = 0.575,
+                fadeDuration = 0.25,
                 playbackRate = 1,
                 highpass = 160,
                 lowpass = 16500,
@@ -2677,20 +2677,20 @@
             // 긴 꼬리는 비정수 사인 모드가 만든다. 모든 레이어를 노이즈에서 뽑으면
             // 모래처럼 들리고, square 모드를 쓰면 좁은 "깡" 소리가 나기 때문이다.
             playCrashCymbal({
-                duration = 1.05,
+                duration = 0.525,
                 impactGain = 0.21,
                 impactDecay = 0.052,
                 bodyGain = 0.14,
-                bodyDecay = 0.82,
+                bodyDecay = 0.41,
                 airGain = 0.052,
                 bodyHighpass = 460,
                 bodyOpen = 12000,
                 bodyClose = 4200,
                 airHighpass = 5200,
                 airLowpass = 14500,
-                airDecay = 0.28,
+                airDecay = 0.14,
                 metallicGain = 0.016,
-                metallicDecay = 0.52,
+                metallicDecay = 0.26,
                 modeCount = 16,
                 pitchScale = 1,
                 reverbSend = 0,
@@ -2971,14 +2971,14 @@
                 if (!this.audioContext || !this.masterGain) return;
                 const kit = this.kit;
                 if (kit === 'electro') {
-                    if (this.playCrashSample({ gain: 0.68, duration: 0.84, fadeDuration: 0.32, playbackRate: 1.13, highpass: 900, lowpass: 13800, reverbSend: 0 })) return;
-                    this.playCrashCymbal({ duration: 0.78, impactGain: 0.18, impactDecay: 0.038, bodyGain: 0.105, bodyDecay: 0.58, airGain: 0.045, bodyHighpass: 900, bodyOpen: 12500, bodyClose: 4800, airHighpass: 6000, airDecay: 0.2, metallicGain: 0.01, metallicDecay: 0.32, modeCount: 13, pitchScale: 1.12, reverbSend: 0, stereoWidth: 0.3 });
+                    if (this.playCrashSample({ gain: 0.68, duration: 0.42, fadeDuration: 0.16, playbackRate: 1.13, highpass: 900, lowpass: 13800, reverbSend: 0 })) return;
+                    this.playCrashCymbal({ duration: 0.39, impactGain: 0.18, impactDecay: 0.038, bodyGain: 0.105, bodyDecay: 0.29, airGain: 0.045, bodyHighpass: 900, bodyOpen: 12500, bodyClose: 4800, airHighpass: 6000, airDecay: 0.1, metallicGain: 0.01, metallicDecay: 0.16, modeCount: 13, pitchScale: 1.12, reverbSend: 0, stereoWidth: 0.3 });
                 } else if (kit === 'tr808') {
-                    if (this.playCrashSample({ gain: 0.72, duration: 0.98, fadeDuration: 0.38, playbackRate: 1.065, highpass: 620, lowpass: 11600, reverbSend: 0 })) return;
-                    this.playCrashCymbal({ duration: 0.9, impactGain: 0.19, impactDecay: 0.044, bodyGain: 0.12, bodyDecay: 0.7, airGain: 0.04, bodyHighpass: 700, bodyOpen: 10500, bodyClose: 3600, airHighpass: 5200, airLowpass: 11800, airDecay: 0.24, metallicGain: 0.012, metallicDecay: 0.4, modeCount: 14, pitchScale: 0.94, reverbSend: 0, stereoWidth: 0.2 });
+                    if (this.playCrashSample({ gain: 0.72, duration: 0.49, fadeDuration: 0.19, playbackRate: 1.065, highpass: 620, lowpass: 11600, reverbSend: 0 })) return;
+                    this.playCrashCymbal({ duration: 0.45, impactGain: 0.19, impactDecay: 0.044, bodyGain: 0.12, bodyDecay: 0.35, airGain: 0.04, bodyHighpass: 700, bodyOpen: 10500, bodyClose: 3600, airHighpass: 5200, airLowpass: 11800, airDecay: 0.12, metallicGain: 0.012, metallicDecay: 0.2, modeCount: 14, pitchScale: 0.94, reverbSend: 0, stereoWidth: 0.2 });
                 } else {
-                    if (this.playCrashSample({ gain: 0.82, duration: 1.15, fadeDuration: 0.5, playbackRate: 1, highpass: 160, lowpass: 16500, reverbSend: 0 })) return;
-                    this.playCrashCymbal({ duration: 1.05, impactGain: 0.21, impactDecay: 0.052, bodyGain: 0.14, bodyDecay: 0.82, airGain: 0.052, bodyHighpass: 430, bodyOpen: 11800, bodyClose: 3900, airHighpass: 5100, airLowpass: 14200, airDecay: 0.28, metallicGain: 0.016, metallicDecay: 0.52, modeCount: 16, pitchScale: 1, reverbSend: 0, stereoWidth: 0.27 });
+                    if (this.playCrashSample({ gain: 0.82, duration: 0.575, fadeDuration: 0.25, playbackRate: 1, highpass: 160, lowpass: 16500, reverbSend: 0 })) return;
+                    this.playCrashCymbal({ duration: 0.525, impactGain: 0.21, impactDecay: 0.052, bodyGain: 0.14, bodyDecay: 0.41, airGain: 0.052, bodyHighpass: 430, bodyOpen: 11800, bodyClose: 3900, airHighpass: 5100, airLowpass: 14200, airDecay: 0.14, metallicGain: 0.016, metallicDecay: 0.26, modeCount: 16, pitchScale: 1, reverbSend: 0, stereoWidth: 0.27 });
                 }
             }
 
