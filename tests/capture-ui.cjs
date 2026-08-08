@@ -81,6 +81,7 @@ async function capture(page, url, name, viewport) {
                 pads: rect('.drum-pads'),
                 pattern: rect('.pattern-panel'),
                 library: rect('#loopLibrarySection'),
+                presets: rect('#musicPresetMenu'),
                 mobileNav: rect('.mobile-section-nav'),
             },
             state: {
@@ -90,12 +91,13 @@ async function capture(page, url, name, viewport) {
                 navTargetsResolve: navLinks.every(link => link.hash && document.querySelector(link.hash)),
                 patternToolsOpen: document.getElementById('patternTools').open,
                 libraryOpen: document.getElementById('loopLibrarySection').open,
+                presetsOpen: document.getElementById('musicPresetMenu').open,
                 promoOpen: document.getElementById('promoRecorderPanel').open,
                 beatTabStops: document.querySelectorAll('#beatGrid .sound-label[tabindex="0"], #beatGrid .beat-cell[tabindex="0"]').length,
                 synthTabStops: document.querySelectorAll('#synthGrid .synth-cell[tabindex="0"]').length,
                 beatRows: document.querySelectorAll('#beatGrid > [role="row"]').length,
                 synthRows: document.querySelectorAll('#synthGrid > [role="row"]').length,
-                topControlSizes: [...document.querySelectorAll('.mode-btn, .save-menu-summary, .promo-recorder-summary')]
+                topControlSizes: [...document.querySelectorAll('.mode-btn, .preset-menu-summary, .save-menu-summary, .promo-recorder-summary')]
                     .filter(element => element.getClientRects().length > 0)
                     .map(element => {
                         const box = element.getBoundingClientRect();
@@ -145,6 +147,64 @@ async function measureSaveMenu(page) {
     });
 }
 
+async function measurePresetMenu(page) {
+    return page.evaluate(() => {
+        const topbar = document.querySelector('.app-topbar');
+        const menu = document.getElementById('musicPresetMenu');
+        const panel = menu.querySelector('.preset-menu-panel');
+        const before = topbar.getBoundingClientRect();
+        menu.open = true;
+        const openedTopbar = topbar.getBoundingClientRect();
+        const openedPanel = panel.getBoundingClientRect();
+        const actionSizes = [...panel.querySelectorAll('#listenAllBtn, .music-preset-card')]
+            .map(button => {
+                const box = button.getBoundingClientRect();
+                return { width: box.width, height: box.height };
+            });
+        const result = {
+            topbarBottom: before.bottom,
+            topbarHeightDelta: Math.abs(openedTopbar.height - before.height),
+            panel: {
+                top: openedPanel.top,
+                left: openedPanel.left,
+                right: openedPanel.right,
+                height: openedPanel.height,
+                scrollHeight: panel.scrollHeight,
+            },
+            actionSizes,
+        };
+        menu.open = false;
+        return result;
+    });
+}
+
+async function measureListeningDeck(page) {
+    return page.evaluate(() => {
+        const library = drumMachine.presetLibrary;
+        const menu = document.getElementById('musicPresetMenu');
+        const previous = {
+            listening: library.listening,
+            activeIndex: library.activeIndex,
+            completedLoops: library.completedLoops,
+        };
+        library.listening = true;
+        library.activeIndex = 0;
+        library.completedLoops = 1;
+        library.syncUI();
+        menu.open = true;
+        const sizes = [...document.querySelectorAll('#listeningDeck button')].map(button => {
+            const box = button.getBoundingClientRect();
+            return { width: box.width, height: box.height };
+        });
+        menu.open = false;
+        library.listening = previous.listening;
+        library.activeIndex = previous.activeIndex;
+        library.completedLoops = previous.completedLoops;
+        library.syncUI();
+        return sizes;
+    });
+}
+
 async function main() {
     fs.mkdirSync(outputDir, { recursive: true });
     const server = await startServer();
@@ -171,8 +231,10 @@ async function main() {
         const url = `http://127.0.0.1:${server.address().port}/`;
         const desktop = await capture(page, url, 'desktop-1440', { width: 1440, height: 1100, deviceScaleFactor: 1 });
         const desktopSaveMenu = await measureSaveMenu(page);
+        const desktopPresetMenu = await measurePresetMenu(page);
         const tablet = await capture(page, url, 'tablet-820', { width: 820, height: 1180, deviceScaleFactor: 1 });
         const tabletSaveMenu = await measureSaveMenu(page);
+        const tabletPresetMenu = await measurePresetMenu(page);
         const tabletTouch = await capture(page, url, 'tablet-820-touch', {
             width: 820,
             height: 1180,
@@ -180,6 +242,8 @@ async function main() {
             hasTouch: true,
         });
         const tabletTouchSaveMenu = await measureSaveMenu(page);
+        const tabletTouchPresetMenu = await measurePresetMenu(page);
+        const tabletTouchListeningDeck = await measureListeningDeck(page);
         const mobile = await capture(page, url, 'mobile-390', {
             width: 390,
             height: 844,
@@ -187,7 +251,12 @@ async function main() {
             isMobile: true,
             hasTouch: true,
         });
+        await page.$eval('#musicPresetMenu', menu => { menu.open = true; });
+        await page.screenshot({ path: path.join(outputDir, 'mobile-390-presets.png'), fullPage: false });
+        await page.$eval('#musicPresetMenu', menu => { menu.open = false; });
         const mobileSaveMenu = await measureSaveMenu(page);
+        const mobilePresetMenu = await measurePresetMenu(page);
+        const mobileListeningDeck = await measureListeningDeck(page);
         for (const [name, result] of Object.entries({ desktop, tablet, tabletTouch, mobile })) {
             assert(result.page.scrollWidth === result.page.clientWidth,
                 `${name} has page-level horizontal overflow: ${result.page.scrollWidth}px > ${result.page.clientWidth}px`);
@@ -232,7 +301,8 @@ async function main() {
             assert(result.state.beatRows > 1 && result.state.synthRows > 1,
                 `${name} sequencer row semantics are missing`);
         }
-        assert(!mobile.state.patternToolsOpen && !mobile.state.libraryOpen && !mobile.state.promoOpen,
+        assert(!mobile.state.patternToolsOpen && !mobile.state.libraryOpen &&
+                !mobile.state.presetsOpen && !mobile.state.promoOpen,
             'fresh mobile disclosures are not compact by default');
         for (const [name, grid] of Object.entries({ beat: mobile.state.beatGrid, synth: mobile.state.synthGrid })) {
             assert(grid.left >= 0 && grid.right <= mobile.viewport.width + 1,
@@ -265,6 +335,31 @@ async function main() {
             assert(geometry.actionSizes.every(size => size.width >= 40 && size.height >= 40),
                 `${name} save actions are too small for touch: ${JSON.stringify(geometry.actionSizes)}`);
         }
+        const presetMenus = {
+            desktop: { viewport: desktop.viewport, geometry: desktopPresetMenu },
+            tablet: { viewport: tablet.viewport, geometry: tabletPresetMenu },
+            tabletTouch: { viewport: tabletTouch.viewport, geometry: tabletTouchPresetMenu },
+            mobile: { viewport: mobile.viewport, geometry: mobilePresetMenu },
+        };
+        for (const [name, { viewport, geometry }] of Object.entries(presetMenus)) {
+            assert(geometry.panel.top >= geometry.topbarBottom - 1,
+                `${name} preset menu overlaps the top bar: ${JSON.stringify(geometry)}`);
+            assert(geometry.panel.left >= -1 && geometry.panel.right <= viewport.width + 1,
+                `${name} preset menu escapes the viewport: ${JSON.stringify(geometry)}`);
+            assert(geometry.topbarHeightDelta < 1,
+                `${name} preset menu reflows the top bar: ${JSON.stringify(geometry)}`);
+        }
+        for (const [name, geometry] of Object.entries({ tabletTouch: tabletTouchPresetMenu, mobile: mobilePresetMenu })) {
+            assert(geometry.actionSizes.length >= 9 && geometry.actionSizes.every(size => size.width >= 40 && size.height >= 40),
+                `${name} preset actions are too small for touch: ${JSON.stringify(geometry.actionSizes)}`);
+        }
+        for (const [name, sizes] of Object.entries({
+            tabletTouch: tabletTouchListeningDeck,
+            mobile: mobileListeningDeck,
+        })) {
+            assert(sizes.length === 4 && sizes.every(size => size.width >= 40 && size.height >= 40),
+                `${name} listening controls are too small for touch: ${JSON.stringify(sizes)}`);
+        }
         const mobilePromoMenu = await page.evaluate(() => {
             const topbar = document.querySelector('.app-topbar').getBoundingClientRect();
             const panel = document.getElementById('promoRecorderPanel');
@@ -289,6 +384,48 @@ async function main() {
         assert(!escapeState.open && escapeState.focused,
             `Escape did not close and return focus to the save trigger: ${JSON.stringify(escapeState)}`);
 
+        await page.focus('#musicPresetMenu > summary');
+        await page.keyboard.press('Enter');
+        assert(await page.$eval('#musicPresetMenu', menu => menu.open),
+            'preset menu did not open from the keyboard');
+        await page.keyboard.press('Escape');
+        const presetEscapeState = await page.evaluate(() => ({
+            open: document.getElementById('musicPresetMenu').open,
+            focused: document.activeElement === document.querySelector('#musicPresetMenu > summary'),
+        }));
+        assert(!presetEscapeState.open && presetEscapeState.focused,
+            `Escape did not close and return focus to the preset trigger: ${JSON.stringify(presetEscapeState)}`);
+
+        await page.click('#musicPresetMenu > summary');
+        await page.focus('.music-preset-card');
+        await page.keyboard.press('Enter');
+        await new Promise(resolve => setTimeout(resolve, 32));
+        const presetActionFocus = await page.evaluate(() => ({
+            open: document.getElementById('musicPresetMenu').open,
+            focused: document.activeElement === document.querySelector('#musicPresetMenu > summary'),
+        }));
+        assert(!presetActionFocus.open && presetActionFocus.focused,
+            `preset action close lost keyboard focus: ${JSON.stringify(presetActionFocus)}`);
+
+        await page.click('#musicPresetMenu > summary');
+        await page.focus('#listenAllBtn');
+        await page.keyboard.press('Enter');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const listeningActionFocus = await page.evaluate(() => ({
+            open: document.getElementById('musicPresetMenu').open,
+            focused: document.activeElement === document.querySelector('#musicPresetMenu > summary'),
+            listening: drumMachine.presetLibrary.listening,
+            playing: drumMachine.isPlaying,
+        }));
+        assert(!listeningActionFocus.open && listeningActionFocus.focused &&
+            listeningActionFocus.listening && listeningActionFocus.playing,
+            `listening action close lost focus or playback state: ${JSON.stringify(listeningActionFocus)}`);
+        await page.evaluate(() => drumMachine.presetLibrary.stopListening({
+            restore: true,
+            stopPlayback: true,
+            silent: true,
+        }));
+
         await page.click('#loopLibrarySection > summary');
         await page.focus('#saveLoopBtn');
         await page.click('.logo-mark');
@@ -302,21 +439,27 @@ async function main() {
 
         const exclusiveState = await page.evaluate(async () => {
             const save = document.getElementById('loopLibrarySection');
+            const presets = document.getElementById('musicPresetMenu');
             const promo = document.getElementById('promoRecorderPanel');
             save.open = true;
             await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            presets.open = true;
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            const presetsWin = { save: save.open, presets: presets.open, promo: promo.open };
             promo.open = true;
             await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-            const promoWins = { save: save.open, promo: promo.open };
+            const promoWins = { save: save.open, presets: presets.open, promo: promo.open };
             save.open = true;
             await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-            const saveWins = { save: save.open, promo: promo.open };
+            const saveWins = { save: save.open, presets: presets.open, promo: promo.open };
             save.open = false;
+            presets.open = false;
             promo.open = false;
-            return { promoWins, saveWins };
+            return { presetsWin, promoWins, saveWins };
         });
-        assert(!exclusiveState.promoWins.save && exclusiveState.promoWins.promo &&
-                exclusiveState.saveWins.save && !exclusiveState.saveWins.promo,
+        assert(!exclusiveState.presetsWin.save && exclusiveState.presetsWin.presets && !exclusiveState.presetsWin.promo &&
+                !exclusiveState.promoWins.save && !exclusiveState.promoWins.presets && exclusiveState.promoWins.promo &&
+                exclusiveState.saveWins.save && !exclusiveState.saveWins.presets && !exclusiveState.saveWins.promo,
             `top disclosures can remain open together: ${JSON.stringify(exclusiveState)}`);
 
         const saveActionCalls = await page.evaluate(async () => {
@@ -354,10 +497,11 @@ async function main() {
             const ranges = sizes('.top-transport input[type="range"]');
             const modes = sizes('.mode-btn');
             const saveSummaries = sizes('.save-menu-summary');
+            const presetSummaries = sizes('.preset-menu-summary');
             drumMachine.setMode('custom');
             const customActions = sizes('.custom-mode-only .button-row button');
             drumMachine.setMode('normal');
-            return { ranges, modes, saveSummaries, customActions };
+            return { ranges, modes, saveSummaries, presetSummaries, customActions };
         });
         for (const [name, sizes] of Object.entries(mobileTouchTargets)) {
             assert(sizes.length > 0 && sizes.every(size => size.width >= 40 && size.height >= 40),

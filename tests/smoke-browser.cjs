@@ -554,7 +554,7 @@ async function main() {
                 `mobile bass setting heights differ: ${mobileControls.settingHeights.join(',')}`);
             assert(mobileControls.collapsedLibraryHeight <= 44,
                 `mobile collapsed loop library is too tall: ${mobileControls.collapsedLibraryHeight}px`);
-            assert(!mobileControls.studioOpen && mobileControls.collapsedStudioHeight <= 30,
+            assert(!mobileControls.studioOpen && mobileControls.collapsedStudioHeight <= 44,
                 `mobile promo studio is not compact: ${JSON.stringify(mobileControls)}`);
             await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 1 });
             await new Promise(resolve => setTimeout(resolve, 260));

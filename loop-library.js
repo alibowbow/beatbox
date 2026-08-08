@@ -166,6 +166,9 @@
             }
 
             const machine = this.machine;
+            if (machine.presetLibrary?.listening) {
+                machine.presetLibrary.stopListening({ restore: false, stopPlayback: true, silent: true });
+            }
             clearTimeout(machine.loopLibrarySaveTimer);
             machine.loopLibrarySaveTimer = null;
             machine.stopPlayback();

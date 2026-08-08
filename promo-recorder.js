@@ -725,7 +725,8 @@
 
         _stepDurationSeconds(step) {
             const machine = this.machine;
-            const base = 60 / Number(machine.tempo || PROMO_TEMPO) / 4;
+            const subdivisions = machine.gridMode === '24' ? 3 : 4;
+            const base = 60 / Number(machine.tempo || PROMO_TEMPO) / subdivisions;
             const swing = Math.max(0, Math.min(0.70, Number(machine.swing || 0) / 100));
             return base * (step % 2 === 0 ? 1 + swing : 1 - swing);
         }

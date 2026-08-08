@@ -2,7 +2,9 @@
   "name": "beatbox-pro-drum-machine",
   "private": true,
   "scripts": {
-    "test": "node tests/smoke-browser.cjs",
+    "test": "node tests/smoke-browser.cjs && node tests/preset-browser.cjs",
+    "test:smoke": "node tests/smoke-browser.cjs",
+    "test:presets": "node tests/preset-browser.cjs",
     "test:promo": "FULL_PROMO=1 node tests/smoke-browser.cjs",
     "test:visual": "node tests/capture-ui.cjs"
   },

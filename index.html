@@ -2258,6 +2258,253 @@
             overflow: auto;
         }
 
+        .preset-menu {
+            position: static;
+            flex: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .preset-menu-summary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-height: 30px;
+            padding: 3px 8px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: #0a0c0e;
+            color: var(--text-mid);
+            font-size: 10px;
+            font-weight: 800;
+            list-style: none;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .preset-menu-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .preset-menu-summary::marker {
+            content: '';
+        }
+
+        .preset-menu-summary .icon {
+            width: 13px;
+            height: 13px;
+            color: var(--cyan);
+        }
+
+        .preset-menu-summary .preset-menu-chevron {
+            font-size: 9px;
+            transition: transform 0.15s ease;
+        }
+
+        .preset-menu[open] .preset-menu-summary,
+        .preset-menu.is-listening .preset-menu-summary {
+            border-color: #3f6970;
+            background: #18272b;
+            color: var(--text-hi);
+        }
+
+        .preset-menu.is-listening .preset-menu-summary .icon {
+            color: #67e8f9;
+            filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.45));
+        }
+
+        .preset-menu[open] .preset-menu-chevron {
+            transform: rotate(180deg);
+        }
+
+        .preset-menu-panel {
+            position: absolute;
+            z-index: 72;
+            top: calc(100% + 6px);
+            right: 0;
+            width: min(520px, calc(100vw - 28px));
+            max-height: min(76vh, 680px);
+            padding: 10px;
+            overflow: auto;
+            overscroll-behavior: contain;
+            border: 1px solid #394148;
+            border-radius: 10px;
+            background: #15191d;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+        }
+
+        .preset-menu:not([open]) > .preset-menu-panel {
+            display: none;
+        }
+
+        .preset-menu-head {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 9px;
+            align-items: center;
+            margin-bottom: 9px;
+            padding-bottom: 9px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .preset-menu-title {
+            min-width: 0;
+        }
+
+        .preset-menu-title strong {
+            display: block;
+            color: var(--text-hi);
+            font-size: 12px;
+            letter-spacing: -0.01em;
+        }
+
+        .preset-menu-title span {
+            display: block;
+            margin-top: 2px;
+            color: var(--text-dim);
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .listen-all-btn {
+            min-height: 34px;
+            padding: 5px 9px;
+            border-color: #31545c;
+            background: #15252a;
+            color: #bff7ff;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .listen-all-btn.active {
+            border-color: #6b7280;
+            background: #262b30;
+            color: var(--text-hi);
+        }
+
+        .listening-deck {
+            display: grid;
+            grid-template-columns: 34px minmax(0, 1fr) 34px 34px auto;
+            gap: 5px;
+            align-items: center;
+            margin-bottom: 9px;
+            padding: 7px;
+            border: 1px solid #31545c;
+            border-radius: 8px;
+            background: linear-gradient(120deg, #122126, #171b1f 72%);
+        }
+
+        .listening-deck[hidden] {
+            display: none;
+        }
+
+        .listening-deck button {
+            width: 34px;
+            min-height: 34px;
+            padding: 0;
+        }
+
+        .listening-deck .listen-edit-btn {
+            width: auto;
+            padding: 4px 8px;
+            color: var(--text-mid);
+            font-size: 9px;
+            white-space: nowrap;
+        }
+
+        .listening-now {
+            min-width: 0;
+        }
+
+        .listening-now strong,
+        .listening-now span {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .listening-now strong {
+            color: var(--text-hi);
+            font-size: 11px;
+        }
+
+        .listening-now span {
+            margin-top: 2px;
+            color: var(--cyan);
+            font-family: var(--font-mono);
+            font-size: 8px;
+            letter-spacing: 0.05em;
+        }
+
+        .music-preset-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 5px;
+        }
+
+        .music-preset-card {
+            display: grid;
+            grid-template-columns: 25px minmax(0, 1fr) auto;
+            gap: 7px;
+            align-items: center;
+            min-width: 0;
+            min-height: 66px;
+            padding: 7px;
+            text-align: left;
+        }
+
+        .music-preset-card.active {
+            border-color: #3d6e78;
+            background: #18262b;
+            box-shadow: inset 3px 0 0 var(--cyan), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        .preset-card-index {
+            color: #607078;
+            font-family: var(--font-mono);
+            font-size: 9px;
+        }
+
+        .preset-card-copy {
+            min-width: 0;
+        }
+
+        .preset-card-copy strong,
+        .preset-card-copy small,
+        .preset-card-copy > span {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .preset-card-copy strong {
+            color: var(--text-hi);
+            font-size: 10.5px;
+        }
+
+        .preset-card-copy small {
+            margin-top: 2px;
+            color: var(--cyan);
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.035em;
+        }
+
+        .preset-card-copy > span {
+            margin-top: 3px;
+            color: var(--text-dim);
+            font-size: 9.5px;
+        }
+
+        .preset-card-action {
+            color: var(--text-dim);
+            font-size: 9px;
+            white-space: nowrap;
+        }
+
         .promo-recorder-panel {
             margin: 0;
             background: #0a0c0e;
@@ -3092,6 +3339,7 @@
             }
 
             .save-menu-summary,
+            .preset-menu-summary,
             .promo-recorder-summary {
                 min-height: 32px;
                 padding: 3px 7px;
@@ -3105,6 +3353,19 @@
 
             .save-menu-panel {
                 width: min(380px, calc(100vw - 20px));
+            }
+
+            .preset-menu-panel {
+                width: min(430px, calc(100vw - 20px));
+                max-height: min(76vh, 640px);
+            }
+
+            .music-preset-list {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .music-preset-card {
+                min-height: 58px;
             }
 
             .top-transport {
@@ -3354,6 +3615,10 @@
         @media (pointer: coarse) {
             .mode-btn,
             .save-menu-summary,
+            .preset-menu-summary,
+            .listen-all-btn,
+            .listening-deck button,
+            .music-preset-card,
             .transport-primary button,
             .genre-btn,
             .autoscroll-toggle,
@@ -3418,6 +3683,18 @@
                 width: 42px;
                 height: 42px;
             }
+
+            .listening-deck {
+                grid-template-columns: 42px minmax(0, 1fr) 42px 42px auto;
+            }
+
+            .listening-deck button {
+                width: 42px;
+            }
+
+            .listening-deck .listen-edit-btn {
+                width: auto;
+            }
         }
 
         @media (max-width: 560px) {
@@ -3425,6 +3702,7 @@
             .ver-badge,
             .mode-label,
             .save-menu-label,
+            .preset-menu-label,
             .promo-recorder-summary > span {
                 display: none;
             }
@@ -3435,14 +3713,33 @@
 
             .mode-btn,
             .save-menu-summary,
+            .preset-menu-summary,
             .promo-recorder-summary {
                 width: 42px;
                 padding-inline: 0;
             }
 
             .save-menu-summary .loop-library-chevron,
+            .preset-menu-summary .preset-menu-chevron,
             .promo-recorder-summary::after {
                 display: none;
+            }
+
+            .preset-menu-head {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .listen-all-btn {
+                width: 100%;
+            }
+
+            .listening-deck {
+                grid-template-columns: 42px minmax(0, 1fr) 42px 42px;
+            }
+
+            .listening-deck .listen-edit-btn {
+                grid-column: 1 / -1;
+                width: 100%;
             }
 
         }
@@ -3474,6 +3771,11 @@
         <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.2" height="7.2" rx="1.8" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.3" y="3.5" width="7.2" height="7.2" rx="1.8" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3.5" y="13.3" width="7.2" height="7.2" rx="1.8" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.3" y="13.3" width="7.2" height="7.2" rx="1.8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
         <symbol id="i-triplet" viewBox="0 0 24 24"><path d="M7.6 17.4V6.7L20.6 4.9v10.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.1 17.4V7.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="5.5" cy="17.5" r="2.2" fill="currentColor"/><circle cx="12" cy="17.5" r="2.2" fill="currentColor"/><circle cx="18.5" cy="15.6" r="2.2" fill="currentColor"/></symbol>
         <symbol id="i-music" viewBox="0 0 24 24"><path d="M9.6 18V5.6l11-2V15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.9" cy="18" r="2.7" fill="currentColor"/><circle cx="17.9" cy="15" r="2.7" fill="currentColor"/></symbol>
+        <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M4 13v-1a8 8 0 0 1 16 0v1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="12" width="5" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="16" y="12" width="5" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+        <symbol id="i-prev" viewBox="0 0 24 24"><path d="M6 5v14M19 6.5 9 12l10 5.5z" fill="currentColor"/></symbol>
+        <symbol id="i-next" viewBox="0 0 24 24"><path d="M18 5v14M5 6.5 15 12 5 17.5z" fill="currentColor"/></symbol>
+        <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4.5" height="14" rx="1.5" fill="currentColor"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.5" fill="currentColor"/></symbol>
+        <symbol id="i-return" viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M5 12h8.5a5.5 5.5 0 0 1 5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
         <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h8.5M18 7h2M4 12h3M12 12h8M4 17h11.5M20.5 17H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15.2" cy="7" r="2.1" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9.3" cy="12" r="2.1" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.9" cy="17" r="2.1" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
         <symbol id="i-metro" viewBox="0 0 24 24"><path d="M9.2 3.5h5.6l3.6 14.8a1.5 1.5 0 0 1-1.46 1.86H7.06a1.5 1.5 0 0 1-1.46-1.86L9.2 3.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 13.8 17.2 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="14.3" r="1.7" fill="currentColor"/></symbol>
         <symbol id="i-keys" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6.2 9.8h.01M10.1 9.8h.01M14 9.8h.01M17.9 9.8h.01M6.2 14.2h.01M17.9 14.2h.01M9.5 14.2h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -3500,6 +3802,37 @@
                     <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')" aria-label="일반 드럼 모드" title="일반 드럼" aria-pressed="true"><svg class="icon"><use href="#i-drum"/></svg><span class="mode-label">일반 드럼</span></button>
                     <button class="mode-btn" data-mode="custom" onclick="setMode('custom')" aria-label="커스텀 사운드 모드" title="커스텀 사운드" aria-pressed="false"><svg class="icon"><use href="#i-mic"/></svg><span class="mode-label">커스텀</span></button>
                 </div>
+
+                <details class="preset-menu" id="musicPresetMenu" data-top-disclosure>
+                    <summary class="preset-menu-summary" aria-label="음악 프리셋과 감상 모드" aria-controls="musicPresetPanel" title="음악 프리셋">
+                        <svg class="icon"><use href="#i-headphones"/></svg>
+                        <span class="preset-menu-label" id="presetMenuLabel">프리셋</span>
+                        <span class="preset-menu-chevron" aria-hidden="true">▾</span>
+                    </summary>
+                    <div class="preset-menu-panel" id="musicPresetPanel">
+                        <div class="preset-menu-head">
+                            <div class="preset-menu-title">
+                                <strong>Preset Sessions</strong>
+                                <span>드럼·베이스·템포를 함께 불러옵니다. 감상 전 작업은 잠시 보관됩니다.</span>
+                            </div>
+                            <button type="button" class="listen-all-btn" id="listenAllBtn" aria-pressed="false">
+                                <svg class="icon"><use href="#i-headphones"/></svg> 전체 감상
+                            </button>
+                        </div>
+                        <div class="listening-deck" id="listeningDeck" hidden>
+                            <button type="button" id="listenPrevBtn" aria-label="이전 프리셋"><svg class="icon"><use href="#i-prev"/></svg></button>
+                            <div class="listening-now" aria-live="off">
+                                <strong id="listeningTitle">프리셋 감상</strong>
+                                <span id="listeningMeta">1 / 9</span>
+                            </div>
+                            <button type="button" id="listenPauseBtn" aria-label="감상 일시정지"><svg class="icon"><use href="#i-pause"/></svg></button>
+                            <button type="button" id="listenNextBtn" aria-label="다음 프리셋"><svg class="icon"><use href="#i-next"/></svg></button>
+                            <button type="button" class="listen-edit-btn" id="listenEditBtn">현재 곡 편집</button>
+                        </div>
+                        <div class="music-preset-list" id="musicPresetList" aria-label="음악 프리셋 목록"></div>
+                        <p class="sr-only" id="presetLiveStatus" aria-live="polite"></p>
+                    </div>
+                </details>
 
                 <details class="save-menu" id="loopLibrarySection" data-top-disclosure>
                     <summary class="save-menu-summary" aria-label="저장 및 공유 메뉴" aria-controls="saveMenuPanel" title="저장 및 공유">
@@ -3762,6 +4095,7 @@
 
     <script src="./promo-recorder.js"></script>
     <script src="./loop-library.js"></script>
+    <script src="./preset-library.js"></script>
     <script>
         // 커스텀 사운드 행/패드에 순환 적용되는 색상 팔레트
         const CUSTOM_COLORS = ['#22d3ee', '#a78bfa', '#fb7185', '#fbbf24', '#34d399', '#f472b6', '#60a5fa', '#fb923c'];
@@ -3817,6 +4151,7 @@
                 this.captureDestination = null;
                 this.promoRecorder = null;
                 this.loopLibrary = null;
+                this.presetLibrary = null;
                 this.loopLibrarySaveTimer = null;
                 this.suspendLoopAutoSave = false;
 
@@ -4888,6 +5223,7 @@
             }
 
             toggleBeat(sound, beat) {
+                this.presetLibrary?.cancelForManualEdit();
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 document.querySelectorAll('.genre-btn').forEach(btn => {
                     btn.classList.remove('active');
@@ -4919,6 +5255,7 @@
 
             // 우클릭/롱프레스: 스텝 확률을 100→75→50→25→100 순으로 순환 (꺼진 칸은 먼저 켬)
             cycleStepProbability(sound, beat) {
+                this.presetLibrary?.cancelForManualEdit();
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 document.querySelectorAll('.genre-btn').forEach(btn => {
                     btn.classList.remove('active');
@@ -4993,6 +5330,7 @@
             }
 
             applyEuclid() {
+                this.presetLibrary?.cancelForManualEdit();
                 const inst = document.getElementById('euclidInst').value;
                 if (!inst) return;
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
@@ -5136,6 +5474,7 @@
             }
 
             setSynthNote(step, row) {
+                this.presetLibrary?.cancelForManualEdit();
                 if (this.bassPattern[step] === row) {
                     this.bassPattern[step] = null; // 같은 칸 다시 누르면 해제
                 } else {
@@ -5258,6 +5597,7 @@
             }
 
             updateSynthConfig() {
+                this.presetLibrary?.cancelForManualEdit();
                 this.bassScale = document.getElementById('synthScale').value;
                 this.bassRootNote = parseInt(document.getElementById('synthRoot').value);
                 this.bassOctave = parseInt(document.getElementById('synthOctave').value);
@@ -5270,6 +5610,7 @@
             }
 
             toggleSynthLane() {
+                this.presetLibrary?.cancelForManualEdit();
                 this.bassEnabled = !this.bassEnabled;
                 this.syncSynthToggle();
                 this.updateStatus(`베이스/멜로디 신스 ${this.bassEnabled ? '켜짐 🎹' : '꺼짐'}`);
@@ -5288,6 +5629,7 @@
             }
 
             toggleBassMute() {
+                this.presetLibrary?.cancelForManualEdit();
                 this.bassMuted = !this.bassMuted;
                 this.syncBassMuteToggle();
                 this.updateStatus(this.bassMuted ? '베이스/멜로디 신스 뮤트 🔇' : '베이스/멜로디 신스 뮤트 해제 🔊');
@@ -5303,6 +5645,7 @@
             }
 
             clearSynth() {
+                this.presetLibrary?.cancelForManualEdit();
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 this.bassPattern = Array(maxSteps).fill(null);
                 this.updateSynthGrid();
@@ -5311,6 +5654,7 @@
 
             // 베이스라인 자동 생성: 스케일 안에서 3가지 스타일 중 랜덤 (루트 드라이브/신코페이션/옥타브 바운스)
             generateBassline() {
+                this.presetLibrary?.cancelForManualEdit();
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 const groupSize = this.gridMode === '24' ? 3 : 4;
                 this.bassPattern = Array(maxSteps).fill(null);
@@ -5425,6 +5769,7 @@
 
             // 악기(행) 뮤트 토글: 시퀀서 재생 시 해당 악기 소리를 건너뛴다
             toggleMute(key) {
+                this.presetLibrary?.cancelForManualEdit();
                 if (this.mutedSounds.has(key)) {
                     this.mutedSounds.delete(key);
                 } else {
@@ -5442,6 +5787,7 @@
 
             // 드럼 전체 뮤트/해제 토글 (신스 레인은 영향 없음)
             toggleMuteAll() {
+                this.presetLibrary?.cancelForManualEdit();
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 const keys = [...sounds.keys()];
                 const allMuted = keys.length > 0 && keys.every(k => this.mutedSounds.has(k));
@@ -5523,6 +5869,7 @@
             }
 
             generateBeat() {
+                this.presetLibrary?.cancelForManualEdit();
                 this.clearBeat();
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
@@ -5597,6 +5944,7 @@
             }
 
             generateFillIn() {
+                this.presetLibrary?.cancelForManualEdit();
                 if (this.mode !== 'normal') return;
                 
                 this.clearBeat();
@@ -5646,6 +5994,7 @@
             }
 
             loadGenrePattern(genre) {
+                this.presetLibrary?.cancelForManualEdit();
                 if (this.mode !== 'normal') return;
                 
                 // 재즈와 셔플은 24스텝 그리드로 자동 전환
@@ -5925,6 +6274,7 @@
             }
 
             clearBeat() {
+                this.presetLibrary?.cancelForManualEdit();
                 document.querySelectorAll('.genre-btn').forEach(btn => {
                     btn.classList.remove('active');
                     btn.setAttribute('aria-pressed', 'false');
@@ -5950,7 +6300,9 @@
                     await this.audioContext.resume();
                 }
                 
-                if (this.isPlaying) {
+                if (this.isPlaying && this.presetLibrary?.listening) {
+                    this.presetLibrary.onTransportStoppedByUser();
+                } else if (this.isPlaying) {
                     this.stopPlayback();
                 } else {
                     this.startPlayback();
@@ -5978,7 +6330,9 @@
             }
 
             getStepDurationSeconds(step) {
-                const straight = 60 / this.tempo / 4;
+                // 16스텝은 16분음표, 24스텝은 8분음표 3연음 간격이다.
+                const subdivisions = this.gridMode === '24' ? 3 : 4;
+                const straight = 60 / this.tempo / subdivisions;
                 const swing = this.swing / 100;
                 return straight * (step % 2 === 0 ? 1 + swing : 1 - swing);
             }
@@ -5995,12 +6349,21 @@
                 }
 
                 while (this.nextStepAudioTime <= horizon && guard < 8) {
-                    const maxSteps = this.gridMode === '24' ? 24 : 16;
-                    const step = this.nextStepToSchedule % maxSteps;
+                    let maxSteps = this.gridMode === '24' ? 24 : 16;
+                    let step = this.nextStepToSchedule % maxSteps;
+                    const boundaryTime = Math.max(this.nextStepAudioTime, ctx.currentTime + 0.003);
+                    if (this.presetLibrary?.prepareScheduledStep(step, runToken, boundaryTime)) {
+                        maxSteps = this.gridMode === '24' ? 24 : 16;
+                        step = this.nextStepToSchedule % maxSteps;
+                    }
                     const when = Math.max(this.nextStepAudioTime, ctx.currentTime + 0.003);
+                    const stepDuration = this.getStepDurationSeconds(step);
                     this.schedulePlaybackStep(step, when, runToken);
-                    this.nextStepAudioTime += this.getStepDurationSeconds(step);
+                    this.nextStepAudioTime += stepDuration;
                     this.nextStepToSchedule = (step + 1) % maxSteps;
+                    if (step === maxSteps - 1) {
+                        this.presetLibrary?.noteScheduledLoopEnd(runToken);
+                    }
                     guard += 1;
                 }
             }
@@ -6071,9 +6434,11 @@
                         ? `<svg class="icon"><use href="#i-stop"/></svg> ${stopLabel}`
                         : `<svg class="icon"><use href="#i-play"/></svg> ${playLabel}`;
                 });
+                this.presetLibrary?.onPlaybackStateChange(playing);
             }
 
             setMode(mode) {
+                this.presetLibrary?.cancelForManualEdit();
                 this.mode = mode;
                 this.stopPlayback();
                 this.initializePattern();
@@ -6169,6 +6534,8 @@
                 if (!this.loopLibrary || this.suspendLoopAutoSave || this.mode !== 'normal') return;
                 clearTimeout(this.loopLibrarySaveTimer);
                 this.loopLibrarySaveTimer = setTimeout(() => {
+                    this.loopLibrarySaveTimer = null;
+                    if (this.suspendLoopAutoSave || this.mode !== 'normal') return;
                     const hasDrums = Object.values(this.pattern)
                         .some(row => Array.isArray(row) && row.some(Boolean));
                     const hasBass = this.bassPattern.some(row => row != null);
@@ -6179,6 +6546,7 @@
             }
 
             updateTempo(value) {
+                this.presetLibrary?.cancelForManualEdit();
                 this.tempo = parseInt(value);
                 document.getElementById('tempoValue').textContent = value;
                 document.getElementById('tempo').setAttribute('aria-valuetext', `${value} BPM`);
@@ -6189,6 +6557,7 @@
             }
 
             updateSwing(value) {
+                this.presetLibrary?.cancelForManualEdit();
                 this.swing = parseInt(value);
                 document.getElementById('swingValue').textContent = value;
                 document.getElementById('swing').setAttribute('aria-valuetext', `${value} 퍼센트`);
@@ -6419,6 +6788,7 @@
             }
 
             loadPattern(input) {
+                this.presetLibrary?.cancelForManualEdit();
                 const file = input.files[0];
                 if (file) {
                     const reader = new FileReader();
@@ -6481,6 +6851,7 @@
             }
 
             setGridMode(mode) {
+                this.presetLibrary?.cancelForManualEdit();
                 this.gridMode = mode;
                 
                 // 그리드 모드에 따라 패턴 배열 크기 조정
@@ -6523,6 +6894,7 @@
             }
 
             setDrumKit(kit) {
+                this.presetLibrary?.cancelForManualEdit();
                 this.kit = kit;
                 document.querySelectorAll('.kit-btn').forEach(btn => {
                     const isActive = btn.dataset.kit === kit;
@@ -6784,6 +7156,9 @@
                 drumMachine.loopLibrary.restoreStateFromUrl();
                 drumMachine.loopLibrary.renderHistory();
             }
+            if (typeof window.BeatboxPresetLibrary === 'function') {
+                drumMachine.presetLibrary = new window.BeatboxPresetLibrary(drumMachine);
+            }
 
             window.addEventListener('beatbox-promo-preparing', (event) => {
                 const panel = document.getElementById('promoRecorderPanel');
@@ -6836,6 +7211,7 @@
                 return;
             }
             try {
+                drumMachine.presetLibrary?.stopListening({ restore: true, stopPlayback: true, silent: true });
                 await drumMachine.promoRecorder.preview();
             } catch (error) {
                 if (error && error.name !== 'AbortError') {
@@ -6851,6 +7227,7 @@
                 return;
             }
             try {
+                drumMachine.presetLibrary?.stopListening({ restore: true, stopPlayback: true, silent: true });
                 // record()가 이 클릭 스택에서 즉시 getDisplayMedia를 호출해야 권한 창이 열린다.
                 await drumMachine.promoRecorder.record();
             } catch (error) {
