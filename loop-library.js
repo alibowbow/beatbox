@@ -185,6 +185,7 @@
                 );
             });
             machine.pattern = restoredPattern;
+            machine.setGenrePatternSelection?.();
             machine.probability = {};
             Object.keys(state.probability).forEach(key => {
                 if (!restoredPattern[key]) return;

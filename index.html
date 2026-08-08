@@ -658,30 +658,6 @@
             color: var(--text-hi);
         }
 
-        .euclid-field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1 1 130px;
-            min-width: 120px;
-        }
-
-        .euclid-lbl {
-            font-size: 11.5px;
-            font-weight: 700;
-            color: var(--text-mid);
-        }
-
-        .euclid-lbl b {
-            font-family: var(--font-disp);
-            color: var(--cyan);
-            margin-left: 3px;
-        }
-
-        .euclid-field input[type="range"] {
-            height: 6px;
-        }
-
         .euclid-apply {
             flex: none;
             border-color: rgba(34, 211, 238, 0.45);
@@ -2755,117 +2731,214 @@
         }
 
         .pattern-tools {
+            position: relative;
+            z-index: 40;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 38px;
+            gap: 4px;
+            width: min(100%, 520px);
             margin-bottom: 8px;
+            padding: 1px;
             border: 1px solid var(--line);
             border-radius: 8px;
             background: #101316;
-            overflow: hidden;
+            overflow: visible;
         }
 
-        .pattern-tools > summary {
+        .pattern-quick-menu {
+            position: static;
+            min-width: 0;
+            margin: 0;
+        }
+
+        .pattern-quick-menu > summary {
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 6px;
             min-height: 34px;
-            padding: 5px 9px;
+            padding: 5px 8px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #181c20;
             list-style: none;
             cursor: pointer;
             color: var(--text-mid);
             user-select: none;
         }
 
-        .pattern-tools > summary::-webkit-details-marker {
+        .pattern-quick-menu > summary::-webkit-details-marker {
             display: none;
         }
 
-        .pattern-tools > summary > span:first-child {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            font-weight: 800;
+        .pattern-quick-menu > summary::marker {
+            content: '';
         }
 
-        .pattern-tools > summary .icon {
+        .pattern-quick-menu > summary .icon {
+            flex: none;
             width: 14px;
             height: 14px;
             color: var(--cyan);
         }
 
-        .pattern-tools > summary small {
-            flex: 1;
+        .pattern-quick-menu > summary > span:not(.sr-only) {
+            overflow: hidden;
+            font-size: 11px;
+            font-weight: 800;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pattern-quick-menu > summary small {
+            overflow: hidden;
             color: var(--text-dim);
-            font-size: 10px;
-        }
-
-        .pattern-tools-chevron {
-            transition: transform 0.16s ease;
-        }
-
-        .pattern-tools[open] .pattern-tools-chevron {
-            transform: rotate(180deg);
-        }
-
-        .pattern-tools-body {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
-            gap: 8px;
-            padding: 8px;
-            border-top: 1px solid var(--line);
-        }
-
-        .pattern-tool-block {
-            min-width: 0;
-        }
-
-        .pattern-file-actions {
-            grid-column: 1 / -1;
-            margin: 0;
-        }
-
-        .pattern-file-actions button {
-            min-height: 32px;
-            padding: 5px 9px;
-            font-size: 10.5px;
-        }
-
-        .group-label {
-            margin: 0 0 5px;
+            font-family: var(--font-disp);
             font-size: 8px;
-            letter-spacing: 0.2em;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pattern-file-menu > summary {
+            padding-inline: 0;
+        }
+
+        .pattern-quick-menu[open] > summary {
+            border-color: rgba(34, 211, 238, 0.55);
+            background: #19272c;
+            color: var(--text-hi);
+        }
+
+        .pattern-genre-menu.is-disabled > summary {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .pattern-tool-panel {
+            position: absolute;
+            z-index: 42;
+            top: calc(100% + 1px);
+            padding: 1px;
+            overflow: hidden;
+            border: 1px solid #394148;
+            border-radius: 8px;
+            background: #15191d;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+        }
+
+        .pattern-quick-menu:not([open]) > .pattern-tool-panel {
+            display: none;
+        }
+
+        .genre-menu-panel {
+            left: 0;
+            width: min(560px, calc(100vw - 46px));
+        }
+
+        .genre-menu-panel::after {
+            position: absolute;
+            top: 1px;
+            right: 1px;
+            bottom: 1px;
+            width: 24px;
+            background: linear-gradient(90deg, transparent, #15191d 82%);
+            content: '';
+            pointer-events: none;
         }
 
         .genre-selector {
+            display: flex;
+            flex-wrap: nowrap;
             gap: 4px;
             margin: 0;
+            padding-right: 18px;
+            overflow-x: auto;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+            scroll-snap-type: x proximity;
+        }
+
+        .genre-selector::-webkit-scrollbar {
+            display: none;
         }
 
         .genre-btn {
+            flex: 0 0 auto;
+            min-width: 54px;
             min-height: 30px;
             padding: 4px 8px;
             border-radius: 6px;
             background: #181c20;
             font-size: 10.5px;
+            scroll-snap-align: start;
         }
 
-        .euclid-panel {
-            gap: 5px;
+        .euclid-menu-panel {
+            left: 0;
+            width: min(520px, calc(100vw - 46px));
+        }
+
+        .euclid-menu-panel .euclid-panel {
+            display: grid;
+            grid-template-columns: minmax(96px, 1fr) 66px 66px auto;
+            align-items: center;
+            gap: 4px;
             margin: 0;
-            padding: 6px;
-            border-radius: 7px;
-            background: #0b0d0f;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
         }
 
-        .euclid-select {
-            min-height: 32px;
+        .euclid-menu-panel select {
+            width: 100%;
+            min-width: 0;
+            height: 34px;
+            min-height: 34px;
+            padding: 5px 7px;
             border-radius: 6px;
             background: #1b1f23;
+            color: var(--text-hi);
+            font-family: var(--font-body);
+            font-size: 10.5px;
+            font-weight: 700;
         }
 
-        .euclid-apply {
-            min-height: 32px;
-            padding: 5px 8px;
+        .euclid-menu-panel .euclid-apply {
+            width: auto;
+            min-width: 58px;
+            min-height: 34px;
+            padding: 5px 9px;
             border-radius: 6px;
             background: #17303a;
+            font-size: 10.5px;
+        }
+
+        .file-menu-panel {
+            right: 0;
+            width: min(330px, calc(100vw - 46px));
+        }
+
+        .pattern-file-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 4px;
+            margin: 0;
+        }
+
+        .pattern-file-actions button {
+            min-width: 0;
+            min-height: 34px;
+            padding: 5px 6px;
+            font-size: 10px;
+        }
+
+        .pattern-quick-menu > summary:focus-visible,
+        .pattern-tool-panel button:focus-visible,
+        .pattern-tool-panel select:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: -2px;
         }
 
         .grid-hint {
@@ -3499,40 +3572,53 @@
             }
 
             .pattern-tools {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 42px;
+                width: 100%;
                 margin-bottom: 6px;
             }
 
-            .pattern-tools > summary {
+            .pattern-quick-menu > summary {
                 min-height: 36px;
-                padding: 5px 8px;
+                padding: 5px 6px;
                 font-size: 10.5px;
             }
 
-            .pattern-tools > summary small {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
+            .pattern-quick-menu > summary small {
+                font-size: 7px;
             }
 
-            .pattern-tools-body {
-                grid-template-columns: minmax(0, 1fr);
-                padding: 7px;
+            .genre-menu-panel,
+            .euclid-menu-panel,
+            .file-menu-panel {
+                right: 0;
+                left: 0;
+                width: 100%;
             }
 
-            .pattern-file-actions {
-                grid-column: auto;
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+            .euclid-menu-panel .euclid-panel {
+                grid-template-columns: minmax(0, 1fr) 56px 56px 42px;
             }
 
             .pattern-file-actions button {
-                min-width: 0;
                 padding: 5px 4px;
                 font-size: 9px;
             }
 
-            .genre-btn {
-                min-height: 32px;
+            .euclid-menu-panel .euclid-apply {
+                min-width: 42px;
+                padding-inline: 0;
+            }
+
+            .euclid-menu-panel .euclid-apply span {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border: 0;
             }
 
             .grid-hint {
@@ -3628,7 +3714,7 @@
             .custom-pad-trigger,
             .mobile-section-nav a,
             .keyboard-hints > summary,
-            .pattern-tools > summary,
+            .pattern-quick-menu > summary,
             .promo-recorder-summary,
             .promo-recorder-actions button,
             .pattern-file-actions button,
@@ -3652,6 +3738,15 @@
             }
 
             input[type="range"] {
+                min-height: 42px;
+            }
+
+            .euclid-menu-panel select {
+                height: 42px;
+                min-height: 42px;
+            }
+
+            .euclid-menu-panel .euclid-apply {
                 min-height: 42px;
             }
 
@@ -3909,51 +4004,60 @@
                 <section class="control-section sequencer" id="sequencerPanel" aria-labelledby="sequencerTitle">
                     <h2 id="sequencerTitle"><svg class="icon"><use href="#i-sliders"/></svg> 드럼 시퀀서 <span class="sec-no">01 / SEQUENCER</span></h2>
 
-                    <details class="pattern-tools" id="patternTools" open>
-                        <summary>
-                            <span><svg class="icon"><use href="#i-sliders"/></svg> 패턴 도구</span>
-                            <small>프리셋 · 유클리드 · 파일</small>
-                            <span class="pattern-tools-chevron" aria-hidden="true">▾</span>
-                        </summary>
-                        <div class="pattern-tools-body">
-                            <div class="pattern-tool-block">
-                                <div class="group-label">Genre Presets</div>
-                                <div class="genre-selector">
-                                    <button class="genre-btn" data-genre="rock" onclick="loadGenrePattern('rock')" aria-pressed="false">🎸 록</button>
-                                    <button class="genre-btn" data-genre="jazz" onclick="loadGenrePattern('jazz')" aria-pressed="false">🎷 재즈</button>
-                                    <button class="genre-btn" data-genre="funk" onclick="loadGenrePattern('funk')" aria-pressed="false">🎺 펑크</button>
-                                    <button class="genre-btn" data-genre="shuffle" onclick="loadGenrePattern('shuffle')" aria-pressed="false">🎶 셔플</button>
-                                    <button class="genre-btn" data-genre="hiphop" onclick="loadGenrePattern('hiphop')" aria-pressed="false">🎤 힙합</button>
-                                    <button class="genre-btn" data-genre="edm" onclick="loadGenrePattern('edm')" aria-pressed="false">🎧 EDM</button>
-                                    <button class="genre-btn" data-genre="reggae" onclick="loadGenrePattern('reggae')" aria-pressed="false">🌴 레게</button>
-                                    <button class="genre-btn" data-genre="metal" onclick="loadGenrePattern('metal')" aria-pressed="false">🤘 메탈</button>
+                    <div class="pattern-tools" id="patternTools" role="group" aria-label="패턴 도구">
+                        <details class="pattern-quick-menu pattern-genre-menu" id="patternGenreMenu" data-top-disclosure>
+                            <summary aria-labelledby="genreToolLabel genreToolValue" aria-disabled="false">
+                                <svg class="icon" aria-hidden="true"><use href="#i-dice"/></svg>
+                                <span id="genreToolLabel">장르</span>
+                                <small id="genreToolValue">선택</small>
+                            </summary>
+                            <div class="pattern-tool-panel genre-menu-panel" aria-label="장르 패턴">
+                                <div class="genre-selector" role="group" aria-label="장르 패턴 목록">
+                                    <button class="genre-btn" data-genre="rock" onclick="loadGenrePattern('rock'); closePatternTool('patternGenreMenu')" aria-pressed="false">🎸 록</button>
+                                    <button class="genre-btn" data-genre="jazz" onclick="loadGenrePattern('jazz'); closePatternTool('patternGenreMenu')" aria-pressed="false">🎷 재즈</button>
+                                    <button class="genre-btn" data-genre="funk" onclick="loadGenrePattern('funk'); closePatternTool('patternGenreMenu')" aria-pressed="false">🎺 펑크</button>
+                                    <button class="genre-btn" data-genre="shuffle" onclick="loadGenrePattern('shuffle'); closePatternTool('patternGenreMenu')" aria-pressed="false">🎶 셔플</button>
+                                    <button class="genre-btn" data-genre="hiphop" onclick="loadGenrePattern('hiphop'); closePatternTool('patternGenreMenu')" aria-pressed="false">🎤 힙합</button>
+                                    <button class="genre-btn" data-genre="edm" onclick="loadGenrePattern('edm'); closePatternTool('patternGenreMenu')" aria-pressed="false">🎧 EDM</button>
+                                    <button class="genre-btn" data-genre="reggae" onclick="loadGenrePattern('reggae'); closePatternTool('patternGenreMenu')" aria-pressed="false">🌴 레게</button>
+                                    <button class="genre-btn" data-genre="metal" onclick="loadGenrePattern('metal'); closePatternTool('patternGenreMenu')" aria-pressed="false">🤘 메탈</button>
                                 </div>
                             </div>
+                        </details>
 
-                            <div class="pattern-tool-block">
-                                <div class="group-label">Euclidean Generator</div>
+                        <details class="pattern-quick-menu pattern-euclid-menu" id="euclidToolMenu" data-top-disclosure>
+                            <summary aria-labelledby="euclidToolLabel euclidToolValue">
+                                <svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>
+                                <span id="euclidToolLabel">유클리드</span>
+                                <small id="euclidToolValue">P4 · R0</small>
+                            </summary>
+                            <div class="pattern-tool-panel euclid-menu-panel" aria-label="유클리드 리듬 설정">
                                 <div class="euclid-panel">
                                     <label class="sr-only" for="euclidInst">유클리드 리듬 악기</label>
                                     <select id="euclidInst" class="euclid-select" title="유클리드 리듬을 채울 악기"></select>
-                                    <div class="euclid-field">
-                                        <label class="euclid-lbl" for="euclidPulses">펄스 <b id="euclidPulsesVal">4</b></label>
-                                        <input type="range" id="euclidPulses" min="0" max="16" value="4" style="--val: 25%" oninput="updateEuclidUI()">
-                                    </div>
-                                    <div class="euclid-field">
-                                        <label class="euclid-lbl" for="euclidRotate">회전 <b id="euclidRotateVal">0</b></label>
-                                        <input type="range" id="euclidRotate" min="0" max="15" value="0" style="--val: 0%" oninput="updateEuclidUI()">
-                                    </div>
-                                    <button class="euclid-apply" onclick="applyEuclid()"><svg class="icon"><use href="#i-grid"/></svg> 적용</button>
+                                    <label class="sr-only" for="euclidPulses">펄스 수</label>
+                                    <select id="euclidPulses" data-default="4" onchange="updateEuclidUI()"></select>
+                                    <label class="sr-only" for="euclidRotate">회전 수</label>
+                                    <select id="euclidRotate" data-default="0" onchange="updateEuclidUI()"></select>
+                                    <button class="euclid-apply" id="euclidApplyBtn" onclick="applyEuclid(); closePatternTool('euclidToolMenu')" aria-label="유클리드 리듬 적용" title="리듬 적용"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg><span>적용</span></button>
                                 </div>
                             </div>
+                        </details>
 
-                            <div class="button-row pattern-file-actions">
-                                <button onclick="exportPattern()"><svg class="icon"><use href="#i-save"/></svg> JSON 내보내기</button>
-                                <button onclick="importPattern()"><svg class="icon"><use href="#i-folder"/></svg> JSON 불러오기</button>
-                                <button class="danger-btn" onclick="clearBeat()" aria-keyshortcuts="Backspace"><svg class="icon"><use href="#i-trash"/></svg> 초기화</button>
+                        <details class="pattern-quick-menu pattern-file-menu" id="patternFileMenu" data-top-disclosure>
+                            <summary aria-label="패턴 파일과 초기화" title="파일 · 초기화">
+                                <svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg>
+                                <span class="sr-only">파일 · 초기화</span>
+                            </summary>
+                            <div class="pattern-tool-panel file-menu-panel" aria-label="패턴 파일과 초기화">
+                                <div class="pattern-file-actions">
+                                    <button id="exportPatternBtn" onclick="exportPattern(); closePatternTool('patternFileMenu')"><svg class="icon"><use href="#i-save"/></svg> 내보내기</button>
+                                    <button id="importPatternBtn" onclick="importPattern(); closePatternTool('patternFileMenu')"><svg class="icon"><use href="#i-folder"/></svg> 불러오기</button>
+                                    <button id="clearPatternBtn" class="danger-btn" onclick="clearBeat(); closePatternTool('patternFileMenu')" aria-keyshortcuts="Backspace"><svg class="icon"><use href="#i-trash"/></svg> 초기화</button>
+                                </div>
                             </div>
-                        </div>
-                    </details>
+                        </details>
+                    </div>
                     <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadPattern(this)">
 
                     <div class="grid-hint">
@@ -5222,13 +5326,24 @@
                 }
             }
 
+            setGenrePatternSelection(genre = '') {
+                const labels = {
+                    rock: '록', jazz: '재즈', funk: '펑크', shuffle: '셔플',
+                    hiphop: '힙합', edm: 'EDM', reggae: '레게', metal: '메탈',
+                };
+                document.querySelectorAll('.genre-btn').forEach(btn => {
+                    const selected = btn.dataset.genre === genre;
+                    btn.classList.toggle('active', selected);
+                    btn.setAttribute('aria-pressed', String(selected));
+                });
+                const value = document.getElementById('genreToolValue');
+                if (value) value.textContent = labels[genre] || '선택';
+            }
+
             toggleBeat(sound, beat) {
                 this.presetLibrary?.cancelForManualEdit();
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
-                document.querySelectorAll('.genre-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    btn.setAttribute('aria-pressed', 'false');
-                });
+                this.setGenrePatternSelection();
                 if (!this.pattern[sound]) {
                     this.pattern[sound] = Array(maxSteps).fill(false);
                 }
@@ -5257,10 +5372,7 @@
             cycleStepProbability(sound, beat) {
                 this.presetLibrary?.cancelForManualEdit();
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
-                document.querySelectorAll('.genre-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    btn.setAttribute('aria-pressed', 'false');
-                });
+                this.setGenrePatternSelection();
                 if (!this.pattern[sound]) this.pattern[sound] = Array(maxSteps).fill(false);
 
                 if (!this.pattern[sound][beat]) {
@@ -5319,14 +5431,32 @@
                 const pulses = document.getElementById('euclidPulses');
                 const rotate = document.getElementById('euclidRotate');
                 if (!pulses || !rotate) return;
-                pulses.max = maxSteps;
-                rotate.max = maxSteps - 1;
-                if (+pulses.value > maxSteps) pulses.value = maxSteps;
-                if (+rotate.value > maxSteps - 1) rotate.value = maxSteps - 1;
-                document.getElementById('euclidPulsesVal').textContent = pulses.value;
-                document.getElementById('euclidRotateVal').textContent = rotate.value;
-                this.updateSliderFill('euclidPulses');
-                this.updateSliderFill('euclidRotate');
+
+                const syncNumberSelect = (select, max, prefix) => {
+                    const fallback = Number.parseInt(select.dataset.default || '0', 10);
+                    const current = Math.max(0, Math.min(
+                        Number.parseInt(select.value || String(fallback), 10),
+                        max
+                    ));
+                    const lastOption = select.options[select.options.length - 1];
+                    if (select.options.length !== max + 1 || Number(lastOption?.value) !== max) {
+                        const options = document.createDocumentFragment();
+                        for (let value = 0; value <= max; value++) {
+                            const option = document.createElement('option');
+                            option.value = String(value);
+                            option.textContent = `${prefix} ${value}`;
+                            options.appendChild(option);
+                        }
+                        select.replaceChildren(options);
+                    }
+                    select.value = String(current);
+                    return current;
+                };
+
+                const pulseValue = syncNumberSelect(pulses, maxSteps, 'P');
+                const rotateValue = syncNumberSelect(rotate, maxSteps - 1, 'R');
+                const quickValue = document.getElementById('euclidToolValue');
+                if (quickValue) quickValue.textContent = `P${pulseValue} · R${rotateValue}`;
             }
 
             applyEuclid() {
@@ -5339,7 +5469,7 @@
 
                 this.pattern[inst] = this.rotatePattern(this.euclideanPattern(pulses, maxSteps), rot);
                 delete this.probability[inst]; // 새 리듬이니 이 행의 확률은 초기화
-                document.querySelectorAll('.genre-btn.active').forEach(btn => btn.classList.remove('active'));
+                this.setGenrePatternSelection();
 
                 this.updateBeatGrid();
                 this.updatePatternDisplay();
@@ -6263,11 +6393,7 @@
                     patterns[genre]();
                     this.updateBeatGrid();
                     this.updatePatternDisplay();
-                    document.querySelectorAll('.genre-btn').forEach(btn => {
-                        const selected = btn.dataset.genre === genre;
-                        btn.classList.toggle('active', selected);
-                        btn.setAttribute('aria-pressed', String(selected));
-                    });
+                    this.setGenrePatternSelection(genre);
                     this.updateStatus(`${genre.toUpperCase()} 패턴이 로드되었습니다!`);
                     this.queueGeneratedLoopSave();
                 }
@@ -6275,10 +6401,7 @@
 
             clearBeat() {
                 this.presetLibrary?.cancelForManualEdit();
-                document.querySelectorAll('.genre-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    btn.setAttribute('aria-pressed', 'false');
-                });
+                this.setGenrePatternSelection();
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 this.pattern = {};
@@ -6440,6 +6563,7 @@
             setMode(mode) {
                 this.presetLibrary?.cancelForManualEdit();
                 this.mode = mode;
+                this.setGenrePatternSelection();
                 this.stopPlayback();
                 this.initializePattern();
                 this.createBeatGrid();
@@ -6451,6 +6575,13 @@
                     btn.setAttribute('aria-pressed', String(isActive));
                 });
                 document.getElementById('normalModeHints').style.display = mode === 'normal' ? '' : 'none';
+                const genreMenu = document.getElementById('patternGenreMenu');
+                if (genreMenu) {
+                    const disabled = mode !== 'normal';
+                    genreMenu.classList.toggle('is-disabled', disabled);
+                    genreMenu.querySelector('summary')?.setAttribute('aria-disabled', String(disabled));
+                    if (disabled) genreMenu.open = false;
+                }
 
                 if (mode === 'normal') {
                     document.getElementById('normalModeControls').style.display = 'block';
@@ -6809,6 +6940,7 @@
                             }
                             
                             this.pattern = data.pattern || {};
+                            this.setGenrePatternSelection();
                             this.probability = data.probability || {};
                             this.tempo = data.tempo || 120;
                             this.swing = data.swing || 0;
@@ -7099,11 +7231,24 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const topDisclosures = [...document.querySelectorAll('[data-top-disclosure]')];
+            const genreSummary = document.querySelector('#patternGenreMenu > summary');
+            genreSummary?.addEventListener('click', event => {
+                if (genreSummary.getAttribute('aria-disabled') !== 'true') return;
+                event.preventDefault();
+                drumMachine?.updateStatus('장르 패턴은 일반 드럼 모드에서 사용할 수 있습니다.');
+            });
             topDisclosures.forEach(disclosure => {
                 disclosure.addEventListener('toggle', () => {
                     if (!disclosure.open) return;
                     topDisclosures.forEach(other => {
                         if (other !== disclosure) other.open = false;
+                    });
+                });
+                disclosure.addEventListener('focusout', () => {
+                    requestAnimationFrame(() => {
+                        if (disclosure.open && !disclosure.contains(document.activeElement)) {
+                            disclosure.open = false;
+                        }
                     });
                 });
             });
@@ -7131,10 +7276,6 @@
                 event.preventDefault();
             });
 
-            const patternTools = document.getElementById('patternTools');
-            if (patternTools && window.matchMedia('(max-width: 680px)').matches) {
-                patternTools.removeAttribute('open');
-            }
             document.querySelectorAll('.mobile-section-nav a').forEach(link => {
                 link.addEventListener('click', () => {
                     document.querySelectorAll('.mobile-section-nav a').forEach(item => {
@@ -7257,6 +7398,16 @@
 
         function loadGenrePattern(genre) {
             drumMachine.loadGenrePattern(genre);
+        }
+
+        function closePatternTool(id) {
+            const disclosure = document.getElementById(id);
+            if (!disclosure?.open) return;
+            const returnFocus = disclosure.contains(document.activeElement);
+            disclosure.open = false;
+            if (returnFocus) {
+                requestAnimationFrame(() => disclosure.querySelector('summary')?.focus({ preventScroll: true }));
+            }
         }
 
         function clearBeat() {

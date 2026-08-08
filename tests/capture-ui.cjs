@@ -6,6 +6,7 @@ const puppeteer = require('puppeteer-core');
 const root = path.resolve(__dirname, '..');
 const chromiumPath = process.env.CHROMIUM_PATH;
 const outputDir = process.env.UI_CAPTURE_DIR || path.join(root, 'ui-captures');
+const LEGACY_MOBILE_PATTERN_TOOL_HEIGHTS = { 360: 423, 390: 423, 430: 377 };
 
 if (!chromiumPath) throw new Error('CHROMIUM_PATH is required');
 
@@ -82,6 +83,7 @@ async function capture(page, url, name, viewport) {
                 pattern: rect('.pattern-panel'),
                 library: rect('#loopLibrarySection'),
                 presets: rect('#musicPresetMenu'),
+                patternTools: rect('#patternTools'),
                 mobileNav: rect('.mobile-section-nav'),
             },
             state: {
@@ -89,7 +91,7 @@ async function capture(page, url, name, viewport) {
                 synthGrid: scrollBox('#synthGrid'),
                 navLinks: navLinks.length,
                 navTargetsResolve: navLinks.every(link => link.hash && document.querySelector(link.hash)),
-                patternToolsOpen: document.getElementById('patternTools').open,
+                patternMenusOpen: document.querySelectorAll('#patternTools .pattern-quick-menu[open]').length,
                 libraryOpen: document.getElementById('loopLibrarySection').open,
                 presetsOpen: document.getElementById('musicPresetMenu').open,
                 promoOpen: document.getElementById('promoRecorderPanel').open,
@@ -205,6 +207,60 @@ async function measureListeningDeck(page) {
     });
 }
 
+async function measurePatternTools(page) {
+    return page.evaluate(async () => {
+        const shell = document.getElementById('patternTools');
+        const nextContent = document.querySelector('.grid-hint');
+        const menuIds = ['patternGenreMenu', 'euclidToolMenu', 'patternFileMenu'];
+        const before = {
+            shell: shell.getBoundingClientRect(),
+            nextY: nextContent.getBoundingClientRect().y,
+            documentHeight: document.documentElement.scrollHeight,
+        };
+        const menus = {};
+
+        for (const id of menuIds) {
+            const disclosure = document.getElementById(id);
+            disclosure.open = true;
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            const shellBox = shell.getBoundingClientRect();
+            const panelBox = disclosure.querySelector('.pattern-tool-panel').getBoundingClientRect();
+            const targets = [...disclosure.querySelectorAll('summary, button, select')]
+                .filter(element => element.getClientRects().length > 0)
+                .map(element => {
+                    const box = element.getBoundingClientRect();
+                    return { width: box.width, height: box.height };
+                });
+            menus[id] = {
+                shellHeight: shellBox.height,
+                visualHeight: panelBox.bottom - shellBox.top,
+                nextYDelta: nextContent.getBoundingClientRect().y - before.nextY,
+                documentHeightDelta: document.documentElement.scrollHeight - before.documentHeight,
+                panel: {
+                    top: panelBox.top,
+                    bottom: panelBox.bottom,
+                    left: panelBox.left,
+                    right: panelBox.right,
+                    height: panelBox.height,
+                },
+                shellBottom: shellBox.bottom,
+                targets,
+            };
+            disclosure.open = false;
+        }
+
+        return {
+            shellHeight: before.shell.height,
+            viewportHeight: innerHeight,
+            pageWidth: {
+                client: document.documentElement.clientWidth,
+                scroll: document.documentElement.scrollWidth,
+            },
+            menus,
+        };
+    });
+}
+
 async function main() {
     fs.mkdirSync(outputDir, { recursive: true });
     const server = await startServer();
@@ -257,6 +313,26 @@ async function main() {
         const mobileSaveMenu = await measureSaveMenu(page);
         const mobilePresetMenu = await measurePresetMenu(page);
         const mobileListeningDeck = await measureListeningDeck(page);
+        const mobilePatternTools = {};
+        for (const width of [300, 360, 390, 430]) {
+            await page.setViewport({
+                width,
+                height: 844,
+                deviceScaleFactor: 1,
+                isMobile: true,
+                hasTouch: true,
+            });
+            await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+            mobilePatternTools[width] = await measurePatternTools(page);
+        }
+        await page.setViewport({
+            width: 390,
+            height: 844,
+            deviceScaleFactor: 1,
+            isMobile: true,
+            hasTouch: true,
+        });
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
         for (const [name, result] of Object.entries({ desktop, tablet, tabletTouch, mobile })) {
             assert(result.page.scrollWidth === result.page.clientWidth,
                 `${name} has page-level horizontal overflow: ${result.page.scrollWidth}px > ${result.page.clientWidth}px`);
@@ -301,9 +377,31 @@ async function main() {
             assert(result.state.beatRows > 1 && result.state.synthRows > 1,
                 `${name} sequencer row semantics are missing`);
         }
-        assert(!mobile.state.patternToolsOpen && !mobile.state.libraryOpen &&
+        assert(mobile.state.patternMenusOpen === 0 && !mobile.state.libraryOpen &&
                 !mobile.state.presetsOpen && !mobile.state.promoOpen,
             'fresh mobile disclosures are not compact by default');
+        for (const [width, measurement] of Object.entries(mobilePatternTools)) {
+            const legacyHeight = LEGACY_MOBILE_PATTERN_TOOL_HEIGHTS[width];
+            const maxHeight = legacyHeight ? Math.floor(legacyHeight * 0.25) : 105;
+            assert(measurement.shellHeight <= maxHeight,
+                `${width}px pattern tools exceed the compact height limit: ${measurement.shellHeight}px > ${maxHeight}px`);
+            assert(measurement.pageWidth.client === measurement.pageWidth.scroll,
+                `${width}px compact pattern tools cause page overflow: ${JSON.stringify(measurement.pageWidth)}`);
+            for (const [id, menu] of Object.entries(measurement.menus)) {
+                assert(menu.shellHeight <= maxHeight && menu.visualHeight <= maxHeight,
+                    `${width}px ${id} exceeds the compact visual height limit ${maxHeight}px: ${JSON.stringify(menu)}`);
+                assert(Math.abs(menu.nextYDelta) < 1 && Math.abs(menu.documentHeightDelta) < 1,
+                    `${width}px ${id} reflows the sequencer instead of floating: ${JSON.stringify(menu)}`);
+                assert(menu.panel.left >= -1 && menu.panel.right <= Number(width) + 1,
+                    `${width}px ${id} escapes the mobile viewport: ${JSON.stringify(menu.panel)}`);
+                assert(menu.panel.top >= menu.shellBottom - 1 && menu.panel.bottom <= measurement.viewportHeight + 1,
+                    `${width}px ${id} is not positioned below the shell or escapes the viewport height: ${JSON.stringify(menu)}`);
+                const expectedTargets = { patternGenreMenu: 9, euclidToolMenu: 5, patternFileMenu: 4 }[id];
+                assert(menu.targets.length === expectedTargets &&
+                        menu.targets.every(size => size.width >= 40 && size.height >= 40),
+                    `${width}px ${id} contains a touch target below 40px: ${JSON.stringify(menu.targets)}`);
+            }
+        }
         for (const [name, grid] of Object.entries({ beat: mobile.state.beatGrid, synth: mobile.state.synthGrid })) {
             assert(grid.left >= 0 && grid.right <= mobile.viewport.width + 1,
                 `${name} grid escapes the mobile viewport`);
@@ -396,6 +494,168 @@ async function main() {
         assert(!presetEscapeState.open && presetEscapeState.focused,
             `Escape did not close and return focus to the preset trigger: ${JSON.stringify(presetEscapeState)}`);
 
+        await page.focus('#patternGenreMenu > summary');
+        await page.keyboard.press('Enter');
+        assert(await page.$eval('#patternGenreMenu', menu => menu.open),
+            'genre pattern menu did not open from the keyboard');
+        await page.keyboard.press('Escape');
+        const patternEscapeState = await page.evaluate(() => ({
+            open: document.getElementById('patternGenreMenu').open,
+            focused: document.activeElement === document.querySelector('#patternGenreMenu > summary'),
+        }));
+        assert(!patternEscapeState.open && patternEscapeState.focused,
+            `Escape did not close and return focus to the genre trigger: ${JSON.stringify(patternEscapeState)}`);
+
+        await page.click('#patternGenreMenu > summary');
+        await page.focus('.genre-btn[data-genre="rock"]');
+        await page.keyboard.press('Enter');
+        await new Promise(resolve => setTimeout(resolve, 32));
+        const genreActionState = await page.evaluate(() => ({
+            open: document.getElementById('patternGenreMenu').open,
+            focused: document.activeElement === document.querySelector('#patternGenreMenu > summary'),
+            gridMode: drumMachine.gridMode,
+            selected: document.querySelector('.genre-btn[aria-pressed="true"]')?.dataset.genre,
+            label: document.getElementById('genreToolValue').textContent,
+            hasPattern: Object.values(drumMachine.pattern).some(row => row.some(Boolean)),
+        }));
+        assert(!genreActionState.open && genreActionState.focused &&
+                genreActionState.gridMode === '16' && genreActionState.selected === 'rock' &&
+                genreActionState.label === '록' && genreActionState.hasPattern,
+            `genre action did not apply and close cleanly: ${JSON.stringify(genreActionState)}`);
+
+        const genreMatrix = await page.evaluate(() => {
+            const expected = {
+                rock: ['16', '록'], jazz: ['24', '재즈'], funk: ['16', '펑크'],
+                shuffle: ['24', '셔플'], hiphop: ['16', '힙합'], edm: ['16', 'EDM'],
+                reggae: ['16', '레게'], metal: ['16', '메탈'],
+            };
+            return Object.entries(expected).map(([genre, [gridMode, label]]) => {
+                drumMachine.loadGenrePattern(genre);
+                return {
+                    genre,
+                    expectedGridMode: gridMode,
+                    gridMode: drumMachine.gridMode,
+                    expectedLabel: label,
+                    label: document.getElementById('genreToolValue').textContent,
+                    pressed: [...document.querySelectorAll('.genre-btn[aria-pressed="true"]')]
+                        .map(button => button.dataset.genre),
+                    hasPattern: Object.values(drumMachine.pattern).some(row => row.some(Boolean)),
+                };
+            });
+        });
+        assert(genreMatrix.every(result => result.gridMode === result.expectedGridMode &&
+                result.label === result.expectedLabel && result.pressed.join(',') === result.genre && result.hasPattern),
+            `genre presets are not all wired correctly: ${JSON.stringify(genreMatrix)}`);
+
+        const genreResetByMusicPreset = await page.evaluate(() => {
+            drumMachine.loadGenrePattern('rock');
+            drumMachine.presetLibrary.applyPreset(0);
+            return {
+                label: document.getElementById('genreToolValue').textContent,
+                pressed: document.querySelectorAll('.genre-btn[aria-pressed="true"]').length,
+            };
+        });
+        assert(genreResetByMusicPreset.label === '선택' && genreResetByMusicPreset.pressed === 0,
+            `music preset left a stale genre selection: ${JSON.stringify(genreResetByMusicPreset)}`);
+
+        const customGenreState = await page.evaluate(() => {
+            drumMachine.setMode('custom');
+            const menu = document.getElementById('patternGenreMenu');
+            menu.querySelector('summary').click();
+            const state = {
+                open: menu.open,
+                disabled: menu.querySelector('summary').getAttribute('aria-disabled'),
+                status: document.getElementById('status').textContent,
+            };
+            drumMachine.setMode('normal');
+            return state;
+        });
+        assert(!customGenreState.open && customGenreState.disabled === 'true' &&
+                customGenreState.status.includes('일반 드럼 모드'),
+            `custom mode did not disable the genre tool clearly: ${JSON.stringify(customGenreState)}`);
+
+        const euclidOptionState = await page.evaluate(() => {
+            drumMachine.setGridMode('24');
+            const pulses = document.getElementById('euclidPulses');
+            const rotate = document.getElementById('euclidRotate');
+            const expanded = {
+                pulseOptions: pulses.options.length,
+                pulseLast: pulses.options[pulses.options.length - 1].value,
+                rotateOptions: rotate.options.length,
+                rotateLast: rotate.options[rotate.options.length - 1].value,
+            };
+            pulses.value = '24';
+            rotate.value = '23';
+            drumMachine.setGridMode('16');
+            return {
+                expanded,
+                clamped: { pulses: pulses.value, rotate: rotate.value },
+            };
+        });
+        assert(euclidOptionState.expanded.pulseOptions === 25 && euclidOptionState.expanded.pulseLast === '24' &&
+                euclidOptionState.expanded.rotateOptions === 24 && euclidOptionState.expanded.rotateLast === '23' &&
+                euclidOptionState.clamped.pulses === '16' && euclidOptionState.clamped.rotate === '15',
+            `Euclidean option ranges do not follow grid mode: ${JSON.stringify(euclidOptionState)}`);
+
+        await page.click('#euclidToolMenu > summary');
+        await page.select('#euclidInst', 'Q');
+        await page.select('#euclidPulses', '4');
+        await page.select('#euclidRotate', '1');
+        await page.focus('#euclidApplyBtn');
+        await page.keyboard.press('Enter');
+        await new Promise(resolve => setTimeout(resolve, 32));
+        const euclidActionState = await page.evaluate(() => ({
+            open: document.getElementById('euclidToolMenu').open,
+            focused: document.activeElement === document.querySelector('#euclidToolMenu > summary'),
+            activeSteps: drumMachine.pattern.Q
+                .map((active, index) => active ? index : -1)
+                .filter(index => index >= 0),
+            quickValue: document.getElementById('euclidToolValue').textContent,
+        }));
+        assert(!euclidActionState.open && euclidActionState.focused &&
+                euclidActionState.activeSteps.join(',') === '1,5,9,13' &&
+                euclidActionState.quickValue === 'P4 · R1',
+            `Euclidean action did not apply and close cleanly: ${JSON.stringify(euclidActionState)}`);
+
+        const patternFileCalls = await page.evaluate(async () => {
+            const machine = drumMachine;
+            const original = {
+                exportPattern: machine.exportPattern,
+                importPattern: machine.importPattern,
+                clearBeat: machine.clearBeat,
+            };
+            const calls = [];
+            machine.exportPattern = () => calls.push('export');
+            machine.importPattern = () => calls.push('import');
+            machine.clearBeat = () => calls.push('clear');
+            for (const id of ['exportPatternBtn', 'importPatternBtn', 'clearPatternBtn']) {
+                const menu = document.getElementById('patternFileMenu');
+                menu.open = true;
+                const button = document.getElementById(id);
+                button.focus();
+                button.click();
+                await new Promise(resolve => requestAnimationFrame(resolve));
+                if (menu.open || document.activeElement !== menu.querySelector('summary')) calls.push(`focus:${id}`);
+            }
+            machine.exportPattern = original.exportPattern;
+            machine.importPattern = original.importPattern;
+            machine.clearBeat = original.clearBeat;
+            return calls;
+        });
+        assert(patternFileCalls.join(',') === 'export,import,clear',
+            `pattern file actions are not wired or lose focus: ${patternFileCalls.join(',')}`);
+
+        await page.click('#patternFileMenu > summary');
+        await page.focus('#clearPatternBtn');
+        await page.keyboard.press('Tab');
+        await new Promise(resolve => setTimeout(resolve, 32));
+        const patternTabExitState = await page.evaluate(() => ({
+            open: document.getElementById('patternFileMenu').open,
+            focusInside: document.getElementById('patternFileMenu').contains(document.activeElement),
+        }));
+        assert(!patternTabExitState.open && !patternTabExitState.focusInside,
+            `Tab left a pattern popover covering the next focused control: ${JSON.stringify(patternTabExitState)}`);
+
         await page.click('#musicPresetMenu > summary');
         await page.focus('.music-preset-card');
         await page.keyboard.press('Enter');
@@ -437,30 +697,23 @@ async function main() {
         assert(!outsideState.open && outsideState.focused,
             `outside pointer click did not close and restore focus: ${JSON.stringify(outsideState)}`);
 
-        const exclusiveState = await page.evaluate(async () => {
-            const save = document.getElementById('loopLibrarySection');
-            const presets = document.getElementById('musicPresetMenu');
-            const promo = document.getElementById('promoRecorderPanel');
-            save.open = true;
-            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-            presets.open = true;
-            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-            const presetsWin = { save: save.open, presets: presets.open, promo: promo.open };
-            promo.open = true;
-            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-            const promoWins = { save: save.open, presets: presets.open, promo: promo.open };
-            save.open = true;
-            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-            const saveWins = { save: save.open, presets: presets.open, promo: promo.open };
-            save.open = false;
-            presets.open = false;
-            promo.open = false;
-            return { presetsWin, promoWins, saveWins };
+        const exclusiveStates = await page.evaluate(async () => {
+            const disclosures = [...document.querySelectorAll('[data-top-disclosure]')];
+            const states = [];
+            for (const winner of disclosures) {
+                winner.open = true;
+                await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                states.push({
+                    winner: winner.id,
+                    open: disclosures.filter(item => item.open).map(item => item.id),
+                });
+            }
+            disclosures.forEach(item => { item.open = false; });
+            return states;
         });
-        assert(!exclusiveState.presetsWin.save && exclusiveState.presetsWin.presets && !exclusiveState.presetsWin.promo &&
-                !exclusiveState.promoWins.save && !exclusiveState.promoWins.presets && exclusiveState.promoWins.promo &&
-                exclusiveState.saveWins.save && !exclusiveState.saveWins.presets && !exclusiveState.saveWins.promo,
-            `top disclosures can remain open together: ${JSON.stringify(exclusiveState)}`);
+        assert(exclusiveStates.length === 6 && exclusiveStates.every(state =>
+                state.open.length === 1 && state.open[0] === state.winner),
+            `top and pattern disclosures can remain open together: ${JSON.stringify(exclusiveStates)}`);
 
         const saveActionCalls = await page.evaluate(async () => {
             const loops = drumMachine.loopLibrary;

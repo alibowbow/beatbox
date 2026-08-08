@@ -303,6 +303,7 @@
                 machine.gridMode = state.gridMode;
                 machine.kit = state.kit;
                 machine.pattern = state.pattern;
+                machine.setGenrePatternSelection?.();
                 machine.probability = state.probability;
                 machine.mutedSounds = new Set();
                 machine.tempo = state.tempo;
