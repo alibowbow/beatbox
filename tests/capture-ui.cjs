@@ -70,8 +70,12 @@ async function capture(page, url, name, viewport) {
                 scrollHeight: document.documentElement.scrollHeight,
             },
             regions: {
+                topbar: rect('.app-topbar'),
                 header: rect('header'),
                 controls: rect('.controls'),
+                transportPrimary: rect('.transport-primary'),
+                gridMode: rect('.grid-mode-row'),
+                sliderRack: rect('.top-transport .slider-rack'),
                 sequencer: rect('.sequencer'),
                 bass: rect('.bass-section'),
                 pads: rect('.drum-pads'),
@@ -91,6 +95,12 @@ async function capture(page, url, name, viewport) {
                 synthTabStops: document.querySelectorAll('#synthGrid .synth-cell[tabindex="0"]').length,
                 beatRows: document.querySelectorAll('#beatGrid > [role="row"]').length,
                 synthRows: document.querySelectorAll('#synthGrid > [role="row"]').length,
+                topControlSizes: [...document.querySelectorAll('.mode-btn, .save-menu-summary, .promo-recorder-summary')]
+                    .filter(element => element.getClientRects().length > 0)
+                    .map(element => {
+                        const box = element.getBoundingClientRect();
+                        return { width: box.width, height: box.height };
+                    }),
             },
             visibleHeadings: [...document.querySelectorAll('h1, h2, h3')]
                 .filter(element => {
@@ -104,6 +114,35 @@ async function capture(page, url, name, viewport) {
     await page.screenshot({ path: path.join(outputDir, `${name}.png`), fullPage: false });
     await page.screenshot({ path: path.join(outputDir, `${name}-full.png`), fullPage: true });
     return metrics;
+}
+
+async function measureSaveMenu(page) {
+    return page.evaluate(() => {
+        const topbar = document.querySelector('.app-topbar');
+        const menu = document.getElementById('loopLibrarySection');
+        const panel = menu.querySelector('.save-menu-panel');
+        const before = topbar.getBoundingClientRect();
+        menu.open = true;
+        const openedTopbar = topbar.getBoundingClientRect();
+        const openedPanel = panel.getBoundingClientRect();
+        const actionSizes = [...panel.querySelectorAll('.loop-library-actions button')]
+            .map(button => {
+                const box = button.getBoundingClientRect();
+                return { width: box.width, height: box.height };
+            });
+        const result = {
+            topbarBottom: before.bottom,
+            topbarHeightDelta: Math.abs(openedTopbar.height - before.height),
+            panel: {
+                top: openedPanel.top,
+                left: openedPanel.left,
+                right: openedPanel.right,
+            },
+            actionSizes,
+        };
+        menu.open = false;
+        return result;
+    });
 }
 
 async function main() {
@@ -131,7 +170,16 @@ async function main() {
         });
         const url = `http://127.0.0.1:${server.address().port}/`;
         const desktop = await capture(page, url, 'desktop-1440', { width: 1440, height: 1100, deviceScaleFactor: 1 });
+        const desktopSaveMenu = await measureSaveMenu(page);
         const tablet = await capture(page, url, 'tablet-820', { width: 820, height: 1180, deviceScaleFactor: 1 });
+        const tabletSaveMenu = await measureSaveMenu(page);
+        const tabletTouch = await capture(page, url, 'tablet-820-touch', {
+            width: 820,
+            height: 1180,
+            deviceScaleFactor: 1,
+            hasTouch: true,
+        });
+        const tabletTouchSaveMenu = await measureSaveMenu(page);
         const mobile = await capture(page, url, 'mobile-390', {
             width: 390,
             height: 844,
@@ -139,26 +187,46 @@ async function main() {
             isMobile: true,
             hasTouch: true,
         });
-        for (const [name, result] of Object.entries({ desktop, tablet, mobile })) {
+        const mobileSaveMenu = await measureSaveMenu(page);
+        for (const [name, result] of Object.entries({ desktop, tablet, tabletTouch, mobile })) {
             assert(result.page.scrollWidth === result.page.clientWidth,
                 `${name} has page-level horizontal overflow: ${result.page.scrollWidth}px > ${result.page.clientWidth}px`);
         }
         const desktopRatio = desktop.regions.sequencer.width / desktop.regions.pads.width;
         assert(desktopRatio >= 2.1 && desktopRatio <= 2.6,
             `desktop workspace is not near 70/30: ${desktopRatio.toFixed(2)}`);
-        assert(desktop.regions.controls.height <= 76,
+        assert(desktop.regions.topbar.height <= 44,
+            `desktop top bar is no longer compact: ${desktop.regions.topbar.height}px`);
+        assert(tablet.regions.topbar.height <= 44,
+            `tablet top bar is no longer compact: ${tablet.regions.topbar.height}px`);
+        assert(tabletTouch.regions.topbar.height <= 57,
+            `touch tablet top bar is no longer compact: ${tabletTouch.regions.topbar.height}px`);
+        assert(mobile.regions.topbar.height <= 52,
+            `mobile top bar is no longer one compact row: ${mobile.regions.topbar.height}px`);
+        assert(desktop.regions.controls.height <= 54,
             `desktop transport is no longer compact: ${desktop.regions.controls.height}px`);
-        assert(tablet.regions.controls.height <= 180,
+        assert(tablet.regions.controls.height <= 92,
             `tablet transport is no longer compact: ${tablet.regions.controls.height}px`);
-        assert(mobile.regions.controls.height <= 125,
+        assert(tabletTouch.regions.controls.height <= 112,
+            `touch tablet transport is no longer compact: ${tabletTouch.regions.controls.height}px`);
+        assert(mobile.regions.controls.height <= 104,
             `mobile transport is no longer compact: ${mobile.regions.controls.height}px`);
-        assert(desktop.regions.mobileNav.width === 0 && tablet.regions.mobileNav.width === 0,
+        assert(desktop.regions.sequencer.y <= 145 && tablet.regions.sequencer.y <= 170 &&
+                tabletTouch.regions.sequencer.y <= 202 && mobile.regions.sequencer.y <= 231,
+            `workspace start moved down: ${JSON.stringify({
+                desktop: desktop.regions.sequencer.y,
+                tablet: tablet.regions.sequencer.y,
+                tabletTouch: tabletTouch.regions.sequencer.y,
+                mobile: mobile.regions.sequencer.y,
+            })}`);
+        assert(desktop.regions.mobileNav.width === 0 && tablet.regions.mobileNav.width === 0 &&
+                tabletTouch.regions.mobileNav.width === 0,
             'mobile section navigation is visible above its breakpoint');
         assert(mobile.regions.mobileNav.height >= 40,
             `mobile section navigation is missing or too small: ${mobile.regions.mobileNav.height}px`);
         assert(mobile.state.navLinks === 3 && mobile.state.navTargetsResolve,
             'mobile section navigation links are incomplete or point to missing targets');
-        for (const [name, result] of Object.entries({ desktop, tablet, mobile })) {
+        for (const [name, result] of Object.entries({ desktop, tablet, tabletTouch, mobile })) {
             assert(result.state.beatTabStops === 1 && result.state.synthTabStops === 1,
                 `${name} sequencers expose more than one roving Tab stop`);
             assert(result.state.beatRows > 1 && result.state.synthRows > 1,
@@ -174,6 +242,29 @@ async function main() {
         }
         assert(mobile.regions.pads.y > mobile.regions.bass.y && mobile.regions.pattern.y > mobile.regions.pads.y,
             'mobile sections are not ordered sequencer → bass → pads → monitor');
+        for (const [name, result] of Object.entries({ tabletTouch, mobile })) {
+            assert(result.state.topControlSizes.every(size => size.width >= 40 && size.height >= 40),
+                `${name} top controls are too small for touch: ${JSON.stringify(result.state.topControlSizes)}`);
+        }
+
+        const saveMenus = {
+            desktop: { viewport: desktop.viewport, geometry: desktopSaveMenu },
+            tablet: { viewport: tablet.viewport, geometry: tabletSaveMenu },
+            tabletTouch: { viewport: tabletTouch.viewport, geometry: tabletTouchSaveMenu },
+            mobile: { viewport: mobile.viewport, geometry: mobileSaveMenu },
+        };
+        for (const [name, { viewport, geometry }] of Object.entries(saveMenus)) {
+            assert(geometry.panel.top >= geometry.topbarBottom - 1,
+                `${name} save menu overlaps the top bar: ${JSON.stringify(geometry)}`);
+            assert(geometry.panel.left >= -1 && geometry.panel.right <= viewport.width + 1,
+                `${name} save menu escapes the viewport: ${JSON.stringify(geometry)}`);
+            assert(geometry.topbarHeightDelta < 1,
+                `${name} save menu reflows the top bar: ${JSON.stringify(geometry)}`);
+        }
+        for (const [name, geometry] of Object.entries({ tabletTouch: tabletTouchSaveMenu, mobile: mobileSaveMenu })) {
+            assert(geometry.actionSizes.every(size => size.width >= 40 && size.height >= 40),
+                `${name} save actions are too small for touch: ${JSON.stringify(geometry.actionSizes)}`);
+        }
         const mobilePromoMenu = await page.evaluate(() => {
             const topbar = document.querySelector('.app-topbar').getBoundingClientRect();
             const panel = document.getElementById('promoRecorderPanel');
@@ -186,20 +277,91 @@ async function main() {
             `mobile promo menu overlaps the top bar: ${JSON.stringify(mobilePromoMenu)}`);
         assert(mobilePromoMenu.panelRight <= mobile.viewport.width + 1,
             `mobile promo menu escapes the viewport: ${JSON.stringify(mobilePromoMenu)}`);
-        const mobileTouchTargets = await page.evaluate(() => {
-            const heights = selector => [...document.querySelectorAll(selector)]
-                .filter(element => element.getClientRects().length > 0)
-                .map(element => element.getBoundingClientRect().height);
-            const rangeHeights = heights('.top-transport input[type="range"]');
-            const modeHeights = heights('.mode-btn');
-            drumMachine.setMode('custom');
-            const customActionHeights = heights('.custom-mode-only .button-row button');
-            drumMachine.setMode('normal');
-            return { rangeHeights, modeHeights, customActionHeights };
+        await page.focus('#loopLibrarySection > summary');
+        await page.keyboard.press('Enter');
+        assert(await page.$eval('#loopLibrarySection', menu => menu.open),
+            'save menu did not open from the keyboard');
+        await page.keyboard.press('Escape');
+        const escapeState = await page.evaluate(() => ({
+            open: document.getElementById('loopLibrarySection').open,
+            focused: document.activeElement === document.querySelector('#loopLibrarySection > summary'),
+        }));
+        assert(!escapeState.open && escapeState.focused,
+            `Escape did not close and return focus to the save trigger: ${JSON.stringify(escapeState)}`);
+
+        await page.click('#loopLibrarySection > summary');
+        await page.focus('#saveLoopBtn');
+        await page.click('.logo-mark');
+        await new Promise(resolve => setTimeout(resolve, 32));
+        const outsideState = await page.evaluate(() => ({
+            open: document.getElementById('loopLibrarySection').open,
+            focused: document.activeElement === document.querySelector('#loopLibrarySection > summary'),
+        }));
+        assert(!outsideState.open && outsideState.focused,
+            `outside pointer click did not close and restore focus: ${JSON.stringify(outsideState)}`);
+
+        const exclusiveState = await page.evaluate(async () => {
+            const save = document.getElementById('loopLibrarySection');
+            const promo = document.getElementById('promoRecorderPanel');
+            save.open = true;
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            promo.open = true;
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            const promoWins = { save: save.open, promo: promo.open };
+            save.open = true;
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            const saveWins = { save: save.open, promo: promo.open };
+            save.open = false;
+            promo.open = false;
+            return { promoWins, saveWins };
         });
-        for (const [name, heights] of Object.entries(mobileTouchTargets)) {
-            assert(heights.length > 0 && heights.every(height => height >= 40),
-                `${name} are too small for touch: ${heights.join(',')}`);
+        assert(!exclusiveState.promoWins.save && exclusiveState.promoWins.promo &&
+                exclusiveState.saveWins.save && !exclusiveState.saveWins.promo,
+            `top disclosures can remain open together: ${JSON.stringify(exclusiveState)}`);
+
+        const saveActionCalls = await page.evaluate(async () => {
+            const loops = drumMachine.loopLibrary;
+            const original = {
+                saveToHistory: loops.saveToHistory,
+                shareCurrentState: loops.shareCurrentState,
+                clearHistory: loops.clearHistory,
+            };
+            const calls = [];
+            loops.saveToHistory = silent => calls.push(`save:${silent}`);
+            loops.shareCurrentState = async () => calls.push('share');
+            loops.clearHistory = () => calls.push('clear');
+            const menu = document.getElementById('loopLibrarySection');
+            menu.open = true;
+            document.getElementById('saveLoopBtn').click();
+            document.getElementById('shareLoopBtn').click();
+            document.getElementById('clearLoopHistoryBtn').click();
+            await Promise.resolve();
+            loops.saveToHistory = original.saveToHistory;
+            loops.shareCurrentState = original.shareCurrentState;
+            loops.clearHistory = original.clearHistory;
+            menu.open = false;
+            return calls;
+        });
+        assert(saveActionCalls.join(',') === 'save:false,share,clear',
+            `save menu buttons are not wired to the library: ${saveActionCalls.join(',')}`);
+        const mobileTouchTargets = await page.evaluate(() => {
+            const sizes = selector => [...document.querySelectorAll(selector)]
+                .filter(element => element.getClientRects().length > 0)
+                .map(element => {
+                    const box = element.getBoundingClientRect();
+                    return { width: box.width, height: box.height };
+                });
+            const ranges = sizes('.top-transport input[type="range"]');
+            const modes = sizes('.mode-btn');
+            const saveSummaries = sizes('.save-menu-summary');
+            drumMachine.setMode('custom');
+            const customActions = sizes('.custom-mode-only .button-row button');
+            drumMachine.setMode('normal');
+            return { ranges, modes, saveSummaries, customActions };
+        });
+        for (const [name, sizes] of Object.entries(mobileTouchTargets)) {
+            assert(sizes.length > 0 && sizes.every(size => size.width >= 40 && size.height >= 40),
+                `${name} are too small for touch: ${JSON.stringify(sizes)}`);
         }
         const keyboardGrid = await page.evaluate(() => {
             const entry = document.querySelector('#beatGrid .sound-label[tabindex="0"], #beatGrid .beat-cell[tabindex="0"]');
@@ -292,7 +454,7 @@ async function main() {
             `focused grid swallowed the drum shortcut: ${JSON.stringify(interactionRegression)}`);
         assert(interactionRegression.formShortcutCalls === 0,
             `form control leaked a global shortcut: ${JSON.stringify(interactionRegression)}`);
-        process.stdout.write(`${JSON.stringify({ desktop, tablet, mobile }, null, 2)}\n`);
+        process.stdout.write(`${JSON.stringify({ desktop, tablet, tabletTouch, mobile }, null, 2)}\n`);
     } finally {
         await browser.close();
         server.close();

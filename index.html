@@ -2050,33 +2050,35 @@
         }
 
         .app-topbar {
+            position: relative;
+            z-index: 60;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
             min-width: 0;
-            padding: 0 2px 10px;
+            padding: 0 2px 6px;
             border-bottom: 1px solid var(--line);
         }
 
         .app-header {
             min-width: 0;
             margin: 0;
-            gap: 11px;
+            gap: 8px;
         }
 
         .logo-mark {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 7px;
             background: #171c20;
             border-color: #3b5760;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
         }
 
         .logo-mark svg {
-            width: 19px;
-            height: 19px;
+            width: 17px;
+            height: 17px;
         }
 
         .title-block {
@@ -2084,8 +2086,8 @@
         }
 
         .title-block h1 {
-            gap: 8px;
-            font-size: clamp(1rem, 1.35vw, 1.28rem);
+            gap: 6px;
+            font-size: clamp(0.94rem, 1.2vw, 1.16rem);
             line-height: 1.15;
             white-space: nowrap;
         }
@@ -2097,7 +2099,7 @@
         }
 
         .ver-badge {
-            padding: 3px 8px;
+            padding: 2px 6px;
             border: 1px solid #4d555d;
             border-radius: 6px;
             background: #22272c;
@@ -2106,17 +2108,18 @@
         }
 
         .tagline {
-            margin-top: 2px;
-            font-size: 8px;
+            margin-top: 1px;
+            font-size: 7px;
             letter-spacing: 0.22em;
             color: var(--text-dim);
         }
 
         .topbar-actions {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 5px;
+            gap: 4px;
             min-width: 0;
         }
 
@@ -2124,7 +2127,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 3px;
-            min-width: 196px;
+            min-width: 174px;
             margin: 0;
             padding: 2px;
             border: 1px solid var(--line);
@@ -2133,20 +2136,20 @@
         }
 
         .mode-btn {
-            min-height: 32px;
-            padding: 4px 9px;
+            min-height: 30px;
+            padding: 3px 7px;
             border: 1px solid transparent;
             border-radius: 5px;
             background: transparent;
             color: var(--text-dim);
             box-shadow: none;
-            font-size: 11px;
-            gap: 5px;
+            font-size: 10px;
+            gap: 4px;
         }
 
         .mode-btn .icon {
-            width: 13px;
-            height: 13px;
+            width: 12px;
+            height: 12px;
         }
 
         .mode-btn:hover {
@@ -2166,6 +2169,95 @@
             color: var(--cyan);
         }
 
+        .save-menu {
+            position: static;
+            flex: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .save-menu-summary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-height: 30px;
+            padding: 3px 8px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: #0a0c0e;
+            color: var(--text-mid);
+            font-size: 10px;
+            font-weight: 800;
+            list-style: none;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .save-menu-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .save-menu-summary::marker {
+            content: '';
+        }
+
+        .save-menu-summary .icon {
+            width: 13px;
+            height: 13px;
+            color: var(--violet);
+        }
+
+        .save-menu-summary .loop-library-chevron {
+            font-size: 9px;
+        }
+
+        .save-menu[open] .save-menu-summary {
+            border-color: #4d555d;
+            background: #20252a;
+            color: var(--text-hi);
+        }
+
+        .save-menu[open] .loop-library-chevron {
+            transform: rotate(180deg);
+        }
+
+        .save-menu-panel {
+            position: absolute;
+            z-index: 70;
+            top: calc(100% + 6px);
+            right: 0;
+            width: min(380px, calc(100vw - 28px));
+            max-height: min(70vh, 520px);
+            padding: 10px;
+            overflow: auto;
+            border: 1px solid #394148;
+            border-radius: 9px;
+            background: #15191d;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+        }
+
+        .save-menu:not([open]) > .save-menu-panel {
+            display: none;
+        }
+
+        .save-menu-panel.loop-library-body {
+            border-top: 0;
+        }
+
+        .save-menu-panel .loop-library-copy {
+            margin: 0 0 9px;
+        }
+
+        .save-menu-panel .loop-library-actions {
+            margin-bottom: 9px;
+        }
+
+        .save-menu-panel .loop-history-list {
+            max-height: 310px;
+            overflow: auto;
+        }
+
         .promo-recorder-panel {
             margin: 0;
             background: #0a0c0e;
@@ -2178,8 +2270,9 @@
         .promo-recorder-panel[open] {
             position: absolute;
             z-index: 40;
-            top: 68px;
-            right: 34px;
+            top: calc(100% + 6px);
+            right: 0;
+            width: min(430px, calc(100vw - 28px));
             background: #15191d;
             box-shadow: var(--shadow-panel);
         }
@@ -2213,9 +2306,9 @@
             display: grid;
             grid-template-columns: minmax(290px, auto) minmax(230px, 0.62fr) minmax(340px, 1fr);
             align-items: stretch;
-            gap: 6px;
-            margin: 8px 0;
-            padding: 6px;
+            gap: 4px;
+            margin: 5px 0 7px;
+            padding: 4px;
             border: 1px solid var(--line);
             border-radius: 10px;
             background: #131619;
@@ -2225,15 +2318,15 @@
         .transport-primary {
             display: grid;
             grid-template-columns: 1.15fr 1fr 0.82fr;
-            gap: 5px;
+            gap: 4px;
             margin: 0;
         }
 
         .transport-primary button {
             width: 100%;
             min-width: 0;
-            min-height: 48px;
-            padding: 7px 11px;
+            min-height: 40px;
+            padding: 5px 9px;
             border-radius: 6px;
             font-size: 12px;
             white-space: nowrap;
@@ -2271,25 +2364,27 @@
 
         .grid-mode-row {
             display: grid;
-            grid-template-columns: auto minmax(0, 1fr);
+            grid-template-columns: minmax(0, 1fr);
             grid-template-rows: 1fr;
             align-items: center;
             gap: 4px;
             min-width: 0;
-            padding: 4px;
+            padding: 3px;
             border: 1px solid var(--line);
             border-radius: 8px;
             background: #0d0f11;
         }
 
         .transport-label {
-            padding: 0 2px;
-            font-family: var(--font-disp);
-            font-size: 7px;
-            letter-spacing: 0.2em;
-            color: var(--text-dim);
-            writing-mode: vertical-rl;
-            transform: rotate(180deg);
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         .grid-mode-row .segmented {
@@ -2304,8 +2399,8 @@
 
         .grid-mode-row .seg-btn {
             min-width: 0;
-            min-height: 38px;
-            padding: 5px 7px;
+            min-height: 34px;
+            padding: 4px 6px;
             font-size: 11px;
             white-space: nowrap;
         }
@@ -2326,9 +2421,9 @@
         .top-transport .slider-group {
             display: grid;
             align-content: center;
-            gap: 4px;
+            gap: 3px;
             min-width: 0;
-            padding: 5px 9px;
+            padding: 4px 8px;
             border-radius: 8px;
             background: #0d0f11;
         }
@@ -2342,7 +2437,7 @@
         }
 
         .top-transport .slider-value {
-            font-size: 15px;
+            font-size: 13px;
         }
 
         input[type="range"] {
@@ -2351,8 +2446,8 @@
         }
 
         input[type="range"]::-webkit-slider-thumb {
-            width: 17px;
-            height: 17px;
+            width: 15px;
+            height: 15px;
             border: 3px solid var(--cyan);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
@@ -2871,7 +2966,7 @@
 
         @media (max-width: 1100px) {
             .top-transport {
-                grid-template-columns: minmax(330px, 1fr) minmax(245px, 0.7fr);
+                grid-template-columns: minmax(300px, 1fr) minmax(230px, 0.72fr);
             }
 
             .top-transport .slider-rack {
@@ -2887,8 +2982,7 @@
                 align-items: start;
             }
 
-            .right-rail .pattern-panel,
-            .right-rail .loop-library {
+            .right-rail .pattern-panel {
                 grid-column: 1;
             }
 
@@ -2909,11 +3003,11 @@
             }
 
             .top-transport {
-                grid-template-columns: minmax(0, 1fr);
+                grid-template-columns: minmax(280px, 0.96fr) minmax(220px, 1.04fr);
             }
 
             .top-transport .slider-rack {
-                grid-column: auto;
+                grid-column: 1 / -1;
             }
 
             .right-rail {
@@ -2921,17 +3015,13 @@
                 flex-direction: column;
             }
 
-            .right-rail .loop-library {
-                order: 1;
-            }
-
             .right-rail .pad-slot {
-                order: 2;
+                order: 1;
                 width: 100%;
             }
 
             .right-rail .pattern-panel {
-                order: 3;
+                order: 2;
                 width: 100%;
             }
         }
@@ -2949,23 +3039,27 @@
 
             .app-topbar {
                 display: grid;
-                grid-template-columns: minmax(0, 1fr);
-                gap: 6px;
-                padding-bottom: 7px;
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 5px;
+                padding-bottom: 4px;
             }
 
             .app-header {
-                gap: 7px;
+                gap: 6px;
+                overflow: hidden;
             }
 
             .logo-mark {
-                width: 34px;
-                height: 34px;
+                flex: none;
+                width: 30px;
+                height: 30px;
             }
 
             .title-block h1 {
-                gap: 5px;
-                font-size: 0.92rem;
+                gap: 4px;
+                overflow: hidden;
+                font-size: 0.84rem;
+                text-overflow: ellipsis;
             }
 
             .ver-badge {
@@ -2978,66 +3072,74 @@
             }
 
             .topbar-actions {
-                display: grid;
-                grid-template-columns: minmax(0, 1fr) auto;
-                gap: 5px;
+                display: flex;
+                gap: 3px;
             }
 
             .mode-selector {
                 min-width: 0;
+                width: 142px;
+                gap: 2px;
+                padding: 1px;
             }
 
             .mode-btn {
                 min-width: 0;
-                min-height: 34px;
-                padding: 4px 6px;
-                font-size: 10.5px;
+                min-height: 32px;
+                padding: 3px 5px;
+                font-size: 9.5px;
                 white-space: nowrap;
             }
 
+            .save-menu-summary,
+            .promo-recorder-summary {
+                min-height: 32px;
+                padding: 3px 7px;
+            }
+
             .promo-recorder-panel[open] {
-                top: 104px;
-                right: 15px;
-                width: calc(100% - 30px);
+                top: calc(100% + 6px);
+                right: 0;
+                width: min(430px, calc(100vw - 20px));
+            }
+
+            .save-menu-panel {
+                width: min(380px, calc(100vw - 20px));
             }
 
             .top-transport {
                 grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-                gap: 4px;
-                margin: 6px 0;
-                padding: 4px;
+                gap: 3px;
+                margin: 4px 0;
+                padding: 3px;
             }
 
             .transport-primary {
                 grid-column: 1 / -1;
                 grid-template-columns: 1.18fr 1fr 0.84fr;
+                gap: 3px;
             }
 
             .transport-primary button {
-                min-height: 44px;
-                padding: 6px 5px;
-                font-size: 11px;
-                gap: 4px;
+                min-height: 40px;
+                padding: 4px;
+                font-size: 10px;
+                gap: 3px;
             }
 
             .grid-mode-row {
                 grid-column: 1;
-                grid-template-columns: auto minmax(0, 1fr);
+                grid-template-columns: minmax(0, 1fr);
                 grid-template-rows: 1fr;
                 align-items: center;
-                min-height: 44px;
-            }
-
-            .transport-label {
-                writing-mode: vertical-rl;
-                transform: rotate(180deg);
-                font-size: 7px;
+                min-height: 42px;
+                padding: 2px;
             }
 
             .grid-mode-row .seg-btn {
-                min-height: 34px;
-                padding: 4px 5px;
-                font-size: 10px;
+                min-height: 36px;
+                padding: 3px 4px;
+                font-size: 9.5px;
             }
 
             .grid-mode-row .seg-btn small {
@@ -3051,8 +3153,8 @@
             }
 
             .top-transport .slider-group {
-                gap: 3px;
-                padding: 5px;
+                gap: 2px;
+                padding: 3px 4px;
             }
 
             .top-transport .slider-head {
@@ -3072,7 +3174,7 @@
             }
 
             .top-transport .slider-value {
-                font-size: 13px;
+                font-size: 12px;
             }
 
             .mobile-section-nav {
@@ -3217,14 +3319,6 @@
                 height: 36px;
             }
 
-            .loop-library-summary {
-                min-height: 34px;
-            }
-
-            .loop-library-summary .sec-no {
-                display: none;
-            }
-
             .drum-kit-grid {
                 grid-template-columns: repeat(5, minmax(0, 1fr));
                 gap: 5px;
@@ -3259,6 +3353,8 @@
 
         @media (pointer: coarse) {
             .mode-btn,
+            .save-menu-summary,
+            .transport-primary button,
             .genre-btn,
             .autoscroll-toggle,
             .grid-mode-row .seg-btn,
@@ -3297,15 +3393,15 @@
             .top-transport .slider-group {
                 position: relative;
                 align-content: start;
-                min-height: 54px;
-                padding-bottom: 18px;
+                min-height: 44px;
+                padding-bottom: 13px;
             }
 
             .top-transport input[type="range"] {
                 position: absolute;
                 left: 5px;
                 right: 5px;
-                bottom: 0;
+                bottom: -1px;
                 width: calc(100% - 10px);
                 height: 5px;
                 min-height: 0;
@@ -3322,6 +3418,33 @@
                 width: 42px;
                 height: 42px;
             }
+        }
+
+        @media (max-width: 560px) {
+            .brand-prefix,
+            .ver-badge,
+            .mode-label,
+            .save-menu-label,
+            .promo-recorder-summary > span {
+                display: none;
+            }
+
+            .mode-selector {
+                width: 90px;
+            }
+
+            .mode-btn,
+            .save-menu-summary,
+            .promo-recorder-summary {
+                width: 42px;
+                padding-inline: 0;
+            }
+
+            .save-menu-summary .loop-library-chevron,
+            .promo-recorder-summary::after {
+                display: none;
+            }
+
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -3367,18 +3490,35 @@
             <header class="app-header">
                 <div class="logo-mark"><svg class="icon"><use href="#i-drum"/></svg></div>
                 <div class="title-block">
-                    <h1>프로페셔널 <span class="grad-text">드럼머신</span> <span class="ver-badge">PRO V2.0</span></h1>
+                    <h1 aria-label="프로페셔널 드럼머신 PRO V2.0"><span class="brand-prefix">프로페셔널</span> <span class="grad-text">드럼머신</span> <span class="ver-badge">PRO V2.0</span></h1>
                     <p class="tagline">Pro Beat Station &middot; Web Audio Engine</p>
                 </div>
             </header>
 
             <div class="topbar-actions">
                 <div class="mode-selector" role="group" aria-label="사운드 모드">
-                    <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')" aria-pressed="true"><svg class="icon"><use href="#i-drum"/></svg> 일반 드럼</button>
-                    <button class="mode-btn" data-mode="custom" onclick="setMode('custom')" aria-pressed="false"><svg class="icon"><use href="#i-mic"/></svg> 커스텀</button>
+                    <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')" aria-label="일반 드럼 모드" title="일반 드럼" aria-pressed="true"><svg class="icon"><use href="#i-drum"/></svg><span class="mode-label">일반 드럼</span></button>
+                    <button class="mode-btn" data-mode="custom" onclick="setMode('custom')" aria-label="커스텀 사운드 모드" title="커스텀 사운드" aria-pressed="false"><svg class="icon"><use href="#i-mic"/></svg><span class="mode-label">커스텀</span></button>
                 </div>
 
-                <details class="promo-recorder-panel" id="promoRecorderPanel" data-beatbox-promo-panel>
+                <details class="save-menu" id="loopLibrarySection" data-top-disclosure>
+                    <summary class="save-menu-summary" aria-label="저장 및 공유 메뉴" aria-controls="saveMenuPanel" title="저장 및 공유">
+                        <svg class="icon"><use href="#i-save"/></svg>
+                        <span class="save-menu-label">저장</span>
+                        <span class="loop-library-chevron" aria-hidden="true">▾</span>
+                    </summary>
+                    <div class="save-menu-panel loop-library-body" id="saveMenuPanel">
+                        <p class="loop-library-copy">현재 드럼과 베이스를 저장하거나 링크로 공유합니다.</p>
+                        <div class="loop-library-actions">
+                            <button class="loop-save-btn" id="saveLoopBtn" onclick="saveCurrentLoop()"><svg class="icon"><use href="#i-save"/></svg> 루프 저장</button>
+                            <button class="loop-share-btn" id="shareLoopBtn" onclick="shareCurrentLoop()"><svg class="icon"><use href="#i-link"/></svg> 링크 복사</button>
+                            <button class="danger-btn" id="clearLoopHistoryBtn" onclick="clearLoopHistory()"><svg class="icon"><use href="#i-trash"/></svg> 모두 비우기</button>
+                        </div>
+                        <div class="loop-history-list" id="loopHistoryList"></div>
+                    </div>
+                </details>
+
+                <details class="promo-recorder-panel" id="promoRecorderPanel" data-beatbox-promo-panel data-top-disclosure>
                     <summary class="promo-recorder-summary" aria-label="홍보 영상 스튜디오" title="홍보 영상 스튜디오">
                         <svg class="icon" aria-hidden="true"><use href="#i-rec"/></svg><span>영상</span>
                     </summary>
@@ -3400,7 +3540,7 @@
             </div>
 
             <div class="grid-mode-row">
-                <span class="transport-label">SEQUENCE</span>
+                <span class="transport-label" aria-hidden="true">SEQUENCE</span>
                 <div class="segmented" role="group" aria-label="시퀀서 길이">
                     <button onclick="setGridMode('16')" id="grid16Btn" class="seg-btn active" data-grid="16" aria-pressed="true"><svg class="icon"><use href="#i-grid"/></svg> 16 스텝 <small>4/4</small></button>
                     <button onclick="setGridMode('24')" id="grid24Btn" class="seg-btn" data-grid="24" aria-pressed="false"><svg class="icon"><use href="#i-triplet"/></svg> 24 스텝 <small>3연음</small></button>
@@ -3547,27 +3687,9 @@
                     <div class="pattern-display" id="patternDisplay">패턴이 비어있습니다. 비트를 추가해보세요!</div>
                 </section>
 
-                <details class="control-section loop-library" id="loopLibrarySection">
-                    <summary class="loop-library-summary">
-                        <svg class="icon"><use href="#i-folder"/></svg>
-                        <span class="loop-library-title">저장 · 공유</span>
-                        <span class="sec-no">04 / LIBRARY</span>
-                        <span class="loop-library-chevron" aria-hidden="true">▾</span>
-                    </summary>
-                    <div class="loop-library-body">
-                        <p class="loop-library-copy">현재 드럼과 베이스를 함께 저장하거나 링크로 공유합니다.</p>
-                        <div class="loop-library-actions">
-                            <button class="loop-share-btn" id="shareLoopBtn" onclick="shareCurrentLoop()"><svg class="icon"><use href="#i-link"/></svg> 링크 복사</button>
-                            <button class="loop-save-btn" id="saveLoopBtn" onclick="saveCurrentLoop()"><svg class="icon"><use href="#i-save"/></svg> 루프 저장</button>
-                            <button class="danger-btn" id="clearLoopHistoryBtn" onclick="clearLoopHistory()"><svg class="icon"><use href="#i-trash"/></svg> 비우기</button>
-                        </div>
-                        <div class="loop-history-list" id="loopHistoryList"></div>
-                    </div>
-                </details>
-
                 <div class="pad-slot" id="performancePads">
                     <section class="control-section custom-mode-only" aria-labelledby="customPadTitle">
-                        <h2 id="customPadTitle"><svg class="icon"><use href="#i-mic"/></svg> 커스텀 패드 <span class="sec-no">05 / PADS</span></h2>
+                        <h2 id="customPadTitle"><svg class="icon"><use href="#i-mic"/></svg> 커스텀 패드 <span class="sec-no">04 / PADS</span></h2>
                         <div class="button-row">
                             <button onclick="requestMicrophonePermission()"><svg class="icon"><use href="#i-mic"/></svg> 마이크 권한</button>
                             <button id="customSoundToggle" onclick="toggleCustomSoundForm()" aria-expanded="false" aria-controls="customSoundForm"><svg class="icon"><use href="#i-plus"/></svg> 새 사운드</button>
@@ -3583,7 +3705,7 @@
                     </section>
 
                     <section class="control-section drum-pads" id="normalModeControls" aria-labelledby="padTitle">
-                        <h2 id="padTitle"><svg class="icon"><use href="#i-drum"/></svg> 퍼포먼스 패드 <span class="sec-no">05 / PADS</span></h2>
+                        <h2 id="padTitle"><svg class="icon"><use href="#i-drum"/></svg> 퍼포먼스 패드 <span class="sec-no">04 / PADS</span></h2>
                         <div class="group-label">Drum Kit</div>
                         <div class="button-row kit-row">
                             <div class="segmented" role="group" aria-label="드럼 킷">
@@ -6604,6 +6726,39 @@
         let drumMachine;
 
         document.addEventListener('DOMContentLoaded', () => {
+            const topDisclosures = [...document.querySelectorAll('[data-top-disclosure]')];
+            topDisclosures.forEach(disclosure => {
+                disclosure.addEventListener('toggle', () => {
+                    if (!disclosure.open) return;
+                    topDisclosures.forEach(other => {
+                        if (other !== disclosure) other.open = false;
+                    });
+                });
+            });
+            document.addEventListener('pointerdown', event => {
+                topDisclosures.forEach(disclosure => {
+                    if (!disclosure.open || disclosure.contains(event.target)) return;
+                    const hadFocus = disclosure.contains(document.activeElement);
+                    const outsideControl = event.target instanceof Element
+                        ? event.target.closest('button, a, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])')
+                        : null;
+                    disclosure.open = false;
+                    if (hadFocus && !outsideControl) {
+                        requestAnimationFrame(() => {
+                            if (!disclosure.open) disclosure.querySelector('summary')?.focus({ preventScroll: true });
+                        });
+                    }
+                });
+            });
+            document.addEventListener('keydown', event => {
+                if (event.key !== 'Escape') return;
+                const openDisclosure = topDisclosures.find(disclosure => disclosure.open);
+                if (!openDisclosure) return;
+                openDisclosure.open = false;
+                openDisclosure.querySelector('summary')?.focus();
+                event.preventDefault();
+            });
+
             const patternTools = document.getElementById('patternTools');
             if (patternTools && window.matchMedia('(max-width: 680px)').matches) {
                 patternTools.removeAttribute('open');
