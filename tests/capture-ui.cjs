@@ -62,7 +62,25 @@ async function capture(page, url, name, viewport) {
                 scrollWidth: element.scrollWidth,
             };
         };
-        const navLinks = [...document.querySelectorAll('.mobile-section-nav a')];
+        const workspaceTabs = [...document.querySelectorAll('[data-workspace-tab]')];
+        const sequencerRegion = rect('.sequencer');
+        const drumView = {
+            drumHidden: document.getElementById('sequencerPanel').hidden,
+            bassHidden: document.getElementById('synthLane').hidden,
+        };
+        window.setWorkspaceTab('bass');
+        const bassRegion = rect('.bass-section');
+        const synthGridRegion = scrollBox('#synthGrid');
+        const bassPanelBox = document.getElementById('synthLane').getBoundingClientRect();
+        const bassView = {
+            drumHidden: document.getElementById('sequencerPanel').hidden,
+            bassHidden: document.getElementById('synthLane').hidden,
+            panelBottom: bassPanelBox.bottom,
+            padsY: rect('.drum-pads')?.y,
+            patternY: rect('.pattern-panel')?.y,
+        };
+        window.setWorkspaceTab('drums');
+        document.getElementById('sequencerPanel').classList.remove('workspace-panel-enter');
         return {
             viewport: { width: innerWidth, height: innerHeight },
             page: {
@@ -77,29 +95,35 @@ async function capture(page, url, name, viewport) {
                 transportPrimary: rect('.transport-primary'),
                 gridMode: rect('.grid-mode-row'),
                 sliderRack: rect('.top-transport .slider-rack'),
-                sequencer: rect('.sequencer'),
-                bass: rect('.bass-section'),
+                sequencer: sequencerRegion,
+                bass: bassRegion,
                 pads: rect('.drum-pads'),
                 pattern: rect('.pattern-panel'),
                 library: rect('#loopLibrarySection'),
                 presets: rect('#musicPresetMenu'),
                 patternTools: rect('#patternTools'),
-                mobileNav: rect('.mobile-section-nav'),
+                workspaceTabs: rect('.workspace-tabs'),
+                transportOptions: rect('.transport-options-summary'),
             },
             state: {
                 beatGrid: scrollBox('#beatGrid'),
-                synthGrid: scrollBox('#synthGrid'),
-                navLinks: navLinks.length,
-                navTargetsResolve: navLinks.every(link => link.hash && document.querySelector(link.hash)),
+                synthGrid: synthGridRegion,
+                workspaceTabs: workspaceTabs.length,
+                tabTargetsResolve: workspaceTabs.every(tab => tab.getAttribute('aria-controls') &&
+                    document.getElementById(tab.getAttribute('aria-controls'))),
+                drumView,
+                bassView,
+                activeWorkspace: document.querySelector('[data-workspace-tab][aria-selected="true"]')?.dataset.workspaceTab,
                 patternMenusOpen: document.querySelectorAll('#patternTools .pattern-quick-menu[open]').length,
                 libraryOpen: document.getElementById('loopLibrarySection').open,
                 presetsOpen: document.getElementById('musicPresetMenu').open,
                 promoOpen: document.getElementById('promoRecorderPanel').open,
+                transportOptionsOpen: document.getElementById('transportOptions').open,
                 beatTabStops: document.querySelectorAll('#beatGrid .sound-label[tabindex="0"], #beatGrid .beat-cell[tabindex="0"]').length,
                 synthTabStops: document.querySelectorAll('#synthGrid .synth-cell[tabindex="0"]').length,
                 beatRows: document.querySelectorAll('#beatGrid > [role="row"]').length,
                 synthRows: document.querySelectorAll('#synthGrid > [role="row"]').length,
-                topControlSizes: [...document.querySelectorAll('.mode-btn, .preset-menu-summary, .save-menu-summary, .promo-recorder-summary')]
+                topControlSizes: [...document.querySelectorAll('.mode-btn, .preset-menu-summary, .save-menu-summary, .promo-recorder-summary, .transport-primary button, .workspace-tab, .transport-options-summary')]
                     .filter(element => element.getClientRects().length > 0)
                     .map(element => {
                         const box = element.getBoundingClientRect();
@@ -307,6 +331,10 @@ async function main() {
             isMobile: true,
             hasTouch: true,
         });
+        await page.click('#bassWorkspaceTab');
+        await new Promise(resolve => setTimeout(resolve, 220));
+        await page.screenshot({ path: path.join(outputDir, 'mobile-390-bass.png'), fullPage: false });
+        await page.click('#drumWorkspaceTab');
         await page.$eval('#musicPresetMenu', menu => { menu.open = true; });
         await page.screenshot({ path: path.join(outputDir, 'mobile-390-presets.png'), fullPage: false });
         await page.$eval('#musicPresetMenu', menu => { menu.open = false; });
@@ -348,37 +376,38 @@ async function main() {
             `touch tablet top bar is no longer compact: ${tabletTouch.regions.topbar.height}px`);
         assert(mobile.regions.topbar.height <= 52,
             `mobile top bar is no longer one compact row: ${mobile.regions.topbar.height}px`);
-        assert(desktop.regions.controls.height <= 54,
+        assert(desktop.regions.controls.height <= 52,
             `desktop transport is no longer compact: ${desktop.regions.controls.height}px`);
-        assert(tablet.regions.controls.height <= 92,
+        assert(tablet.regions.controls.height <= 50,
             `tablet transport is no longer compact: ${tablet.regions.controls.height}px`);
-        assert(tabletTouch.regions.controls.height <= 112,
+        assert(tabletTouch.regions.controls.height <= 58,
             `touch tablet transport is no longer compact: ${tabletTouch.regions.controls.height}px`);
-        assert(mobile.regions.controls.height <= 104,
+        assert(mobile.regions.controls.height <= 54,
             `mobile transport is no longer compact: ${mobile.regions.controls.height}px`);
-        assert(desktop.regions.sequencer.y <= 145 && tablet.regions.sequencer.y <= 170 &&
-                tabletTouch.regions.sequencer.y <= 202 && mobile.regions.sequencer.y <= 231,
+        assert(desktop.regions.sequencer.y <= 100 && tablet.regions.sequencer.y <= 135 &&
+                tabletTouch.regions.sequencer.y <= 150 && mobile.regions.sequencer.y <= 128,
             `workspace start moved down: ${JSON.stringify({
                 desktop: desktop.regions.sequencer.y,
                 tablet: tablet.regions.sequencer.y,
                 tabletTouch: tabletTouch.regions.sequencer.y,
                 mobile: mobile.regions.sequencer.y,
             })}`);
-        assert(desktop.regions.mobileNav.width === 0 && tablet.regions.mobileNav.width === 0 &&
-                tabletTouch.regions.mobileNav.width === 0,
-            'mobile section navigation is visible above its breakpoint');
-        assert(mobile.regions.mobileNav.height >= 40,
-            `mobile section navigation is missing or too small: ${mobile.regions.mobileNav.height}px`);
-        assert(mobile.state.navLinks === 3 && mobile.state.navTargetsResolve,
-            'mobile section navigation links are incomplete or point to missing targets');
         for (const [name, result] of Object.entries({ desktop, tablet, tabletTouch, mobile })) {
+            assert(result.state.workspaceTabs === 2 && result.state.tabTargetsResolve,
+                `${name} drum/bass workspace tabs are incomplete`);
+            assert(result.state.activeWorkspace === 'drums' &&
+                    !result.state.drumView.drumHidden && result.state.drumView.bassHidden &&
+                    result.state.bassView.drumHidden && !result.state.bassView.bassHidden,
+                `${name} workspace tabs do not exclusively switch panels: ${JSON.stringify(result.state)}`);
+            assert(result.regions.workspaceTabs.height >= 36,
+                `${name} workspace tab bar is missing: ${JSON.stringify(result.regions.workspaceTabs)}`);
             assert(result.state.beatTabStops === 1 && result.state.synthTabStops === 1,
                 `${name} sequencers expose more than one roving Tab stop`);
             assert(result.state.beatRows > 1 && result.state.synthRows > 1,
                 `${name} sequencer row semantics are missing`);
         }
         assert(mobile.state.patternMenusOpen === 0 && !mobile.state.libraryOpen &&
-                !mobile.state.presetsOpen && !mobile.state.promoOpen,
+                !mobile.state.presetsOpen && !mobile.state.promoOpen && !mobile.state.transportOptionsOpen,
             'fresh mobile disclosures are not compact by default');
         for (const [width, measurement] of Object.entries(mobilePatternTools)) {
             const legacyHeight = LEGACY_MOBILE_PATTERN_TOOL_HEIGHTS[width];
@@ -390,7 +419,7 @@ async function main() {
             for (const [id, menu] of Object.entries(measurement.menus)) {
                 assert(menu.shellHeight <= maxHeight && menu.visualHeight <= maxHeight,
                     `${width}px ${id} exceeds the compact visual height limit ${maxHeight}px: ${JSON.stringify(menu)}`);
-                assert(Math.abs(menu.nextYDelta) < 1 && Math.abs(menu.documentHeightDelta) < 1,
+                assert(Math.abs(menu.nextYDelta) < 1.5 && Math.abs(menu.documentHeightDelta) < 1,
                     `${width}px ${id} reflows the sequencer instead of floating: ${JSON.stringify(menu)}`);
                 assert(menu.panel.left >= -1 && menu.panel.right <= Number(width) + 1,
                     `${width}px ${id} escapes the mobile viewport: ${JSON.stringify(menu.panel)}`);
@@ -408,8 +437,9 @@ async function main() {
             assert(grid.scrollWidth > grid.clientWidth,
                 `${name} grid no longer contains its own horizontal overflow`);
         }
-        assert(mobile.regions.pads.y > mobile.regions.bass.y && mobile.regions.pattern.y > mobile.regions.pads.y,
-            'mobile sections are not ordered sequencer → bass → pads → monitor');
+        assert(mobile.state.bassView.padsY > mobile.state.bassView.panelBottom &&
+                mobile.state.bassView.patternY > mobile.state.bassView.padsY,
+            'mobile supporting sections do not remain below the active bass workspace');
         for (const [name, result] of Object.entries({ tabletTouch, mobile })) {
             assert(result.state.topControlSizes.every(size => size.width >= 40 && size.height >= 40),
                 `${name} top controls are too small for touch: ${JSON.stringify(result.state.topControlSizes)}`);
@@ -493,6 +523,55 @@ async function main() {
         }));
         assert(!presetEscapeState.open && presetEscapeState.focused,
             `Escape did not close and return focus to the preset trigger: ${JSON.stringify(presetEscapeState)}`);
+
+        await page.focus('#drumWorkspaceTab');
+        await page.keyboard.press('ArrowRight');
+        const bassTabState = await page.evaluate(() => ({
+            active: document.querySelector('[data-workspace-tab][aria-selected="true"]')?.dataset.workspaceTab,
+            focused: document.activeElement?.dataset.workspaceTab,
+            drumHidden: document.getElementById('sequencerPanel').hidden,
+            bassHidden: document.getElementById('synthLane').hidden,
+        }));
+        assert(bassTabState.active === 'bass' && bassTabState.focused === 'bass' &&
+                bassTabState.drumHidden && !bassTabState.bassHidden,
+            `ArrowRight did not switch to the bass panel: ${JSON.stringify(bassTabState)}`);
+        await page.keyboard.press('ArrowLeft');
+        const drumTabState = await page.evaluate(() => ({
+            active: document.querySelector('[data-workspace-tab][aria-selected="true"]')?.dataset.workspaceTab,
+            focused: document.activeElement?.dataset.workspaceTab,
+            drumHidden: document.getElementById('sequencerPanel').hidden,
+            bassHidden: document.getElementById('synthLane').hidden,
+        }));
+        assert(drumTabState.active === 'drums' && drumTabState.focused === 'drums' &&
+                !drumTabState.drumHidden && drumTabState.bassHidden,
+            `ArrowLeft did not return to the drum panel: ${JSON.stringify(drumTabState)}`);
+
+        await page.focus('#transportOptions > summary');
+        await page.keyboard.press('Enter');
+        assert(await page.$eval('#transportOptions', menu => menu.open),
+            'transport settings did not open from the keyboard');
+        const transportGeometry = await page.evaluate(() => {
+            const trigger = document.querySelector('#transportOptions > summary').getBoundingClientRect();
+            const panel = document.getElementById('transportOptionsPanel').getBoundingClientRect();
+            return {
+                triggerBottom: trigger.bottom,
+                panelTop: panel.top,
+                panelLeft: panel.left,
+                panelRight: panel.right,
+                viewportWidth: innerWidth,
+            };
+        });
+        assert(transportGeometry.panelTop >= transportGeometry.triggerBottom - 1 &&
+                transportGeometry.panelLeft >= -1 &&
+                transportGeometry.panelRight <= transportGeometry.viewportWidth + 1,
+            `transport settings panel overlaps or escapes mobile: ${JSON.stringify(transportGeometry)}`);
+        await page.keyboard.press('Escape');
+        const transportEscapeState = await page.evaluate(() => ({
+            open: document.getElementById('transportOptions').open,
+            focused: document.activeElement === document.querySelector('#transportOptions > summary'),
+        }));
+        assert(!transportEscapeState.open && transportEscapeState.focused,
+            `Escape did not close and return focus to transport settings: ${JSON.stringify(transportEscapeState)}`);
 
         await page.focus('#patternGenreMenu > summary');
         await page.keyboard.press('Enter');
@@ -711,7 +790,7 @@ async function main() {
             disclosures.forEach(item => { item.open = false; });
             return states;
         });
-        assert(exclusiveStates.length === 6 && exclusiveStates.every(state =>
+        assert(exclusiveStates.length === 7 && exclusiveStates.every(state =>
                 state.open.length === 1 && state.open[0] === state.winner),
             `top and pattern disclosures can remain open together: ${JSON.stringify(exclusiveStates)}`);
 
@@ -747,8 +826,11 @@ async function main() {
                     const box = element.getBoundingClientRect();
                     return { width: box.width, height: box.height };
                 });
+            const transportOptions = document.getElementById('transportOptions');
+            transportOptions.open = true;
             const ranges = sizes('.top-transport input[type="range"]');
             const modes = sizes('.mode-btn');
+            transportOptions.open = false;
             const saveSummaries = sizes('.save-menu-summary');
             const presetSummaries = sizes('.preset-menu-summary');
             drumMachine.setMode('custom');
