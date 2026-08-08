@@ -228,6 +228,15 @@ async function main() {
                 }
             }
 
+            const sharedGeneration = { drums: 0, bass: 0 };
+            const originalGenerateBeat = machine.generateBeat;
+            const originalGenerateBassline = machine.generateBassline;
+            machine.generateBeat = () => { sharedGeneration.drums += 1; };
+            machine.generateBassline = () => { sharedGeneration.bass += 1; };
+            machine.generateFullLoop();
+            machine.generateBeat = originalGenerateBeat;
+            machine.generateBassline = originalGenerateBassline;
+
             machine.stopPlayback();
             machine.setGridMode('16');
             machine.clearBeat();
@@ -246,6 +255,7 @@ async function main() {
                 playingClass: button.classList.contains('is-playing'),
                 label: button.textContent.trim(),
             }));
+            setWorkspaceTab('bass');
             const synthControlMetrics = {
                 buttonHeights: [...document.querySelectorAll('.synth-action-row .synth-panel-btn')]
                     .map(element => element.getBoundingClientRect().height),
@@ -254,6 +264,7 @@ async function main() {
                 settingHeights: [...document.querySelectorAll('.synth-setting-grid .synth-ctl')]
                     .map(element => element.getBoundingClientRect().height),
             };
+            setWorkspaceTab('drums');
             const pendingBeforeStop = [...machine.scheduledSources]
                 .filter(entry => entry.startAt > machine.audioContext.currentTime).length;
             machine.stopPlayback();
@@ -278,6 +289,7 @@ async function main() {
                 pageErrors: [],
                 captureTracks: machine.captureDestination.stream.getAudioTracks().length,
                 bassChecks,
+                sharedGeneration,
                 steps,
                 pendingBeforeStop,
                 pendingAfterStop,
@@ -409,10 +421,13 @@ async function main() {
             assert(check.midi.length > 0, `empty bassline: ${check.scale}/${check.root}`);
             assert(check.midi.every(midi => midi >= 43 && midi <= 54), `bass range escaped: ${JSON.stringify(check)}`);
         }
+        assert(result.sharedGeneration.drums === 1 && result.sharedGeneration.bass === 1,
+            `shared new beat did not regenerate both lanes: ${JSON.stringify(result.sharedGeneration)}`);
         assert(result.steps.length >= 8, `too few visual steps: ${result.steps.length}`);
         assert(result.pendingBeforeStop > 0, 'scheduler did not create a future source for cancellation test');
         assert(result.pendingAfterStop === 0, `future sources survived stop: ${result.pendingAfterStop}`);
-        assert(result.playbackButtonsDuring.length === 2, `expected two playback buttons: ${JSON.stringify(result.playbackButtonsDuring)}`);
+        assert(result.playbackButtonsDuring.length === 1 && result.playbackButtonsDuring[0].id === 'playBtn',
+            `expected one shared playback button: ${JSON.stringify(result.playbackButtonsDuring)}`);
         assert(result.playbackButtonsDuring.every(button => button.pressed === 'true' && button.playingClass),
             `playback buttons were not synchronized while playing: ${JSON.stringify(result.playbackButtonsDuring)}`);
         assert(result.playbackButtonsAfterStop.every(button => button.pressed === 'false' && !button.playingClass),
@@ -533,19 +548,25 @@ async function main() {
             await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 1 });
             await new Promise(resolve => setTimeout(resolve, 260));
             const mobileControls = await page.evaluate(() => {
+                setWorkspaceTab('bass');
                 const buttons = [...document.querySelectorAll('.synth-action-row .synth-panel-btn')];
                 const settings = [...document.querySelectorAll('.synth-setting-grid .synth-ctl')];
-                return {
+                const result = {
                     buttonHeights: buttons.map(element => element.getBoundingClientRect().height),
                     buttonWidths: buttons.map(element => element.getBoundingClientRect().width),
                     settingHeights: settings.map(element => element.getBoundingClientRect().height),
                     collapsedLibraryHeight: document.getElementById('loopLibrarySection').getBoundingClientRect().height,
                     collapsedStudioHeight: document.getElementById('promoRecorderPanel').getBoundingClientRect().height,
                     studioOpen: document.getElementById('promoRecorderPanel').open,
-                    synthPlayVisible: getComputedStyle(document.getElementById('synthPlayBtn')).display !== 'none',
+                    sharedPlayVisible: getComputedStyle(document.getElementById('playBtn')).display !== 'none',
+                    drumHidden: document.getElementById('sequencerPanel').hidden,
+                    bassHidden: document.getElementById('synthLane').hidden,
                 };
+                setWorkspaceTab('drums');
+                return result;
             });
-            assert(mobileControls.synthPlayVisible, 'bass-panel playback button is hidden on mobile');
+            assert(mobileControls.sharedPlayVisible && mobileControls.drumHidden && !mobileControls.bassHidden,
+                `shared playback or bass tab visibility failed on mobile: ${JSON.stringify(mobileControls)}`);
             assert(mobileControls.buttonHeights.every(height => Math.abs(height - 36) < 0.5),
                 `mobile bass action heights differ: ${mobileControls.buttonHeights.join(',')}`);
             assert(Math.max(...mobileControls.buttonWidths) - Math.min(...mobileControls.buttonWidths) < 0.5,
@@ -561,12 +582,16 @@ async function main() {
 
         let promo = null;
         if (process.env.FULL_PROMO === '1') {
-            const beforePromo = await page.evaluate(() => ({
-                state: drumMachine.loopLibrary.collectState(),
-                history: localStorage.getItem(window.BeatboxLoopLibrary.STORAGE_KEY),
-                hash: location.hash,
-                libraryOpen: document.getElementById('loopLibrarySection').open,
-            }));
+            const beforePromo = await page.evaluate(() => {
+                setWorkspaceTab('bass');
+                return {
+                    state: drumMachine.loopLibrary.collectState(),
+                    history: localStorage.getItem(window.BeatboxLoopLibrary.STORAGE_KEY),
+                    hash: location.hash,
+                    libraryOpen: document.getElementById('loopLibrarySection').open,
+                    workspace: document.querySelector('[data-workspace-tab][aria-selected="true"]')?.dataset.workspaceTab,
+                };
+            });
             await page.evaluate(() => {
                 window.__smokePromoPromise = drumMachine.promoRecorder.preview();
             });
@@ -608,11 +633,13 @@ async function main() {
                 libraryOpen: document.getElementById('loopLibrarySection').open,
                 promoStudioOpen: document.getElementById('promoRecorderPanel').open,
                 autoSaveSuspended: drumMachine.suspendLoopAutoSave,
+                workspace: document.querySelector('[data-workspace-tab][aria-selected="true"]')?.dataset.workspaceTab,
             }));
             assert(JSON.stringify(afterPromo.state) === JSON.stringify(beforePromo.state), 'promo changed the user loop');
             assert(afterPromo.history === beforePromo.history, 'promo changed the saved loop history');
             assert(afterPromo.hash === beforePromo.hash, 'promo changed the share hash');
             assert(afterPromo.libraryOpen === beforePromo.libraryOpen, 'promo changed the library disclosure state');
+            assert(afterPromo.workspace === beforePromo.workspace, 'promo changed the active drum/bass workspace tab');
             assert(afterPromo.promoStudioOpen === false, 'promo studio did not collapse after preview');
             assert(afterPromo.autoSaveSuspended === false, 'promo left loop auto-save suspended');
         }

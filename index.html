@@ -508,16 +508,6 @@
             box-shadow: 0 6px 20px rgba(167, 139, 250, 0.3);
         }
 
-        .fill-btn {
-            border-color: rgba(251, 191, 36, 0.4);
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.24), rgba(249, 115, 22, 0.2));
-        }
-
-        .fill-btn:hover {
-            border-color: rgba(251, 191, 36, 0.7);
-            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.25);
-        }
-
         .danger-btn {
             border-color: rgba(251, 113, 133, 0.35);
             color: #fda4af;
@@ -715,18 +705,6 @@
         .synth-action-row .synth-panel-btn .icon {
             width: 15px;
             height: 15px;
-        }
-
-        .synth-play-btn {
-            border-color: rgba(34, 211, 238, 0.52);
-            background: linear-gradient(135deg, rgba(34, 211, 238, 0.32), rgba(99, 102, 241, 0.3));
-            color: var(--text-hi);
-        }
-
-        .synth-play-btn.is-playing {
-            border-color: rgba(251, 113, 133, 0.65);
-            background: linear-gradient(135deg, rgba(251, 113, 133, 0.38), rgba(244, 63, 94, 0.3));
-            box-shadow: 0 0 14px rgba(251, 113, 133, 0.28);
         }
 
         .synth-toggle.active {
@@ -1113,8 +1091,7 @@
                 padding: 11px 18px;
             }
 
-            .generate-btn,
-            .fill-btn {
+            .generate-btn {
                 flex: 1 1 0;
             }
 
@@ -2575,14 +2552,9 @@
             animation: none;
         }
 
-        .transport-primary .generate-btn,
-        .transport-primary .fill-btn {
+        .transport-primary .generate-btn {
             background: #1a1e22;
             border-color: #343a40;
-        }
-
-        .transport-primary .fill-btn .icon {
-            color: var(--gold);
         }
 
         .grid-mode-row {
@@ -2673,10 +2645,6 @@
             height: 15px;
             border: 3px solid var(--cyan);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        .mobile-section-nav {
-            display: none;
         }
 
         .desktop-layout {
@@ -3511,41 +3479,6 @@
                 font-size: 12px;
             }
 
-            .mobile-section-nav {
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 3px;
-                margin: 0 0 6px;
-                padding: 2px;
-                border: 1px solid var(--line);
-                border-radius: 8px;
-                background: #0b0d0f;
-            }
-
-            .mobile-section-nav a {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 5px;
-                min-width: 0;
-                min-height: 38px;
-                border-radius: 5px;
-                color: var(--text-dim);
-                font-size: 10.5px;
-                font-weight: 800;
-                text-decoration: none;
-            }
-
-            .mobile-section-nav a.active {
-                background: #19242a;
-                color: var(--text-hi);
-            }
-
-            .mobile-section-nav .icon {
-                width: 14px;
-                height: 14px;
-            }
-
             .desktop-layout,
             .main-stack,
             .right-rail,
@@ -3712,7 +3645,6 @@
             .synth-action-row .synth-panel-btn,
             .synth-setting-grid .synth-ctl,
             .custom-pad-trigger,
-            .mobile-section-nav a,
             .keyboard-hints > summary,
             .pattern-quick-menu > summary,
             .promo-recorder-summary,
@@ -3839,6 +3771,406 @@
 
         }
 
+        /* ───────── Compact shared transport + workspace tabs ───────── */
+        [data-workspace-panel][hidden] {
+            display: none !important;
+        }
+
+        .command-header {
+            min-width: 0;
+        }
+
+        .topbar-actions > .save-menu .save-menu-panel,
+        .topbar-actions > .preset-menu .preset-menu-panel,
+        .topbar-actions > .promo-recorder-panel[open] {
+            top: calc(100% + 9px);
+        }
+
+        .top-transport {
+            position: relative;
+            z-index: 50;
+            display: grid;
+            grid-template-columns: minmax(220px, 260px) minmax(220px, 280px) minmax(112px, 130px);
+            align-items: center;
+            justify-content: start;
+            gap: 4px;
+            min-height: 46px;
+            margin: 4px 0 7px;
+            padding: 3px;
+            overflow: visible;
+        }
+
+        .transport-primary {
+            display: grid;
+            grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .transport-primary button {
+            min-height: 40px;
+            padding: 5px 9px;
+            font-size: 11px;
+        }
+
+        .transport-primary .generate-btn .icon {
+            color: var(--violet);
+        }
+
+        .workspace-tabs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 2px;
+            min-width: 0;
+            padding: 2px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #0b0d0f;
+        }
+
+        .workspace-tab {
+            width: 100%;
+            min-width: 0;
+            min-height: 36px;
+            padding: 4px 8px;
+            border-color: transparent;
+            background: transparent;
+            box-shadow: none;
+            color: var(--text-dim);
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .workspace-tab:hover {
+            border-color: transparent;
+            background: #171b1f;
+            box-shadow: none;
+        }
+
+        .workspace-tab[aria-selected="true"] {
+            border-color: #2b7f95;
+            background: #15303a;
+            color: var(--text-hi);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .workspace-tab[aria-selected="true"] .icon {
+            color: var(--cyan);
+        }
+
+        .transport-options {
+            position: relative;
+            min-width: 0;
+            margin: 0;
+        }
+
+        .transport-options-summary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 5px 9px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: #0d0f11;
+            color: var(--text-mid);
+            font-size: 10.5px;
+            font-weight: 800;
+            list-style: none;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .transport-options-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .transport-options-summary::marker {
+            content: '';
+        }
+
+        .transport-options-summary::after {
+            content: '▾';
+            color: var(--text-dim);
+            font-size: 8px;
+        }
+
+        .transport-options[open] .transport-options-summary {
+            border-color: #3f6970;
+            background: #18272b;
+            color: var(--text-hi);
+        }
+
+        .transport-options[open] .transport-options-summary::after {
+            transform: rotate(180deg);
+        }
+
+        .transport-options-panel {
+            position: absolute;
+            z-index: 75;
+            top: calc(100% + 6px);
+            right: 0;
+            display: grid;
+            grid-template-columns: minmax(150px, 0.78fr) minmax(260px, 1.22fr);
+            gap: 6px;
+            width: min(520px, calc(100vw - 28px));
+            padding: 7px;
+            border: 1px solid #394148;
+            border-radius: 9px;
+            background: #15191d;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+        }
+
+        .transport-options:not([open]) > .transport-options-panel {
+            display: none;
+        }
+
+        .transport-mode-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            padding: 0 0 6px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .transport-mode-row > span {
+            color: var(--text-dim);
+            font-size: 9.5px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .transport-mode-selector {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .transport-mode-selector .mode-label {
+            display: inline;
+        }
+
+        .transport-mode-selector .mode-btn {
+            width: auto;
+            min-width: 0;
+        }
+
+        .transport-options-panel .grid-mode-row,
+        .transport-options-panel .slider-rack {
+            grid-column: auto;
+            min-width: 0;
+            margin: 0;
+        }
+
+        .transport-options-panel .grid-mode-row {
+            min-height: 42px;
+            padding: 2px;
+        }
+
+        .transport-options-panel .slider-rack {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 5px;
+        }
+
+        .transport-options-panel .slider-group {
+            min-width: 0;
+            min-height: 42px;
+            padding: 4px 8px;
+        }
+
+        .workspace-panel-enter {
+            animation: workspacePanelIn 0.18s ease-out;
+        }
+
+        @keyframes workspacePanelIn {
+            from {
+                opacity: 0.68;
+                transform: translateY(4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pattern-tools {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 68px 38px;
+        }
+
+        .pattern-inline-btn {
+            min-width: 0;
+            min-height: 34px;
+            padding: 4px 6px;
+            border-color: transparent;
+            background: transparent;
+            box-shadow: none;
+            color: var(--text-mid);
+            font-size: 10.5px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .pattern-inline-btn:hover {
+            border-color: var(--line);
+            background: #1a1e22;
+            box-shadow: none;
+        }
+
+        .pattern-inline-btn .icon {
+            color: var(--gold);
+        }
+
+        .synth-action-row {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        @media (min-width: 1180px) {
+            .command-header {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                align-items: center;
+                gap: 7px;
+                margin-bottom: 7px;
+                padding-bottom: 5px;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .command-header .app-topbar {
+                padding-bottom: 0;
+                border-bottom: 0;
+            }
+
+            .command-header .top-transport {
+                grid-template-columns: 200px 218px 112px;
+                margin: 0;
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .app-topbar {
+                min-height: 0;
+                padding-bottom: 0;
+            }
+
+            .top-transport {
+                grid-template-columns: minmax(126px, 0.95fr) minmax(112px, 0.82fr) 44px;
+                gap: 3px;
+                min-height: 46px;
+                margin: 2px 0 5px;
+                padding: 2px;
+            }
+
+            .transport-primary {
+                grid-column: auto;
+                gap: 3px;
+            }
+
+            .transport-primary button {
+                min-height: 40px;
+                padding: 4px 5px;
+                font-size: 10px;
+            }
+
+            .workspace-tabs {
+                min-height: 40px;
+                padding: 1px;
+            }
+
+            .workspace-tab {
+                min-height: 38px;
+                padding: 3px 4px;
+                gap: 4px;
+                font-size: 10px;
+            }
+
+            .transport-options-summary {
+                min-height: 40px;
+                padding-inline: 0;
+            }
+
+            .transport-options-summary > span,
+            .transport-options-summary::after {
+                display: none;
+            }
+
+            .transport-options-panel {
+                position: absolute;
+                top: calc(100% + 6px);
+                right: 0;
+                left: auto;
+                grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+                width: min(520px, calc(100vw - 28px));
+            }
+
+            .transport-options-panel .grid-mode-row {
+                grid-column: auto;
+                min-height: 44px;
+                padding: 2px;
+            }
+
+            .transport-options-panel .slider-rack {
+                grid-column: auto;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 4px;
+            }
+
+            .control-section {
+                scroll-margin-top: 8px;
+            }
+
+            .pattern-tools {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 62px 42px;
+            }
+
+            .pattern-inline-btn {
+                min-height: 36px;
+                padding-inline: 4px;
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 370px) {
+            .top-transport {
+                grid-template-columns: minmax(118px, 0.95fr) minmax(104px, 0.82fr) 42px;
+            }
+
+            .transport-primary button,
+            .workspace-tab {
+                font-size: 9.5px;
+            }
+
+            .transport-primary button,
+            .workspace-tab {
+                gap: 3px;
+            }
+
+            .transport-options-panel {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .pattern-tools {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 54px 42px;
+            }
+        }
+
+        @media (pointer: coarse) {
+            .app-topbar {
+                min-height: 0;
+            }
+
+            .transport-primary button,
+            .workspace-tab,
+            .transport-options-summary {
+                min-height: 42px;
+            }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 animation: none !important;
@@ -3883,6 +4215,7 @@
 
     <a class="skip-link" href="#transportControls">작업 화면으로 건너뛰기</a>
     <div class="container">
+        <div class="command-header">
         <div class="app-topbar">
             <header class="app-header">
                 <div class="logo-mark"><svg class="icon"><use href="#i-drum"/></svg></div>
@@ -3893,11 +4226,6 @@
             </header>
 
             <div class="topbar-actions">
-                <div class="mode-selector" role="group" aria-label="사운드 모드">
-                    <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')" aria-label="일반 드럼 모드" title="일반 드럼" aria-pressed="true"><svg class="icon"><use href="#i-drum"/></svg><span class="mode-label">일반 드럼</span></button>
-                    <button class="mode-btn" data-mode="custom" onclick="setMode('custom')" aria-label="커스텀 사운드 모드" title="커스텀 사운드" aria-pressed="false"><svg class="icon"><use href="#i-mic"/></svg><span class="mode-label">커스텀</span></button>
-                </div>
-
                 <details class="preset-menu" id="musicPresetMenu" data-top-disclosure>
                     <summary class="preset-menu-summary" aria-label="음악 프리셋과 감상 모드" aria-controls="musicPresetPanel" title="음악 프리셋">
                         <svg class="icon"><use href="#i-headphones"/></svg>
@@ -3963,45 +4291,57 @@
         <section class="top-transport controls" id="transportControls" aria-label="재생과 템포 컨트롤" tabindex="-1">
             <div class="transport transport-primary">
                 <button class="play-btn" id="playBtn" data-playback-toggle onclick="togglePlayback()" aria-pressed="false" aria-keyshortcuts="Space"><svg class="icon"><use href="#i-play"/></svg> 재생</button>
-                <button class="generate-btn" onclick="generateBeat()" aria-keyshortcuts="Enter"><svg class="icon"><use href="#i-dice"/></svg> 새 비트</button>
-                <button class="fill-btn" onclick="generateFillIn()"><svg class="icon"><use href="#i-bolt"/></svg> 필인</button>
+                <button class="generate-btn" id="generateFullLoopBtn" onclick="generateFullLoop()" aria-keyshortcuts="Enter" title="드럼과 베이스를 함께 새로 생성"><svg class="icon"><use href="#i-dice"/></svg> 새 비트</button>
             </div>
 
-            <div class="grid-mode-row">
-                <span class="transport-label" aria-hidden="true">SEQUENCE</span>
-                <div class="segmented" role="group" aria-label="시퀀서 길이">
-                    <button onclick="setGridMode('16')" id="grid16Btn" class="seg-btn active" data-grid="16" aria-pressed="true"><svg class="icon"><use href="#i-grid"/></svg> 16 스텝 <small>4/4</small></button>
-                    <button onclick="setGridMode('24')" id="grid24Btn" class="seg-btn" data-grid="24" aria-pressed="false"><svg class="icon"><use href="#i-triplet"/></svg> 24 스텝 <small>3연음</small></button>
-                </div>
+            <div class="workspace-tabs" role="tablist" aria-label="시퀀서 레인">
+                <button class="workspace-tab" id="drumWorkspaceTab" type="button" role="tab" aria-selected="true" aria-controls="sequencerPanel" data-workspace-tab="drums" onclick="setWorkspaceTab('drums')"><svg class="icon"><use href="#i-drum"/></svg> 드럼</button>
+                <button class="workspace-tab" id="bassWorkspaceTab" type="button" role="tab" aria-selected="false" aria-controls="synthLane" data-workspace-tab="bass" tabindex="-1" onclick="setWorkspaceTab('bass')"><svg class="icon"><use href="#i-music"/></svg> 베이스</button>
             </div>
 
-            <div class="slider-rack">
-                <div class="slider-group">
-                    <div class="slider-head">
-                        <label for="tempo"><svg class="icon"><use href="#i-metro"/></svg> 템포</label>
-                        <span class="slider-value"><span id="tempoValue">120</span><small>BPM</small></span>
+            <details class="transport-options" id="transportOptions" data-top-disclosure>
+                <summary class="transport-options-summary" aria-label="스텝, 템포, 스윙 설정" aria-controls="transportOptionsPanel">
+                    <svg class="icon"><use href="#i-sliders"/></svg><span>리듬 설정</span>
+                </summary>
+                <div class="transport-options-panel" id="transportOptionsPanel">
+                    <div class="transport-mode-row">
+                        <span>사운드 모드</span>
+                        <div class="mode-selector transport-mode-selector" role="group" aria-label="사운드 모드">
+                            <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')" aria-label="일반 드럼 모드" title="일반 드럼" aria-pressed="true"><svg class="icon"><use href="#i-drum"/></svg><span class="mode-label">일반 드럼</span></button>
+                            <button class="mode-btn" data-mode="custom" onclick="setMode('custom')" aria-label="커스텀 사운드 모드" title="커스텀 사운드" aria-pressed="false"><svg class="icon"><use href="#i-mic"/></svg><span class="mode-label">커스텀</span></button>
+                        </div>
                     </div>
-                    <input type="range" id="tempo" min="60" max="200" value="120" style="--val: 42.9%" oninput="updateTempo(this.value)" aria-valuetext="120 BPM">
-                </div>
-                <div class="slider-group">
-                    <div class="slider-head">
-                        <label for="swing"><svg class="icon"><use href="#i-wave"/></svg> 스윙</label>
-                        <span class="slider-value"><span id="swingValue">0</span><small>%</small></span>
+                    <div class="grid-mode-row">
+                        <span class="transport-label" aria-hidden="true">SEQUENCE</span>
+                        <div class="segmented" role="group" aria-label="시퀀서 길이">
+                            <button onclick="setGridMode('16')" id="grid16Btn" class="seg-btn active" data-grid="16" aria-pressed="true"><svg class="icon"><use href="#i-grid"/></svg> 16 스텝 <small>4/4</small></button>
+                            <button onclick="setGridMode('24')" id="grid24Btn" class="seg-btn" data-grid="24" aria-pressed="false"><svg class="icon"><use href="#i-triplet"/></svg> 24 스텝 <small>3연음</small></button>
+                        </div>
                     </div>
-                    <input type="range" id="swing" min="0" max="70" value="0" style="--val: 0%" oninput="updateSwing(this.value)" aria-valuetext="0 퍼센트">
+                    <div class="slider-rack">
+                        <div class="slider-group">
+                            <div class="slider-head">
+                                <label for="tempo"><svg class="icon"><use href="#i-metro"/></svg> 템포</label>
+                                <span class="slider-value"><span id="tempoValue">120</span><small>BPM</small></span>
+                            </div>
+                            <input type="range" id="tempo" min="60" max="200" value="120" style="--val: 42.9%" oninput="updateTempo(this.value)" aria-valuetext="120 BPM">
+                        </div>
+                        <div class="slider-group">
+                            <div class="slider-head">
+                                <label for="swing"><svg class="icon"><use href="#i-wave"/></svg> 스윙</label>
+                                <span class="slider-value"><span id="swingValue">0</span><small>%</small></span>
+                            </div>
+                            <input type="range" id="swing" min="0" max="70" value="0" style="--val: 0%" oninput="updateSwing(this.value)" aria-valuetext="0 퍼센트">
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </details>
         </section>
-
-        <nav class="mobile-section-nav" aria-label="작업 영역 바로가기">
-            <a href="#sequencerPanel" class="active" aria-current="location"><svg class="icon"><use href="#i-grid"/></svg> 시퀀서</a>
-            <a href="#synthLane"><svg class="icon"><use href="#i-music"/></svg> 베이스</a>
-            <a href="#performancePads"><svg class="icon"><use href="#i-drum"/></svg> 패드</a>
-        </nav>
+        </div>
 
         <main class="desktop-layout" id="main-content">
             <div class="main-stack">
-                <section class="control-section sequencer" id="sequencerPanel" aria-labelledby="sequencerTitle">
+                <section class="control-section sequencer" id="sequencerPanel" role="tabpanel" aria-labelledby="drumWorkspaceTab" data-workspace-panel="drums">
                     <h2 id="sequencerTitle"><svg class="icon"><use href="#i-sliders"/></svg> 드럼 시퀀서 <span class="sec-no">01 / SEQUENCER</span></h2>
 
                     <div class="pattern-tools" id="patternTools" role="group" aria-label="패턴 도구">
@@ -4044,6 +4384,8 @@
                             </div>
                         </details>
 
+                        <button class="pattern-inline-btn" type="button" onclick="generateFillIn()" aria-label="드럼 필인 생성" title="드럼 필인 생성"><svg class="icon"><use href="#i-bolt"/></svg><span>필인</span></button>
+
                         <details class="pattern-quick-menu pattern-file-menu" id="patternFileMenu" data-top-disclosure>
                             <summary aria-label="패턴 파일과 초기화" title="파일 · 초기화">
                                 <svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg>
@@ -4075,11 +4417,10 @@
                     <div class="beat-grid grid-16" id="beatGrid" role="grid" aria-label="드럼 스텝 시퀀서"></div>
                 </section>
 
-                <section class="control-section bass-section" id="synthLane" aria-labelledby="synthTitle">
+                <section class="control-section bass-section" id="synthLane" role="tabpanel" aria-labelledby="bassWorkspaceTab" data-workspace-panel="bass" hidden>
                     <h2 id="synthTitle"><svg class="icon"><use href="#i-music"/></svg> 베이스 · 멜로디 <span class="sec-no">02 / BASS</span></h2>
             <div class="synth-controls">
                 <div class="synth-action-row">
-                    <button class="synth-panel-btn synth-play-btn" id="synthPlayBtn" data-playback-toggle data-play-label="루프 재생" data-stop-label="루프 정지" onclick="togglePlayback()" aria-pressed="false" title="드럼과 베이스 루프 함께 재생/정지"><svg class="icon"><use href="#i-play"/></svg> 루프 재생</button>
                     <button class="synth-panel-btn autoscroll-toggle synth-toggle active" id="synthToggle" onclick="toggleSynthLane()" aria-pressed="true" title="신스 레인 켜기/끄기">
                         <svg class="icon"><use href="#i-music"/></svg>
                         <span>신스 <b>ON</b></span>
@@ -4188,7 +4529,7 @@
             </div>
             <div class="hint-row" style="margin-top: 6px;">
                 <span class="hint-item"><kbd>Space</kbd> 재생/정지</span>
-                <span class="hint-item"><kbd>Enter</kbd> 새 비트 생성</span>
+                <span class="hint-item"><kbd>Enter</kbd> 드럼·베이스 새 비트</span>
                 <span class="hint-item"><kbd>Backspace</kbd> 초기화</span>
             </div>
             </div>
@@ -6073,6 +6414,12 @@
                 this.queueGeneratedLoopSave();
             }
 
+            generateFullLoop() {
+                this.generateBeat();
+                this.generateBassline();
+                this.updateStatus('새 드럼 & 베이스 비트를 생성했습니다');
+            }
+
             generateFillIn() {
                 this.presetLibrary?.cancelForManualEdit();
                 if (this.mode !== 'normal') return;
@@ -6724,7 +7071,7 @@
                         this.togglePlayback();
                     } else if (e.key === 'Enter') {
                         e.preventDefault();
-                        this.generateBeat();
+                        this.generateFullLoop();
                     } else if (e.key === 'Backspace') {
                         e.preventDefault();
                         this.clearBeat();
@@ -7276,16 +7623,7 @@
                 event.preventDefault();
             });
 
-            document.querySelectorAll('.mobile-section-nav a').forEach(link => {
-                link.addEventListener('click', () => {
-                    document.querySelectorAll('.mobile-section-nav a').forEach(item => {
-                        item.classList.remove('active');
-                        item.removeAttribute('aria-current');
-                    });
-                    link.classList.add('active');
-                    link.setAttribute('aria-current', 'location');
-                });
-            });
+            setupWorkspaceTabs();
 
             drumMachine = new DrumMachine();
             window.drumMachine = drumMachine;
@@ -7384,12 +7722,63 @@
         }
 
         // 전역 함수들
+        function setWorkspaceTab(tab, options = {}) {
+            const target = tab === 'bass' ? 'bass' : 'drums';
+            const tabs = [...document.querySelectorAll('[data-workspace-tab]')];
+            const panels = [...document.querySelectorAll('[data-workspace-panel]')];
+            const activeTab = tabs.find(button => button.dataset.workspaceTab === target);
+            const activePanel = panels.find(panel => panel.dataset.workspacePanel === target);
+            if (!activeTab || !activePanel) return;
+
+            tabs.forEach(button => {
+                const selected = button === activeTab;
+                button.setAttribute('aria-selected', String(selected));
+                button.tabIndex = selected ? 0 : -1;
+            });
+            panels.forEach(panel => {
+                panel.hidden = panel !== activePanel;
+            });
+
+            document.body.dataset.activeWorkspace = target;
+            if (options.animate === false) {
+                activePanel.classList.remove('workspace-panel-enter');
+            } else {
+                activePanel.classList.remove('workspace-panel-enter');
+                void activePanel.offsetWidth;
+                activePanel.classList.add('workspace-panel-enter');
+            }
+            if (options.focus) activeTab.focus({ preventScroll: true });
+        }
+
+        function setupWorkspaceTabs() {
+            const tablist = document.querySelector('.workspace-tabs');
+            if (!tablist) return;
+            tablist.addEventListener('keydown', event => {
+                const tabs = [...tablist.querySelectorAll('[role="tab"]')];
+                const current = tabs.indexOf(document.activeElement);
+                if (current < 0) return;
+                let next = current;
+                if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (current + 1) % tabs.length;
+                else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (current - 1 + tabs.length) % tabs.length;
+                else if (event.key === 'Home') next = 0;
+                else if (event.key === 'End') next = tabs.length - 1;
+                else return;
+                event.preventDefault();
+                setWorkspaceTab(tabs[next].dataset.workspaceTab, { focus: true });
+            });
+            setWorkspaceTab('drums', { animate: false });
+        }
+
         function setMode(mode) {
             drumMachine.setMode(mode);
         }
 
         function generateBeat() {
             drumMachine.generateBeat();
+        }
+
+        function generateFullLoop() {
+            drumMachine.generateFullLoop();
         }
 
         function generateFillIn() {

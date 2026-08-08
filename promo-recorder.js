@@ -194,6 +194,7 @@
                 loopHistoryHadValue: false,
                 hashSnapshot: '',
                 scrollYSnapshot: 0,
+                workspaceTabSnapshot: 'drums',
                 loopSectionOpenSnapshot: false,
                 statusSnapshot: '',
                 appStateSnapshotted: false,
@@ -1148,6 +1149,9 @@
             }
             run.hashSnapshot = global.location ? global.location.hash : '';
             run.scrollYSnapshot = Number(global.scrollY || global.pageYOffset || 0);
+            run.workspaceTabSnapshot = typeof document !== 'undefined'
+                ? document.querySelector('[data-workspace-tab][aria-selected="true"]')?.dataset.workspaceTab || 'drums'
+                : 'drums';
             const section = typeof document !== 'undefined'
                 ? document.getElementById('loopLibrarySection') : null;
             run.loopSectionOpenSnapshot = Boolean(section && section.open);
@@ -1194,6 +1198,9 @@
                 const status = document.getElementById('status');
                 if (status && run.statusSnapshot) status.textContent = run.statusSnapshot;
             }
+            if (typeof global.setWorkspaceTab === 'function') {
+                global.setWorkspaceTab(run.workspaceTabSnapshot || 'drums', { animate: false });
+            }
             if (typeof global.scrollTo === 'function') {
                 global.scrollTo({ top: run.scrollYSnapshot, left: 0, behavior: 'auto' });
             }
@@ -1232,6 +1239,10 @@
 
         _scrollTo(target, run = this._run, durationSeconds = SCROLL_TWEEN_SECONDS) {
             if (typeof document === 'undefined' || typeof global.scrollTo !== 'function') return;
+            if (typeof global.setWorkspaceTab === 'function') {
+                if (target === 'synth') global.setWorkspaceTab('bass', { animate: false });
+                else if (target === 'top') global.setWorkspaceTab('drums', { animate: false });
+            }
             const element = target === 'synth'
                 ? document.getElementById('synthLane')
                 : target === 'library'
