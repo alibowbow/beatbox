@@ -209,7 +209,7 @@ async function main() {
             };
             const openHatPad = document.querySelector('.pad[data-key="R"]');
             openHatPad.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'mouse', button: 0 }));
-            openHatPad.dispatchEvent(new MouseEvent('click', { bubbles: true, button: 0 }));
+            openHatPad.dispatchEvent(new MouseEvent('click', { bubbles: true, button: 0, detail: 1 }));
             document.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', repeat: true, bubbles: true }));
             machine.playSound = originalPlaySound;
 
@@ -417,11 +417,11 @@ async function main() {
             `playback buttons were not synchronized while playing: ${JSON.stringify(result.playbackButtonsDuring)}`);
         assert(result.playbackButtonsAfterStop.every(button => button.pressed === 'false' && !button.playingClass),
             `playback buttons were not synchronized after stop: ${JSON.stringify(result.playbackButtonsAfterStop)}`);
-        assert(result.synthControlMetrics.buttonHeights.every(height => Math.abs(height - 40) < 0.5),
+        assert(result.synthControlMetrics.buttonHeights.every(height => Math.abs(height - 34) < 0.5),
             `bass action button heights differ: ${result.synthControlMetrics.buttonHeights.join(',')}`);
         assert(Math.max(...result.synthControlMetrics.buttonWidths) - Math.min(...result.synthControlMetrics.buttonWidths) < 0.5,
             `bass action button widths differ: ${result.synthControlMetrics.buttonWidths.join(',')}`);
-        assert(result.synthControlMetrics.settingHeights.every(height => Math.abs(height - 40) < 0.5),
+        assert(result.synthControlMetrics.settingHeights.every(height => Math.abs(height - 34) < 0.5),
             `bass setting heights differ: ${result.synthControlMetrics.settingHeights.join(',')}`);
         const plannedIntervals = result.steps.slice(1).map((step, index) => step.audioTime - result.steps[index].audioTime);
         assert(plannedIntervals.every(value => Math.abs(value - 0.125) < 0.00001), `unstable audio plan: ${plannedIntervals.join(',')}`);
@@ -546,11 +546,11 @@ async function main() {
                 };
             });
             assert(mobileControls.synthPlayVisible, 'bass-panel playback button is hidden on mobile');
-            assert(mobileControls.buttonHeights.every(height => Math.abs(height - 40) < 0.5),
+            assert(mobileControls.buttonHeights.every(height => Math.abs(height - 36) < 0.5),
                 `mobile bass action heights differ: ${mobileControls.buttonHeights.join(',')}`);
             assert(Math.max(...mobileControls.buttonWidths) - Math.min(...mobileControls.buttonWidths) < 0.5,
                 `mobile bass action widths differ: ${mobileControls.buttonWidths.join(',')}`);
-            assert(mobileControls.settingHeights.every(height => Math.abs(height - 40) < 0.5),
+            assert(mobileControls.settingHeights.every(height => Math.abs(height - 36) < 0.5),
                 `mobile bass setting heights differ: ${mobileControls.settingHeights.join(',')}`);
             assert(mobileControls.collapsedLibraryHeight <= 44,
                 `mobile collapsed loop library is too tall: ${mobileControls.collapsedLibraryHeight}px`);

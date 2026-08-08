@@ -14,6 +14,9 @@ lib-cov
 # Coverage directory used by tools like istanbul
 coverage
 
+# Local visual regression captures
+ui-captures*/
+
 # Dependency directories
 node_modules/
 

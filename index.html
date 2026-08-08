@@ -10,24 +10,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-0: #05070d;
-            --bg-1: #0b1020;
-            --surface: rgba(148, 163, 255, 0.05);
-            --surface-hi: rgba(148, 163, 255, 0.1);
-            --line: rgba(148, 163, 255, 0.14);
-            --line-hi: rgba(148, 163, 255, 0.32);
-            --text-hi: #eef2ff;
-            --text-mid: #aab3d6;
-            --text-dim: #6b7597;
-            --cyan: #22d3ee;
-            --violet: #a78bfa;
-            --rose: #fb7185;
-            --gold: #fbbf24;
-            --green: #34d399;
+            --bg-0: #090a0b;
+            --bg-1: #101214;
+            --surface: #14171a;
+            --surface-hi: #1b1f23;
+            --surface-raised: #20252a;
+            --line: #2e343a;
+            --line-hi: #48515a;
+            --text-hi: #f3f5f6;
+            --text-mid: #c0c6cb;
+            --text-dim: #8e989f;
+            --cyan: #39cffa;
+            --violet: #9b87f5;
+            --rose: #ff6b78;
+            --gold: #f5b942;
+            --green: #57d996;
             --font-body: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
             --font-disp: 'Orbitron', 'Noto Sans KR', sans-serif;
             --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-            --radius: 16px;
+            --radius: 10px;
+            --control-h: 44px;
+            --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.035) inset, 0 14px 36px rgba(0, 0, 0, 0.22);
         }
 
         * {
@@ -1993,10 +1996,1339 @@
             display: none;
         }
 
+        /* ───────── Console redesign · matte hardware workbench ───────── */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .skip-link {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            padding: 10px 14px;
+            border-radius: 7px;
+            background: var(--cyan);
+            color: #071014;
+            font-weight: 900;
+            transform: translateY(-150%);
+            transition: transform 0.16s ease;
+        }
+
+        .skip-link:focus {
+            transform: translateY(0);
+        }
+
+        body {
+            background-color: var(--bg-0);
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+                radial-gradient(900px 500px at 50% -180px, rgba(57, 207, 250, 0.08), transparent 70%);
+            background-size: 32px 32px, 32px 32px, auto;
+            min-height: 100dvh;
+            padding: 18px;
+        }
+
+        .container {
+            position: relative;
+            max-width: 1580px;
+            padding: 16px;
+            border-radius: 16px;
+            background: #0e1012;
+            border-color: #282d32;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+            backdrop-filter: none;
+        }
+
+        .app-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-width: 0;
+            padding: 0 2px 10px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .app-header {
+            min-width: 0;
+            margin: 0;
+            gap: 11px;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #171c20;
+            border-color: #3b5760;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        .logo-mark svg {
+            width: 19px;
+            height: 19px;
+        }
+
+        .title-block {
+            min-width: 0;
+        }
+
+        .title-block h1 {
+            gap: 8px;
+            font-size: clamp(1rem, 1.35vw, 1.28rem);
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+
+        .grad-text {
+            background: none;
+            -webkit-text-fill-color: var(--text-hi);
+            color: var(--text-hi);
+        }
+
+        .ver-badge {
+            padding: 3px 8px;
+            border: 1px solid #4d555d;
+            border-radius: 6px;
+            background: #22272c;
+            color: var(--text-mid);
+            box-shadow: none;
+        }
+
+        .tagline {
+            margin-top: 2px;
+            font-size: 8px;
+            letter-spacing: 0.22em;
+            color: var(--text-dim);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            min-width: 0;
+        }
+
+        .mode-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+            min-width: 196px;
+            margin: 0;
+            padding: 2px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: #0a0c0e;
+        }
+
+        .mode-btn {
+            min-height: 32px;
+            padding: 4px 9px;
+            border: 1px solid transparent;
+            border-radius: 5px;
+            background: transparent;
+            color: var(--text-dim);
+            box-shadow: none;
+            font-size: 11px;
+            gap: 5px;
+        }
+
+        .mode-btn .icon {
+            width: 13px;
+            height: 13px;
+        }
+
+        .mode-btn:hover {
+            transform: none;
+            box-shadow: none;
+            background: #171a1e;
+        }
+
+        .mode-btn.active {
+            border-color: #374047;
+            background: #20252a;
+            color: var(--text-hi);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
+        }
+
+        .mode-btn.active .icon {
+            color: var(--cyan);
+        }
+
+        .promo-recorder-panel {
+            margin: 0;
+            background: #0a0c0e;
+        }
+
+        .promo-recorder-summary {
+            opacity: 0.82;
+        }
+
+        .promo-recorder-panel[open] {
+            position: absolute;
+            z-index: 40;
+            top: 68px;
+            right: 34px;
+            background: #15191d;
+            box-shadow: var(--shadow-panel);
+        }
+
+        button {
+            min-height: 34px;
+            padding: 7px 12px;
+            gap: 6px;
+            border-radius: 6px;
+            border-color: var(--line);
+            background: var(--surface-hi);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            font-size: 12px;
+            transition: transform 0.12s ease, background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
+        }
+
+        button:hover {
+            border-color: var(--line-hi);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 5px 16px rgba(0, 0, 0, 0.22);
+        }
+
+        button:focus-visible,
+        summary:focus-visible,
+        a:focus-visible,
+        select:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 2px;
+        }
+
+        .top-transport {
+            display: grid;
+            grid-template-columns: minmax(290px, auto) minmax(230px, 0.62fr) minmax(340px, 1fr);
+            align-items: stretch;
+            gap: 6px;
+            margin: 8px 0;
+            padding: 6px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #131619;
+            box-shadow: var(--shadow-panel);
+        }
+
+        .transport-primary {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr 0.82fr;
+            gap: 5px;
+            margin: 0;
+        }
+
+        .transport-primary button {
+            width: 100%;
+            min-width: 0;
+            min-height: 48px;
+            padding: 7px 11px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .transport-primary .play-btn {
+            background: #152b34;
+            border-color: #2ba8ce;
+            color: #ecfbff;
+            text-shadow: none;
+            box-shadow: inset 0 0 0 1px rgba(57, 207, 250, 0.13);
+        }
+
+        .transport-primary .play-btn:hover {
+            background: #193642;
+            box-shadow: inset 0 0 0 1px rgba(57, 207, 250, 0.22);
+        }
+
+        .transport-primary .play-btn.is-playing {
+            border-color: var(--rose);
+            background: #3a1d24;
+            box-shadow: inset 0 0 0 1px rgba(255, 107, 120, 0.15);
+            animation: none;
+        }
+
+        .transport-primary .generate-btn,
+        .transport-primary .fill-btn {
+            background: #1a1e22;
+            border-color: #343a40;
+        }
+
+        .transport-primary .fill-btn .icon {
+            color: var(--gold);
+        }
+
+        .grid-mode-row {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            grid-template-rows: 1fr;
+            align-items: center;
+            gap: 4px;
+            min-width: 0;
+            padding: 4px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #0d0f11;
+        }
+
+        .transport-label {
+            padding: 0 2px;
+            font-family: var(--font-disp);
+            font-size: 7px;
+            letter-spacing: 0.2em;
+            color: var(--text-dim);
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+        }
+
+        .grid-mode-row .segmented {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+            padding: 0;
+            border: 0;
+            border-radius: 6px;
+            background: transparent;
+        }
+
+        .grid-mode-row .seg-btn {
+            min-width: 0;
+            min-height: 38px;
+            padding: 5px 7px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .seg-btn.active {
+            background: #17303a;
+            border-color: #2aa4c7;
+            color: var(--text-hi);
+        }
+
+        .top-transport .slider-rack {
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            min-width: 0;
+            margin: 0;
+        }
+
+        .top-transport .slider-group {
+            display: grid;
+            align-content: center;
+            gap: 4px;
+            min-width: 0;
+            padding: 5px 9px;
+            border-radius: 8px;
+            background: #0d0f11;
+        }
+
+        .top-transport .slider-head {
+            margin: 0;
+        }
+
+        .top-transport .slider-head label {
+            font-size: 10px;
+        }
+
+        .top-transport .slider-value {
+            font-size: 15px;
+        }
+
+        input[type="range"] {
+            height: 5px;
+            background: linear-gradient(to right, var(--cyan) 0 var(--val, 50%), #343a40 var(--val, 50%));
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            width: 17px;
+            height: 17px;
+            border: 3px solid var(--cyan);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .mobile-section-nav {
+            display: none;
+        }
+
+        .desktop-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 7fr) minmax(330px, 3fr);
+            gap: 12px;
+            margin: 0;
+            align-items: start;
+        }
+
+        .main-stack,
+        .right-rail,
+        .pad-slot {
+            display: grid;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .control-section {
+            min-width: 0;
+            padding: 14px;
+            border-radius: var(--radius);
+            border-color: var(--line);
+            background: var(--surface);
+            box-shadow: var(--shadow-panel);
+            scroll-margin-top: 12px;
+        }
+
+        .control-section h2 {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-height: 30px;
+            margin: 0 0 9px;
+            padding: 0 0 8px;
+            border-bottom: 1px solid var(--line);
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .control-section h2 .icon {
+            width: 17px;
+            height: 17px;
+            color: var(--cyan);
+        }
+
+        .sec-no {
+            font-size: 8px;
+            letter-spacing: 0.16em;
+            color: var(--text-dim);
+        }
+
+        .pattern-tools {
+            margin-bottom: 8px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #101316;
+            overflow: hidden;
+        }
+
+        .pattern-tools > summary {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 34px;
+            padding: 5px 9px;
+            list-style: none;
+            cursor: pointer;
+            color: var(--text-mid);
+            user-select: none;
+        }
+
+        .pattern-tools > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .pattern-tools > summary > span:first-child {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-weight: 800;
+        }
+
+        .pattern-tools > summary .icon {
+            width: 14px;
+            height: 14px;
+            color: var(--cyan);
+        }
+
+        .pattern-tools > summary small {
+            flex: 1;
+            color: var(--text-dim);
+            font-size: 10px;
+        }
+
+        .pattern-tools-chevron {
+            transition: transform 0.16s ease;
+        }
+
+        .pattern-tools[open] .pattern-tools-chevron {
+            transform: rotate(180deg);
+        }
+
+        .pattern-tools-body {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+            gap: 8px;
+            padding: 8px;
+            border-top: 1px solid var(--line);
+        }
+
+        .pattern-tool-block {
+            min-width: 0;
+        }
+
+        .pattern-file-actions {
+            grid-column: 1 / -1;
+            margin: 0;
+        }
+
+        .pattern-file-actions button {
+            min-height: 32px;
+            padding: 5px 9px;
+            font-size: 10.5px;
+        }
+
+        .group-label {
+            margin: 0 0 5px;
+            font-size: 8px;
+            letter-spacing: 0.2em;
+        }
+
+        .genre-selector {
+            gap: 4px;
+            margin: 0;
+        }
+
+        .genre-btn {
+            min-height: 30px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: #181c20;
+            font-size: 10.5px;
+        }
+
+        .euclid-panel {
+            gap: 5px;
+            margin: 0;
+            padding: 6px;
+            border-radius: 7px;
+            background: #0b0d0f;
+        }
+
+        .euclid-select {
+            min-height: 32px;
+            border-radius: 6px;
+            background: #1b1f23;
+        }
+
+        .euclid-apply {
+            min-height: 32px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            background: #17303a;
+        }
+
+        .grid-hint {
+            min-height: 30px;
+            margin-bottom: 7px;
+            color: var(--text-dim);
+        }
+
+        .autoscroll-toggle {
+            min-height: 30px;
+            padding: 4px 7px;
+            border-radius: 6px;
+            background: #191d21;
+        }
+
+        .beat-grid {
+            width: 100%;
+            max-width: 100%;
+            gap: 3px;
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(3, 6, 14, 0.62);
+            border-color: var(--line);
+            scrollbar-color: rgba(148, 163, 255, 0.3) rgba(255, 255, 255, 0.04);
+        }
+
+        .grid-row,
+        .grid-cell-slot {
+            display: contents;
+        }
+
+        .grid-corner,
+        .sound-label {
+            background: #0d1226;
+        }
+
+        .grid-corner {
+            padding: 0 10px 4px 0;
+        }
+
+        .sound-label {
+            min-width: 0;
+            min-height: 30px;
+            height: auto;
+            padding: 0 8px 0 10px;
+            border: 0;
+            border-left: 3px solid var(--sound-color);
+            border-radius: 8px;
+            box-shadow: 6px 0 10px -6px rgba(0, 0, 0, 0.7);
+            text-align: left;
+        }
+
+        .sound-label .key-chip {
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .beat-cell {
+            display: block;
+            width: auto;
+            min-width: 0;
+            height: auto;
+            min-height: 30px;
+            aspect-ratio: 1;
+            padding: 0;
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.035);
+            box-shadow: none;
+        }
+
+        .beat-cell.g-alt {
+            background: rgba(148, 163, 255, 0.07);
+        }
+
+        .beat-cell.active {
+            box-shadow:
+                0 0 12px color-mix(in srgb, var(--sound-color) 60%, transparent),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .pattern-monitor-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin: -2px 0 9px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--text-dim);
+        }
+
+        .live-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--green);
+            font-weight: 800;
+        }
+
+        .live-chip i {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        .pattern-display {
+            min-height: 190px;
+            max-height: 300px;
+            padding: 13px;
+            border-radius: 7px;
+            border-color: #2b3136;
+            background: #090b0d;
+            font-size: 10px;
+            line-height: 1.72;
+            color: #aeb7bd;
+            overflow: auto;
+        }
+
+        .control-section.loop-library {
+            margin: 0;
+            padding: 0;
+            border-radius: 8px;
+        }
+
+        .loop-library-summary {
+            min-height: 30px;
+            padding: 4px 8px;
+        }
+
+        .loop-library-body {
+            padding: 0 10px 10px;
+        }
+
+        .loop-library-copy {
+            margin: 10px 0;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .loop-library-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+            margin-bottom: 9px;
+        }
+
+        .loop-library-actions button {
+            min-width: 0;
+            min-height: 32px;
+            padding: 5px 7px;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .drum-pads .kit-row,
+        .drum-pads .kit-row .segmented {
+            width: 100%;
+        }
+
+        .drum-pads .kit-row .segmented {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            padding: 2px;
+            border-radius: 7px;
+        }
+
+        .drum-pads .kit-row .seg-btn {
+            min-width: 0;
+            min-height: 32px;
+            padding: 5px 6px;
+            border-radius: 5px;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .drum-kit-grid {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .pad {
+            min-width: 0;
+            min-height: 72px;
+            padding: 10px 4px 9px;
+            border-radius: 6px;
+            background: linear-gradient(180deg, #262b30, #181b1f);
+            border-color: #363c42;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .pad:hover {
+            transform: translateY(-1px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 5px 12px rgba(0, 0, 0, 0.26);
+        }
+
+        .pad-key {
+            font-size: 16px;
+            text-shadow: none;
+        }
+
+        .pad-name {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 9px;
+            white-space: nowrap;
+        }
+
+        .pad-tag {
+            font-size: 7px;
+        }
+
+        .synth-controls {
+            gap: 5px;
+            margin-bottom: 7px;
+        }
+
+        .synth-action-row,
+        .synth-setting-grid {
+            gap: 5px;
+        }
+
+        .synth-action-row .synth-panel-btn,
+        .synth-ctl {
+            height: 34px;
+            border-radius: 6px;
+        }
+
+        .synth-action-row .synth-panel-btn {
+            padding: 5px 7px;
+            font-size: 10.5px;
+        }
+
+        .synth-ctl {
+            padding: 3px 4px 3px 8px;
+            font-size: 10.5px;
+        }
+
+        .synth-ctl select {
+            height: 26px;
+            padding: 0 7px;
+            font-size: 11px;
+        }
+
+        .custom-pad-trigger {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            width: 100%;
+            min-height: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .custom-pad-trigger:hover,
+        .custom-pad-trigger:active {
+            transform: none;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .custom-sound-form label {
+            display: grid;
+            gap: 4px;
+            flex: 1 1 120px;
+            color: var(--text-dim);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        #customKey,
+        #customName {
+            width: 100%;
+        }
+
+        .status {
+            min-height: 34px;
+            margin: 10px 0 0;
+            padding: 7px 12px;
+            border-radius: 7px;
+            background: #0c0e10;
+            font-size: 11px;
+            color: #9ddff1;
+        }
+
+        .status::before {
+            width: 6px;
+            height: 6px;
+            box-shadow: none;
+            animation: none;
+        }
+
+        .mic-status {
+            margin: 0 0 10px;
+        }
+
+        .keyboard-hints {
+            margin-top: 10px;
+            padding: 0;
+            border-radius: 8px;
+            background: #0c0e10;
+        }
+
+        .keyboard-hints > summary {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 34px;
+            padding: 5px 9px;
+            list-style: none;
+            cursor: pointer;
+            color: var(--text-mid);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .keyboard-hints > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .keyboard-hints > summary span {
+            margin-left: auto;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--text-dim);
+        }
+
+        .keyboard-hints-body {
+            padding: 0 12px 11px;
+            border-top: 1px solid var(--line);
+        }
+
+        .app-footer {
+            margin-top: 12px;
+            font-size: 8px;
+            color: #6f787f;
+        }
+
+        @media (max-width: 1100px) {
+            .top-transport {
+                grid-template-columns: minmax(330px, 1fr) minmax(245px, 0.7fr);
+            }
+
+            .top-transport .slider-rack {
+                grid-column: 1 / -1;
+            }
+
+            .desktop-layout {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .right-rail {
+                grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+                align-items: start;
+            }
+
+            .right-rail .pattern-panel,
+            .right-rail .loop-library {
+                grid-column: 1;
+            }
+
+            .right-rail .pad-slot {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+            }
+        }
+
+        @media (max-width: 820px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 12px;
+                border-radius: 13px;
+            }
+
+            .top-transport {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .top-transport .slider-rack {
+                grid-column: auto;
+            }
+
+            .right-rail {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .right-rail .loop-library {
+                order: 1;
+            }
+
+            .right-rail .pad-slot {
+                order: 2;
+                width: 100%;
+            }
+
+            .right-rail .pattern-panel {
+                order: 3;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 680px) {
+            body {
+                padding: 6px;
+                background-size: 24px 24px, 24px 24px, auto;
+            }
+
+            .container {
+                padding: 7px;
+                border-radius: 11px;
+            }
+
+            .app-topbar {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 6px;
+                padding-bottom: 7px;
+            }
+
+            .app-header {
+                gap: 7px;
+            }
+
+            .logo-mark {
+                width: 34px;
+                height: 34px;
+            }
+
+            .title-block h1 {
+                gap: 5px;
+                font-size: 0.92rem;
+            }
+
+            .ver-badge {
+                padding: 2px 5px;
+                font-size: 7px;
+            }
+
+            .tagline {
+                display: none;
+            }
+
+            .topbar-actions {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 5px;
+            }
+
+            .mode-selector {
+                min-width: 0;
+            }
+
+            .mode-btn {
+                min-width: 0;
+                min-height: 34px;
+                padding: 4px 6px;
+                font-size: 10.5px;
+                white-space: nowrap;
+            }
+
+            .promo-recorder-panel[open] {
+                top: 104px;
+                right: 15px;
+                width: calc(100% - 30px);
+            }
+
+            .top-transport {
+                grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+                gap: 4px;
+                margin: 6px 0;
+                padding: 4px;
+            }
+
+            .transport-primary {
+                grid-column: 1 / -1;
+                grid-template-columns: 1.18fr 1fr 0.84fr;
+            }
+
+            .transport-primary button {
+                min-height: 44px;
+                padding: 6px 5px;
+                font-size: 11px;
+                gap: 4px;
+            }
+
+            .grid-mode-row {
+                grid-column: 1;
+                grid-template-columns: auto minmax(0, 1fr);
+                grid-template-rows: 1fr;
+                align-items: center;
+                min-height: 44px;
+            }
+
+            .transport-label {
+                writing-mode: vertical-rl;
+                transform: rotate(180deg);
+                font-size: 7px;
+            }
+
+            .grid-mode-row .seg-btn {
+                min-height: 34px;
+                padding: 4px 5px;
+                font-size: 10px;
+            }
+
+            .grid-mode-row .seg-btn small {
+                display: none;
+            }
+
+            .top-transport .slider-rack {
+                grid-column: 2;
+                grid-template-columns: 1fr 1fr;
+                gap: 4px;
+            }
+
+            .top-transport .slider-group {
+                gap: 3px;
+                padding: 5px;
+            }
+
+            .top-transport .slider-head {
+                justify-content: center;
+            }
+
+            .top-transport .slider-head label {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border: 0;
+            }
+
+            .top-transport .slider-value {
+                font-size: 13px;
+            }
+
+            .mobile-section-nav {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 3px;
+                margin: 0 0 6px;
+                padding: 2px;
+                border: 1px solid var(--line);
+                border-radius: 8px;
+                background: #0b0d0f;
+            }
+
+            .mobile-section-nav a {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                min-width: 0;
+                min-height: 38px;
+                border-radius: 5px;
+                color: var(--text-dim);
+                font-size: 10.5px;
+                font-weight: 800;
+                text-decoration: none;
+            }
+
+            .mobile-section-nav a.active {
+                background: #19242a;
+                color: var(--text-hi);
+            }
+
+            .mobile-section-nav .icon {
+                width: 14px;
+                height: 14px;
+            }
+
+            .desktop-layout,
+            .main-stack,
+            .right-rail,
+            .pad-slot {
+                gap: 8px;
+            }
+
+            .control-section {
+                padding: 8px;
+                border-radius: 8px;
+                scroll-margin-top: 8px;
+            }
+
+            .control-section h2 {
+                min-height: 24px;
+                margin-bottom: 7px;
+                padding-bottom: 6px;
+                font-size: 12px;
+            }
+
+            .sec-no {
+                font-size: 6.5px;
+                letter-spacing: 0.11em;
+            }
+
+            .pattern-tools {
+                margin-bottom: 6px;
+            }
+
+            .pattern-tools > summary {
+                min-height: 36px;
+                padding: 5px 8px;
+                font-size: 10.5px;
+            }
+
+            .pattern-tools > summary small {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .pattern-tools-body {
+                grid-template-columns: minmax(0, 1fr);
+                padding: 7px;
+            }
+
+            .pattern-file-actions {
+                grid-column: auto;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .pattern-file-actions button {
+                min-width: 0;
+                padding: 5px 4px;
+                font-size: 9px;
+            }
+
+            .genre-btn {
+                min-height: 32px;
+            }
+
+            .grid-hint {
+                gap: 5px;
+                font-size: 9.5px;
+            }
+
+            .grid-hint .hint-text {
+                flex: 1 1 100%;
+                order: -1;
+            }
+
+            .autoscroll-toggle {
+                flex: 1 1 0;
+                min-height: 32px;
+                padding: 4px 5px;
+                font-size: 9px;
+            }
+
+            .beat-grid {
+                gap: 3px;
+                padding: 10px 10px 12px;
+            }
+
+            .beat-cell {
+                height: 30px;
+                min-height: 0;
+                aspect-ratio: auto;
+                border-radius: 6px;
+            }
+
+            .sound-label {
+                height: auto;
+                min-height: 30px;
+                padding: 0 5px 0 7px;
+            }
+
+            .synth-action-row,
+            .synth-setting-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .synth-action-row .synth-panel-btn,
+            .synth-ctl {
+                height: 36px;
+            }
+
+            .loop-library-summary {
+                min-height: 34px;
+            }
+
+            .loop-library-summary .sec-no {
+                display: none;
+            }
+
+            .drum-kit-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                gap: 5px;
+            }
+
+            .pad {
+                min-height: 64px;
+                padding: 8px 3px 7px;
+            }
+
+            .pad-key {
+                font-size: 15px;
+            }
+
+            .pad-name {
+                font-size: 8px;
+            }
+
+            .pad-tag {
+                display: none;
+            }
+
+            .pattern-display {
+                min-height: 150px;
+                max-height: 220px;
+            }
+
+            .keyboard-hints > summary {
+                min-height: 36px;
+            }
+        }
+
+        @media (pointer: coarse) {
+            .mode-btn,
+            .genre-btn,
+            .autoscroll-toggle,
+            .grid-mode-row .seg-btn,
+            .synth-action-row .synth-panel-btn,
+            .synth-setting-grid .synth-ctl,
+            .custom-pad-trigger,
+            .mobile-section-nav a,
+            .keyboard-hints > summary,
+            .pattern-tools > summary,
+            .promo-recorder-summary,
+            .promo-recorder-actions button,
+            .pattern-file-actions button,
+            .euclid-apply,
+            .custom-mode-only .button-row button,
+            .custom-sound-form button,
+            .record-btn,
+            .stop-btn,
+            .loop-library-summary,
+            .loop-library-actions button,
+            .drum-pads .kit-row .seg-btn,
+            .loop-history-delete {
+                min-height: 42px;
+            }
+
+            .synth-action-row .synth-panel-btn,
+            .synth-setting-grid .synth-ctl,
+            select,
+            input[type="text"] {
+                height: 42px;
+            }
+
+            input[type="range"] {
+                min-height: 42px;
+            }
+
+            .top-transport .slider-group {
+                position: relative;
+                align-content: start;
+                min-height: 54px;
+                padding-bottom: 18px;
+            }
+
+            .top-transport input[type="range"] {
+                position: absolute;
+                left: 5px;
+                right: 5px;
+                bottom: 0;
+                width: calc(100% - 10px);
+                height: 5px;
+                min-height: 0;
+                padding: 18.5px 0;
+                box-sizing: content-box;
+                background-clip: content-box;
+            }
+
+            .synth-setting-grid .synth-ctl select {
+                height: 36px;
+            }
+
+            .loop-history-delete {
+                width: 42px;
+                height: 42px;
+            }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
             }
         }
     </style>
@@ -2029,122 +3361,145 @@
         <symbol id="i-link" viewBox="0 0 24 24"><path d="M9.5 14.5 14.5 9.5M7.2 16.8l-1.1 1.1a3.5 3.5 0 0 1-5-5l3.6-3.6a3.5 3.5 0 0 1 5 0M16.8 7.2l1.1-1.1a3.5 3.5 0 1 1 5 5l-3.6 3.6a3.5 3.5 0 0 1-5 0" transform="translate(-.05 -.05) scale(.96)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     </svg>
 
+    <a class="skip-link" href="#transportControls">작업 화면으로 건너뛰기</a>
     <div class="container">
-        <header class="app-header">
-            <div class="logo-mark"><svg class="icon"><use href="#i-drum"/></svg></div>
-            <div class="title-block">
-                <h1>프로페셔널 <span class="grad-text">드럼머신</span> <span class="ver-badge">PRO V2.0</span></h1>
-                <p class="tagline">Pro Beat Station &middot; Web Audio Engine</p>
-            </div>
-        </header>
+        <div class="app-topbar">
+            <header class="app-header">
+                <div class="logo-mark"><svg class="icon"><use href="#i-drum"/></svg></div>
+                <div class="title-block">
+                    <h1>프로페셔널 <span class="grad-text">드럼머신</span> <span class="ver-badge">PRO V2.0</span></h1>
+                    <p class="tagline">Pro Beat Station &middot; Web Audio Engine</p>
+                </div>
+            </header>
 
-        <div class="mode-selector">
-            <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')"><svg class="icon"><use href="#i-drum"/></svg> 일반 드럼 모드</button>
-            <button class="mode-btn" data-mode="custom" onclick="setMode('custom')"><svg class="icon"><use href="#i-mic"/></svg> 커스텀 비트박스 모드</button>
-        </div>
-
-        <details class="promo-recorder-panel" id="promoRecorderPanel" data-beatbox-promo-panel>
-            <summary class="promo-recorder-summary" aria-label="홍보 영상 스튜디오 열기" title="홍보 영상 스튜디오">
-                <svg class="icon" aria-hidden="true"><use href="#i-rec"/></svg><span>영상</span>
-            </summary>
-            <div class="promo-recorder-actions">
-                <button class="promo-preview-btn" id="promoPreviewBtn" onclick="previewPromo()"><svg class="icon"><use href="#i-play"/></svg> 데모 미리보기</button>
-                <button class="promo-record-btn" id="promoRecordBtn" onclick="recordPromo()"><svg class="icon"><use href="#i-rec"/></svg> 세로 영상 녹화</button>
-                <button class="danger-btn" id="promoCancelBtn" onclick="cancelPromo()" hidden><svg class="icon"><use href="#i-stop"/></svg> 중지</button>
-                <span class="promo-record-state" id="promoRecordState" role="status" aria-live="polite">READY · 1080×1920</span>
-            </div>
-        </details>
-
-        <div class="desktop-layout">
-            <div class="control-section">
-                <h3><svg class="icon"><use href="#i-sliders"/></svg> 비트 &amp; 리듬 시퀀서 <span class="sec-no">MODULE 01</span></h3>
-
-                <div class="transport">
-                    <button class="play-btn" id="playBtn" data-playback-toggle onclick="togglePlayback()" aria-pressed="false"><svg class="icon"><use href="#i-play"/></svg> 재생</button>
-                    <button class="generate-btn" onclick="generateBeat()"><svg class="icon"><use href="#i-dice"/></svg> 새 비트 생성</button>
-                    <button class="fill-btn" onclick="generateFillIn()"><svg class="icon"><use href="#i-bolt"/></svg> 필인 생성</button>
+            <div class="topbar-actions">
+                <div class="mode-selector" role="group" aria-label="사운드 모드">
+                    <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')" aria-pressed="true"><svg class="icon"><use href="#i-drum"/></svg> 일반 드럼</button>
+                    <button class="mode-btn" data-mode="custom" onclick="setMode('custom')" aria-pressed="false"><svg class="icon"><use href="#i-mic"/></svg> 커스텀</button>
                 </div>
 
-                <div class="button-row">
-                    <div class="segmented">
-                        <button onclick="setGridMode('16')" id="grid16Btn" class="seg-btn active" data-grid="16"><svg class="icon"><use href="#i-grid"/></svg> 16 스텝 <small>4/4</small></button>
-                        <button onclick="setGridMode('24')" id="grid24Btn" class="seg-btn" data-grid="24"><svg class="icon"><use href="#i-triplet"/></svg> 24 스텝 <small>3연음</small></button>
+                <details class="promo-recorder-panel" id="promoRecorderPanel" data-beatbox-promo-panel>
+                    <summary class="promo-recorder-summary" aria-label="홍보 영상 스튜디오" title="홍보 영상 스튜디오">
+                        <svg class="icon" aria-hidden="true"><use href="#i-rec"/></svg><span>영상</span>
+                    </summary>
+                    <div class="promo-recorder-actions">
+                        <button class="promo-preview-btn" id="promoPreviewBtn" onclick="previewPromo()"><svg class="icon"><use href="#i-play"/></svg> 데모 미리보기</button>
+                        <button class="promo-record-btn" id="promoRecordBtn" onclick="recordPromo()"><svg class="icon"><use href="#i-rec"/></svg> 세로 영상 녹화</button>
+                        <button class="danger-btn" id="promoCancelBtn" onclick="cancelPromo()" hidden><svg class="icon"><use href="#i-stop"/></svg> 중지</button>
+                        <span class="promo-record-state" id="promoRecordState" role="status" aria-live="polite">READY · 1080×1920</span>
                     </div>
-                </div>
-
-                <div class="group-label">Genre Presets</div>
-                <div class="genre-selector">
-                    <button class="genre-btn" data-genre="rock" onclick="loadGenrePattern('rock')">🎸 록</button>
-                    <button class="genre-btn" data-genre="jazz" onclick="loadGenrePattern('jazz')">🎷 재즈</button>
-                    <button class="genre-btn" data-genre="funk" onclick="loadGenrePattern('funk')">🎺 펑크</button>
-                    <button class="genre-btn" data-genre="shuffle" onclick="loadGenrePattern('shuffle')">🎶 셔플</button>
-                    <button class="genre-btn" data-genre="hiphop" onclick="loadGenrePattern('hiphop')">🎤 힙합</button>
-                    <button class="genre-btn" data-genre="edm" onclick="loadGenrePattern('edm')">🎧 EDM</button>
-                    <button class="genre-btn" data-genre="reggae" onclick="loadGenrePattern('reggae')">🌴 레게</button>
-                    <button class="genre-btn" data-genre="metal" onclick="loadGenrePattern('metal')">🤘 메탈</button>
-                </div>
-
-                <div class="group-label">Euclidean Generator</div>
-                <div class="euclid-panel">
-                    <select id="euclidInst" class="euclid-select" title="유클리드 리듬을 채울 악기"></select>
-                    <div class="euclid-field">
-                        <span class="euclid-lbl">펄스 <b id="euclidPulsesVal">4</b></span>
-                        <input type="range" id="euclidPulses" min="0" max="16" value="4" style="--val: 25%" oninput="updateEuclidUI()">
-                    </div>
-                    <div class="euclid-field">
-                        <span class="euclid-lbl">회전 <b id="euclidRotateVal">0</b></span>
-                        <input type="range" id="euclidRotate" min="0" max="15" value="0" style="--val: 0%" oninput="updateEuclidUI()">
-                    </div>
-                    <button class="euclid-apply" onclick="applyEuclid()"><svg class="icon"><use href="#i-grid"/></svg> 적용</button>
-                </div>
-
-                <div class="button-row">
-                    <button onclick="exportPattern()"><svg class="icon"><use href="#i-save"/></svg> JSON 내보내기</button>
-                    <button onclick="importPattern()"><svg class="icon"><use href="#i-folder"/></svg> JSON 불러오기</button>
-                    <button class="danger-btn" onclick="clearBeat()"><svg class="icon"><use href="#i-trash"/></svg> 초기화</button>
-                </div>
-                <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadPattern(this)">
-
-                <div class="slider-rack">
-                    <div class="slider-group">
-                        <div class="slider-head">
-                            <label for="tempo"><svg class="icon"><use href="#i-metro"/></svg> 템포</label>
-                            <span class="slider-value"><span id="tempoValue">120</span><small>BPM</small></span>
-                        </div>
-                        <input type="range" id="tempo" min="60" max="200" value="120" style="--val: 42.9%" oninput="updateTempo(this.value)">
-                    </div>
-                    <div class="slider-group">
-                        <div class="slider-head">
-                            <label for="swing"><svg class="icon"><use href="#i-wave"/></svg> 스윙</label>
-                            <span class="slider-value"><span id="swingValue">0</span><small>%</small></span>
-                        </div>
-                        <input type="range" id="swing" min="0" max="70" value="0" style="--val: 0%" oninput="updateSwing(this.value)">
-                    </div>
-                </div>
-
-                <div class="grid-hint">
-                    <svg class="icon"><use href="#i-bulb"/></svg>
-                    <span class="hint-text">클릭: 비트 켜기/끄기 · 우클릭/길게누르기: 발음 확률(100→75→50→25%)</span>
-                    <button class="autoscroll-toggle muteall-toggle" id="muteAllToggle" onclick="toggleMuteAll()" aria-pressed="false" title="드럼 전체 뮤트/해제 (신스는 계속 재생)">
-                        <svg class="icon"><use href="#i-mute"/></svg>
-                        <span>드럼 뮤트 <b>OFF</b></span>
-                    </button>
-                    <button class="autoscroll-toggle" id="autoScrollToggle" onclick="toggleAutoScroll()" aria-pressed="false" title="재생 중 현재 스텝을 자동으로 따라가도록 스크롤">
-                        <svg class="icon"><use href="#i-autoscroll"/></svg>
-                        <span>오토스크롤 <b>OFF</b></span>
-                    </button>
-                </div>
-                <div class="beat-grid grid-16" id="beatGrid"></div>
-            </div>
-
-            <div class="control-section">
-                <h3><svg class="icon"><use href="#i-chart"/></svg> 패턴 표시 <span class="sec-no">MODULE 02</span></h3>
-                <div class="pattern-display" id="patternDisplay">여기에 생성된 패턴이 표시됩니다</div>
+                </details>
             </div>
         </div>
 
-        <div class="control-section" id="synthLane" style="margin-bottom: 8px;">
-            <h3><svg class="icon"><use href="#i-music"/></svg> 베이스 · 멜로디 신스 <span class="sec-no">MODULE 05</span></h3>
+        <section class="top-transport controls" id="transportControls" aria-label="재생과 템포 컨트롤" tabindex="-1">
+            <div class="transport transport-primary">
+                <button class="play-btn" id="playBtn" data-playback-toggle onclick="togglePlayback()" aria-pressed="false" aria-keyshortcuts="Space"><svg class="icon"><use href="#i-play"/></svg> 재생</button>
+                <button class="generate-btn" onclick="generateBeat()" aria-keyshortcuts="Enter"><svg class="icon"><use href="#i-dice"/></svg> 새 비트</button>
+                <button class="fill-btn" onclick="generateFillIn()"><svg class="icon"><use href="#i-bolt"/></svg> 필인</button>
+            </div>
+
+            <div class="grid-mode-row">
+                <span class="transport-label">SEQUENCE</span>
+                <div class="segmented" role="group" aria-label="시퀀서 길이">
+                    <button onclick="setGridMode('16')" id="grid16Btn" class="seg-btn active" data-grid="16" aria-pressed="true"><svg class="icon"><use href="#i-grid"/></svg> 16 스텝 <small>4/4</small></button>
+                    <button onclick="setGridMode('24')" id="grid24Btn" class="seg-btn" data-grid="24" aria-pressed="false"><svg class="icon"><use href="#i-triplet"/></svg> 24 스텝 <small>3연음</small></button>
+                </div>
+            </div>
+
+            <div class="slider-rack">
+                <div class="slider-group">
+                    <div class="slider-head">
+                        <label for="tempo"><svg class="icon"><use href="#i-metro"/></svg> 템포</label>
+                        <span class="slider-value"><span id="tempoValue">120</span><small>BPM</small></span>
+                    </div>
+                    <input type="range" id="tempo" min="60" max="200" value="120" style="--val: 42.9%" oninput="updateTempo(this.value)" aria-valuetext="120 BPM">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-head">
+                        <label for="swing"><svg class="icon"><use href="#i-wave"/></svg> 스윙</label>
+                        <span class="slider-value"><span id="swingValue">0</span><small>%</small></span>
+                    </div>
+                    <input type="range" id="swing" min="0" max="70" value="0" style="--val: 0%" oninput="updateSwing(this.value)" aria-valuetext="0 퍼센트">
+                </div>
+            </div>
+        </section>
+
+        <nav class="mobile-section-nav" aria-label="작업 영역 바로가기">
+            <a href="#sequencerPanel" class="active" aria-current="location"><svg class="icon"><use href="#i-grid"/></svg> 시퀀서</a>
+            <a href="#synthLane"><svg class="icon"><use href="#i-music"/></svg> 베이스</a>
+            <a href="#performancePads"><svg class="icon"><use href="#i-drum"/></svg> 패드</a>
+        </nav>
+
+        <main class="desktop-layout" id="main-content">
+            <div class="main-stack">
+                <section class="control-section sequencer" id="sequencerPanel" aria-labelledby="sequencerTitle">
+                    <h2 id="sequencerTitle"><svg class="icon"><use href="#i-sliders"/></svg> 드럼 시퀀서 <span class="sec-no">01 / SEQUENCER</span></h2>
+
+                    <details class="pattern-tools" id="patternTools" open>
+                        <summary>
+                            <span><svg class="icon"><use href="#i-sliders"/></svg> 패턴 도구</span>
+                            <small>프리셋 · 유클리드 · 파일</small>
+                            <span class="pattern-tools-chevron" aria-hidden="true">▾</span>
+                        </summary>
+                        <div class="pattern-tools-body">
+                            <div class="pattern-tool-block">
+                                <div class="group-label">Genre Presets</div>
+                                <div class="genre-selector">
+                                    <button class="genre-btn" data-genre="rock" onclick="loadGenrePattern('rock')" aria-pressed="false">🎸 록</button>
+                                    <button class="genre-btn" data-genre="jazz" onclick="loadGenrePattern('jazz')" aria-pressed="false">🎷 재즈</button>
+                                    <button class="genre-btn" data-genre="funk" onclick="loadGenrePattern('funk')" aria-pressed="false">🎺 펑크</button>
+                                    <button class="genre-btn" data-genre="shuffle" onclick="loadGenrePattern('shuffle')" aria-pressed="false">🎶 셔플</button>
+                                    <button class="genre-btn" data-genre="hiphop" onclick="loadGenrePattern('hiphop')" aria-pressed="false">🎤 힙합</button>
+                                    <button class="genre-btn" data-genre="edm" onclick="loadGenrePattern('edm')" aria-pressed="false">🎧 EDM</button>
+                                    <button class="genre-btn" data-genre="reggae" onclick="loadGenrePattern('reggae')" aria-pressed="false">🌴 레게</button>
+                                    <button class="genre-btn" data-genre="metal" onclick="loadGenrePattern('metal')" aria-pressed="false">🤘 메탈</button>
+                                </div>
+                            </div>
+
+                            <div class="pattern-tool-block">
+                                <div class="group-label">Euclidean Generator</div>
+                                <div class="euclid-panel">
+                                    <label class="sr-only" for="euclidInst">유클리드 리듬 악기</label>
+                                    <select id="euclidInst" class="euclid-select" title="유클리드 리듬을 채울 악기"></select>
+                                    <div class="euclid-field">
+                                        <label class="euclid-lbl" for="euclidPulses">펄스 <b id="euclidPulsesVal">4</b></label>
+                                        <input type="range" id="euclidPulses" min="0" max="16" value="4" style="--val: 25%" oninput="updateEuclidUI()">
+                                    </div>
+                                    <div class="euclid-field">
+                                        <label class="euclid-lbl" for="euclidRotate">회전 <b id="euclidRotateVal">0</b></label>
+                                        <input type="range" id="euclidRotate" min="0" max="15" value="0" style="--val: 0%" oninput="updateEuclidUI()">
+                                    </div>
+                                    <button class="euclid-apply" onclick="applyEuclid()"><svg class="icon"><use href="#i-grid"/></svg> 적용</button>
+                                </div>
+                            </div>
+
+                            <div class="button-row pattern-file-actions">
+                                <button onclick="exportPattern()"><svg class="icon"><use href="#i-save"/></svg> JSON 내보내기</button>
+                                <button onclick="importPattern()"><svg class="icon"><use href="#i-folder"/></svg> JSON 불러오기</button>
+                                <button class="danger-btn" onclick="clearBeat()" aria-keyshortcuts="Backspace"><svg class="icon"><use href="#i-trash"/></svg> 초기화</button>
+                            </div>
+                        </div>
+                    </details>
+                    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadPattern(this)">
+
+                    <div class="grid-hint">
+                        <svg class="icon"><use href="#i-bulb"/></svg>
+                        <span class="hint-text">탭: 비트 켜기 · P: 발음 확률 · 방향키: 셀 이동 · 좌우로 스크롤</span>
+                        <button class="autoscroll-toggle muteall-toggle" id="muteAllToggle" onclick="toggleMuteAll()" aria-pressed="false" title="드럼 전체 뮤트/해제 (신스는 계속 재생)">
+                            <svg class="icon"><use href="#i-mute"/></svg>
+                            <span>드럼 뮤트 <b>OFF</b></span>
+                        </button>
+                        <button class="autoscroll-toggle" id="autoScrollToggle" onclick="toggleAutoScroll()" aria-pressed="false" title="재생 중 현재 스텝을 자동으로 따라가도록 스크롤">
+                            <svg class="icon"><use href="#i-autoscroll"/></svg>
+                            <span>오토스크롤 <b>OFF</b></span>
+                        </button>
+                    </div>
+                    <div class="beat-grid grid-16" id="beatGrid" role="grid" aria-label="드럼 스텝 시퀀서"></div>
+                </section>
+
+                <section class="control-section bass-section" id="synthLane" aria-labelledby="synthTitle">
+                    <h2 id="synthTitle"><svg class="icon"><use href="#i-music"/></svg> 베이스 · 멜로디 <span class="sec-no">02 / BASS</span></h2>
             <div class="synth-controls">
                 <div class="synth-action-row">
                     <button class="synth-panel-btn synth-play-btn" id="synthPlayBtn" data-playback-toggle data-play-label="루프 재생" data-stop-label="루프 정지" onclick="togglePlayback()" aria-pressed="false" title="드럼과 베이스 루프 함께 재생/정지"><svg class="icon"><use href="#i-play"/></svg> 루프 재생</button>
@@ -2178,60 +3533,76 @@
                 <svg class="icon"><use href="#i-bulb"/></svg>
                 <span class="hint-text">칸을 눌러 음을 배치하세요 · 한 스텝엔 한 음(모노) · 스케일에 맞춰 항상 어울립니다</span>
             </div>
-            <div class="beat-grid" id="synthGrid"></div>
-        </div>
+                    <div class="beat-grid" id="synthGrid" role="grid" aria-label="베이스 음정 시퀀서"></div>
+                </section>
+            </div>
 
-        <details class="control-section loop-library" id="loopLibrarySection">
-            <summary class="loop-library-summary">
-                <svg class="icon"><use href="#i-folder"/></svg>
-                <span class="loop-library-title">내 드럼 &amp; 베이스 저장소</span>
-                <span class="sec-no">MODULE 06</span>
-                <span class="loop-library-chevron" aria-hidden="true">▾</span>
-            </summary>
-            <div class="loop-library-body">
-                <p class="loop-library-copy">일반 드럼 모드의 패턴과 베이스 멜로디를 함께 저장해 다시 열거나, <strong>#s= 해시 링크</strong> 하나로 그대로 공유하세요. 마이크로 녹음한 커스텀 모드는 저장·공유 대상에서 제외됩니다.</p>
-                <div class="loop-library-actions">
-                    <button class="loop-share-btn" id="shareLoopBtn" onclick="shareCurrentLoop()"><svg class="icon"><use href="#i-link"/></svg> 링크 복사</button>
-                    <button class="loop-save-btn" id="saveLoopBtn" onclick="saveCurrentLoop()"><svg class="icon"><use href="#i-save"/></svg> 현재 루프 저장</button>
-                    <button class="danger-btn" id="clearLoopHistoryBtn" onclick="clearLoopHistory()"><svg class="icon"><use href="#i-trash"/></svg> 목록 비우기</button>
+            <div class="right-rail">
+                <section class="control-section pattern-panel" aria-labelledby="patternTitle">
+                    <h2 id="patternTitle"><svg class="icon"><use href="#i-chart"/></svg> 라이브 패턴 <span class="sec-no">03 / MONITOR</span></h2>
+                    <div class="pattern-monitor-head" aria-hidden="true">
+                        <span class="live-chip"><i></i> LIVE</span>
+                        <span><b id="monitorTempo">120</b> BPM · <b id="monitorGrid">16</b> STEP</span>
+                    </div>
+                    <div class="pattern-display" id="patternDisplay">패턴이 비어있습니다. 비트를 추가해보세요!</div>
+                </section>
+
+                <details class="control-section loop-library" id="loopLibrarySection">
+                    <summary class="loop-library-summary">
+                        <svg class="icon"><use href="#i-folder"/></svg>
+                        <span class="loop-library-title">저장 · 공유</span>
+                        <span class="sec-no">04 / LIBRARY</span>
+                        <span class="loop-library-chevron" aria-hidden="true">▾</span>
+                    </summary>
+                    <div class="loop-library-body">
+                        <p class="loop-library-copy">현재 드럼과 베이스를 함께 저장하거나 링크로 공유합니다.</p>
+                        <div class="loop-library-actions">
+                            <button class="loop-share-btn" id="shareLoopBtn" onclick="shareCurrentLoop()"><svg class="icon"><use href="#i-link"/></svg> 링크 복사</button>
+                            <button class="loop-save-btn" id="saveLoopBtn" onclick="saveCurrentLoop()"><svg class="icon"><use href="#i-save"/></svg> 루프 저장</button>
+                            <button class="danger-btn" id="clearLoopHistoryBtn" onclick="clearLoopHistory()"><svg class="icon"><use href="#i-trash"/></svg> 비우기</button>
+                        </div>
+                        <div class="loop-history-list" id="loopHistoryList"></div>
+                    </div>
+                </details>
+
+                <div class="pad-slot" id="performancePads">
+                    <section class="control-section custom-mode-only" aria-labelledby="customPadTitle">
+                        <h2 id="customPadTitle"><svg class="icon"><use href="#i-mic"/></svg> 커스텀 패드 <span class="sec-no">05 / PADS</span></h2>
+                        <div class="button-row">
+                            <button onclick="requestMicrophonePermission()"><svg class="icon"><use href="#i-mic"/></svg> 마이크 권한</button>
+                            <button id="customSoundToggle" onclick="toggleCustomSoundForm()" aria-expanded="false" aria-controls="customSoundForm"><svg class="icon"><use href="#i-plus"/></svg> 새 사운드</button>
+                        </div>
+                        <div class="status mic-status" id="micStatus" role="status">마이크 상태: 확인 중...</div>
+                        <div class="sound-grid" id="soundGrid"></div>
+                        <div class="custom-sound-form" id="customSoundForm">
+                            <label for="customKey">키<input type="text" id="customKey" placeholder="A-Z" maxlength="1"></label>
+                            <label for="customName">이름<input type="text" id="customName" placeholder="사운드 이름"></label>
+                            <button onclick="startCustomRecording()"><svg class="icon"><use href="#i-rec"/></svg> 녹음</button>
+                            <button class="danger-btn" onclick="cancelCustomSound()"><svg class="icon"><use href="#i-x"/></svg> 취소</button>
+                        </div>
+                    </section>
+
+                    <section class="control-section drum-pads" id="normalModeControls" aria-labelledby="padTitle">
+                        <h2 id="padTitle"><svg class="icon"><use href="#i-drum"/></svg> 퍼포먼스 패드 <span class="sec-no">05 / PADS</span></h2>
+                        <div class="group-label">Drum Kit</div>
+                        <div class="button-row kit-row">
+                            <div class="segmented" role="group" aria-label="드럼 킷">
+                                <button class="seg-btn kit-btn active" data-kit="acoustic" onclick="setDrumKit('acoustic')" aria-pressed="true"><svg class="icon"><use href="#i-drum"/></svg> 어쿠스틱</button>
+                                <button class="seg-btn kit-btn" data-kit="tr808" onclick="setDrumKit('tr808')" aria-pressed="false"><svg class="icon"><use href="#i-wave"/></svg> 808</button>
+                                <button class="seg-btn kit-btn" data-kit="electro" onclick="setDrumKit('electro')" aria-pressed="false"><svg class="icon"><use href="#i-bolt"/></svg> 일렉트로</button>
+                            </div>
+                        </div>
+                        <div class="drum-kit-grid" id="drumKitGrid"></div>
+                    </section>
                 </div>
-                <div class="loop-history-list" id="loopHistoryList" aria-live="polite"></div>
             </div>
-        </details>
-
-        <div class="control-section custom-mode-only" style="margin-bottom: 20px;">
-            <h3><svg class="icon"><use href="#i-mic"/></svg> 커스텀 사운드 <span class="sec-no">MODULE 04</span></h3>
-            <div class="button-row">
-                <button onclick="requestMicrophonePermission()"><svg class="icon"><use href="#i-mic"/></svg> 마이크 권한</button>
-                <button onclick="toggleCustomSoundForm()"><svg class="icon"><use href="#i-plus"/></svg> 새 사운드</button>
-            </div>
-            <div class="status mic-status" id="micStatus">마이크 상태: 확인 중...</div>
-            <div class="sound-grid" id="soundGrid"></div>
-            <div class="custom-sound-form" id="customSoundForm">
-                <input type="text" id="customKey" placeholder="키 (A-Z)" maxlength="1">
-                <input type="text" id="customName" placeholder="사운드 이름">
-                <button onclick="startCustomRecording()"><svg class="icon"><use href="#i-rec"/></svg> 녹음</button>
-                <button class="danger-btn" onclick="cancelCustomSound()"><svg class="icon"><use href="#i-x"/></svg> 취소</button>
-            </div>
-        </div>
-
-        <div class="control-section" id="normalModeControls">
-            <h3><svg class="icon"><use href="#i-drum"/></svg> 드럼 키트 패드 <span class="sec-no">MODULE 03</span></h3>
-            <div class="group-label">Drum Kit Select</div>
-            <div class="button-row">
-                <div class="segmented">
-                    <button class="seg-btn kit-btn active" data-kit="acoustic" onclick="setDrumKit('acoustic')"><svg class="icon"><use href="#i-drum"/></svg> 어쿠스틱</button>
-                    <button class="seg-btn kit-btn" data-kit="tr808" onclick="setDrumKit('tr808')"><svg class="icon"><use href="#i-wave"/></svg> 808 클래식</button>
-                    <button class="seg-btn kit-btn" data-kit="electro" onclick="setDrumKit('electro')"><svg class="icon"><use href="#i-bolt"/></svg> 일렉트로</button>
-                </div>
-            </div>
-            <div class="drum-kit-grid" id="drumKitGrid"></div>
-        </div>
+        </main>
 
         <div class="status" id="status" role="status" aria-live="polite">준비됨 - 드럼 패턴을 만들어보세요!</div>
 
-        <div class="keyboard-hints">
-            <h4><svg class="icon"><use href="#i-keys"/></svg> 키보드 단축키</h4>
+        <details class="keyboard-hints">
+            <summary><svg class="icon"><use href="#i-keys"/></svg> 키보드 단축키 <span>Q–X · Space · Enter</span></summary>
+            <div class="keyboard-hints-body">
             <div id="normalModeHints">
                 <div class="hint-row">
                     <span class="hint-item"><kbd>Q</kbd> 킥</span>
@@ -2261,7 +3632,8 @@
                 <span class="hint-item"><kbd>Enter</kbd> 새 비트 생성</span>
                 <span class="hint-item"><kbd>Backspace</kbd> 초기화</span>
             </div>
-        </div>
+            </div>
+        </details>
 
         <footer class="app-footer">Pro Drum Machine v2.0 <span class="dot">&middot;</span> 16 / 24 Step Sequencer <span class="dot">&middot;</span> Web Audio API</footer>
     </div>
@@ -3075,6 +4447,39 @@
                 this.playNoise({ gain: 0.12, decay: 0.1, filterType: 'highpass', filterFreq: 7600, when: 0.012 });
             }
 
+            setGridTabStop(grid, item, selector) {
+                grid.querySelectorAll(selector).forEach(candidate => {
+                    candidate.tabIndex = candidate === item ? 0 : -1;
+                });
+            }
+
+            handleGridNavigation(event, item, { selector, columns, onProbability = null }) {
+                if (onProbability && event.key.toLowerCase() === 'p') {
+                    event.preventDefault();
+                    onProbability();
+                    return;
+                }
+
+                const items = [...item.closest('.beat-grid').querySelectorAll(selector)];
+                const index = items.indexOf(item);
+                if (index < 0) return;
+                const column = index % columns;
+                let nextIndex = index;
+                if (event.key === 'ArrowLeft' && column > 0) nextIndex -= 1;
+                else if (event.key === 'ArrowRight' && column < columns - 1 && index + 1 < items.length) nextIndex += 1;
+                else if (event.key === 'ArrowUp' && index >= columns) nextIndex -= columns;
+                else if (event.key === 'ArrowDown' && index + columns < items.length) nextIndex += columns;
+                else if (event.key === 'Home') nextIndex = index - column;
+                else if (event.key === 'End') nextIndex = Math.min(items.length - 1, index - column + columns - 1);
+                else return;
+
+                event.preventDefault();
+                const next = items[nextIndex];
+                this.setGridTabStop(item.closest('.beat-grid'), next, selector);
+                next.focus({ preventScroll: true });
+                next.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            }
+
             createBeatGrid() {
                 const grid = document.getElementById('beatGrid');
                 grid.innerHTML = '';
@@ -3083,29 +4488,37 @@
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 const groupSize = this.gridMode === '24' ? 3 : 4;
                 const isMobile = window.innerWidth <= 768;
+                grid.setAttribute('aria-rowcount', String(sounds.size + 1));
+                grid.setAttribute('aria-colcount', String(maxSteps + 1));
 
                 // 그리드 컬럼 설정 업데이트 (모바일은 셀을 키워 탭하기 쉽게, 스크롤로 열람)
                 grid.style.gridTemplateColumns = isMobile
                     ? `84px repeat(${maxSteps}, 42px)`
-                    : `132px repeat(${maxSteps}, minmax(30px, 1fr))`;
+                    : `116px repeat(${maxSteps}, minmax(28px, 1fr))`;
 
                 // 헤더 행 (스텝 넘버링: 다운비트는 박자 번호, 나머지는 스텝 인덱스)
+                const headerRow = document.createElement('div');
+                headerRow.className = 'grid-row';
+                headerRow.setAttribute('role', 'row');
                 const corner = document.createElement('div');
                 corner.className = 'grid-corner';
+                corner.setAttribute('role', 'columnheader');
                 corner.textContent = 'STEP';
-                grid.appendChild(corner);
+                headerRow.appendChild(corner);
 
                 for (let i = 0; i < maxSteps; i++) {
                     const header = document.createElement('div');
                     const isDownbeat = i % groupSize === 0;
                     header.className = 'step-num' + (isDownbeat ? ' downbeat' : '');
+                    header.setAttribute('role', 'columnheader');
                     header.dataset.step = i;
                     const subNo = `<span class="sub-no">${String(i + 1).padStart(2, '0')}</span>`;
                     header.innerHTML = isDownbeat
                         ? `<span class="beat-no">${Math.floor(i / groupSize) + 1}</span>${subNo}`
                         : subNo;
-                    grid.appendChild(header);
+                    headerRow.appendChild(header);
                 }
+                grid.appendChild(headerRow);
 
                 // 각 사운드별 행
                 let rowIndex = 0;
@@ -3115,29 +4528,61 @@
                         ? CUSTOM_COLORS[rowIndex % CUSTOM_COLORS.length]
                         : null;
                     rowIndex++;
+                    const row = document.createElement('div');
+                    row.className = 'grid-row';
+                    row.setAttribute('role', 'row');
 
                     const isMuted = this.mutedSounds.has(key);
-                    const label = document.createElement('div');
+                    const label = document.createElement('button');
+                    label.type = 'button';
                     label.className = `sound-label ${soundClass}` + (isMuted ? ' muted' : '');
                     label.dataset.sound = key;
                     label.title = '클릭하여 뮤트/해제';
+                    label.setAttribute('aria-label', `${sound.name} 트랙 ${isMuted ? '뮤트 해제' : '뮤트'}`);
+                    label.setAttribute('aria-pressed', String(isMuted));
+                    label.tabIndex = rowIndex === 1 ? 0 : -1;
                     label.innerHTML = `<span class="key-chip">${key}</span><span class="label-name">${sound.name}</span>`;
                     if (customColor) label.style.setProperty('--sound-color', customColor);
                     label.onclick = () => this.toggleMute(key);
-                    grid.appendChild(label);
+                    label.addEventListener('focus', () => this.setGridTabStop(grid, label, '.sound-label, .beat-cell'));
+                    label.addEventListener('keydown', (event) => this.handleGridNavigation(event, label, {
+                        selector: '.sound-label, .beat-cell',
+                        columns: maxSteps + 1,
+                    }));
+                    const rowHeader = document.createElement('div');
+                    rowHeader.className = 'grid-cell-slot';
+                    rowHeader.setAttribute('role', 'rowheader');
+                    rowHeader.appendChild(label);
+                    row.appendChild(rowHeader);
 
                     for (let i = 0; i < maxSteps; i++) {
-                        const cell = document.createElement('div');
+                        const cell = document.createElement('button');
+                        cell.type = 'button';
                         const groupAlt = Math.floor(i / groupSize) % 2 === 1;
                         cell.className = `beat-cell ${soundClass}` + (groupAlt ? ' g-alt' : '') + (isMuted ? ' row-muted' : '');
                         cell.dataset.sound = key;
                         cell.dataset.beat = i;
+                        cell.setAttribute('aria-label', `${sound.name}, 스텝 ${i + 1}, 꺼짐`);
+                        cell.setAttribute('aria-pressed', 'false');
+                        cell.setAttribute('aria-keyshortcuts', 'P');
+                        cell.tabIndex = -1;
                         cell.onclick = () => this.toggleBeat(key, i);
                         cell.oncontextmenu = (e) => { e.preventDefault(); this.cycleStepProbability(key, i); };
+                        cell.addEventListener('focus', () => this.setGridTabStop(grid, cell, '.sound-label, .beat-cell'));
+                        cell.addEventListener('keydown', (event) => this.handleGridNavigation(event, cell, {
+                            selector: '.sound-label, .beat-cell',
+                            columns: maxSteps + 1,
+                            onProbability: () => this.cycleStepProbability(key, i),
+                        }));
                         this.attachLongPress(cell, () => this.cycleStepProbability(key, i));
                         if (customColor) cell.style.setProperty('--sound-color', customColor);
-                        grid.appendChild(cell);
+                        const slot = document.createElement('div');
+                        slot.className = 'grid-cell-slot';
+                        slot.setAttribute('role', 'gridcell');
+                        slot.appendChild(cell);
+                        row.appendChild(slot);
                     }
+                    grid.appendChild(row);
                 });
 
                 this.populateEuclidInstruments();
@@ -3175,6 +4620,11 @@
                         if (cell) {
                             const isActive = !!(this.pattern[key] && this.pattern[key][i]);
                             cell.classList.toggle('active', isActive);
+                            const prob = this.getProb(key, i);
+                            const pressed = String(isActive);
+                            const label = `${sound.name}, 스텝 ${i + 1}, ${isActive ? `켜짐, 확률 ${prob}%` : '꺼짐'}`;
+                            if (cell.getAttribute('aria-pressed') !== pressed) cell.setAttribute('aria-pressed', pressed);
+                            if (cell.getAttribute('aria-label') !== label) cell.setAttribute('aria-label', label);
 
                             if (this.isPlaying && i === this.currentBeat) {
                                 cell.classList.add('playing');
@@ -3183,7 +4633,6 @@
                             }
 
                             // 스텝 확률 표시 (100% 미만 활성 셀에 점선 테두리 + 숫자 배지)
-                            const prob = this.getProb(key, i);
                             if (isActive && prob < 100) {
                                 cell.classList.add('prob');
                                 let badge = cell.querySelector('.prob-badge');
@@ -3209,6 +4658,16 @@
                         this.isPlaying && parseInt(header.dataset.step) === this.currentBeat
                     );
                 });
+
+                sounds.forEach((sound, key) => {
+                    const label = document.querySelector(`#beatGrid .sound-label[data-sound="${key}"]`);
+                    if (!label) return;
+                    const isMuted = this.mutedSounds.has(key);
+                    const pressed = String(isMuted);
+                    const name = `${sound.name} 트랙 ${isMuted ? '뮤트 해제' : '뮤트'}`;
+                    if (label.getAttribute('aria-pressed') !== pressed) label.setAttribute('aria-pressed', pressed);
+                    if (label.getAttribute('aria-label') !== name) label.setAttribute('aria-label', name);
+                });
             }
 
             // 재생 중 현재 스텝이 화면 밖으로 나가면 그리드를 가로로 자동 스크롤 (오토스크롤)
@@ -3226,11 +4685,12 @@
                 const margin = header.offsetWidth * 1.5;
 
                 // 스텝이 첫 칸으로 되돌아오면 처음으로 리셋, 아니면 가장자리 근처에서 가운데로
+                const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
                 if (this.currentBeat === 0) {
-                    grid.scrollTo({ left: 0, behavior: 'smooth' });
+                    grid.scrollTo({ left: 0, behavior });
                 } else if (cellLeft < viewLeft + margin || cellRight > viewRight - margin) {
                     const target = cellLeft - grid.clientWidth / 2 + header.offsetWidth / 2;
-                    grid.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+                    grid.scrollTo({ left: Math.max(0, target), behavior });
                 }
             }
 
@@ -3256,9 +4716,11 @@
                 grid.innerHTML = '';
                 
                 this.normalSounds.forEach((sound, key) => {
-                    const item = document.createElement('div');
+                    const item = document.createElement('button');
+                    item.type = 'button';
                     item.className = `pad sound-${sound.id}`;
                     item.dataset.key = key;
+                    item.setAttribute('aria-label', `${sound.name} 패드, 키 ${key}`);
                     item.innerHTML = `
                         <span class="pad-key">${key}</span>
                         <span class="pad-name">${sound.name}</span>
@@ -3272,15 +4734,43 @@
             // 패드에 pointerdown 기반 트리거 연결: 손가락마다 독립 pointer로 즉시 발음돼
             // 여러 패드를 동시에 눌러도 각각 소리가 난다 (click은 release·순차라 멀티터치에 부적합)
             attachPadTrigger(el, key, { guardButtons = false } = {}) {
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const sound = sounds.get(key);
+                if (!el.hasAttribute('aria-label')) el.setAttribute('aria-label', `${sound ? sound.name : key} 패드 재생`);
+                if (el.tagName !== 'BUTTON') {
+                    el.tabIndex = 0;
+                    el.setAttribute('role', 'button');
+                }
                 el.addEventListener('pointerdown', (e) => {
                     if (guardButtons && e.target.closest('button')) return; // 녹음 버튼 등은 제외
                     if (e.pointerType === 'mouse' && e.button !== 0) return; // 마우스는 좌클릭만
                     this.playSound(key);
                 });
+                el.addEventListener('click', (e) => {
+                    if (guardButtons && e.target.closest('button') && e.target !== el) return;
+                    // 실제 포인터 click은 이미 pointerdown에서 발음했다. detail 0인
+                    // 키보드·보조기기·프로그램 방식 click만 여기서 재생한다.
+                    const isPhysicalPointerClick =
+                        (typeof e.pointerType === 'string' && e.pointerType.length > 0) || e.detail > 0;
+                    if (isPhysicalPointerClick) return;
+                    this.playSound(key);
+                });
+                if (el.tagName !== 'BUTTON') {
+                    el.addEventListener('keydown', (e) => {
+                        if (e.key !== 'Enter' && e.key !== ' ') return;
+                        if (guardButtons && e.target.closest('button')) return;
+                        e.preventDefault();
+                        this.playSound(key);
+                    });
+                }
             }
 
             toggleBeat(sound, beat) {
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
+                document.querySelectorAll('.genre-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-pressed', 'false');
+                });
                 if (!this.pattern[sound]) {
                     this.pattern[sound] = Array(maxSteps).fill(false);
                 }
@@ -3308,6 +4798,10 @@
             // 우클릭/롱프레스: 스텝 확률을 100→75→50→25→100 순으로 순환 (꺼진 칸은 먼저 켬)
             cycleStepProbability(sound, beat) {
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
+                document.querySelectorAll('.genre-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-pressed', 'false');
+                });
                 if (!this.pattern[sound]) this.pattern[sound] = Array(maxSteps).fill(false);
 
                 if (!this.pattern[sound][beat]) {
@@ -3320,6 +4814,8 @@
                 }
                 this.updateBeatGrid();
                 this.updatePatternDisplay();
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                this.updateStatus(`${sounds.get(sound)?.name || sound} · ${beat + 1} 스텝 · 확률 ${this.getProb(sound, beat)}%`);
             }
 
             // ───────── 유클리드 리듬 (Euclidean) ─────────
@@ -3442,44 +4938,77 @@
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 const groupSize = this.gridMode === '24' ? 3 : 4;
                 const isMobile = window.innerWidth <= 768;
+                grid.setAttribute('aria-rowcount', String(this.synthRows.length + 1));
+                grid.setAttribute('aria-colcount', String(maxSteps + 1));
                 grid.style.gridTemplateColumns = isMobile
                     ? `84px repeat(${maxSteps}, 42px)`
-                    : `132px repeat(${maxSteps}, minmax(30px, 1fr))`;
+                    : `116px repeat(${maxSteps}, minmax(28px, 1fr))`;
 
                 // 헤더
+                const headerRow = document.createElement('div');
+                headerRow.className = 'grid-row';
+                headerRow.setAttribute('role', 'row');
                 const corner = document.createElement('div');
                 corner.className = 'grid-corner';
+                corner.setAttribute('role', 'columnheader');
                 corner.textContent = 'NOTE';
-                grid.appendChild(corner);
+                headerRow.appendChild(corner);
                 for (let i = 0; i < maxSteps; i++) {
                     const header = document.createElement('div');
                     const isDownbeat = i % groupSize === 0;
                     header.className = 'step-num' + (isDownbeat ? ' downbeat' : '');
+                    header.setAttribute('role', 'columnheader');
                     header.dataset.step = i;
                     const subNo = `<span class="sub-no">${String(i + 1).padStart(2, '0')}</span>`;
                     header.innerHTML = isDownbeat
                         ? `<span class="beat-no">${Math.floor(i / groupSize) + 1}</span>${subNo}`
                         : subNo;
-                    grid.appendChild(header);
+                    headerRow.appendChild(header);
                 }
+                grid.appendChild(headerRow);
 
                 // 위(고음)→아래(저음) 순서로 행 렌더
+                let firstFocusableCell = true;
                 for (let r = this.synthRows.length - 1; r >= 0; r--) {
                     const midi = this.synthRows[r];
+                    const row = document.createElement('div');
+                    row.className = 'grid-row';
+                    row.setAttribute('role', 'row');
                     const label = document.createElement('div');
                     label.className = 'sound-label synth-label';
+                    label.setAttribute('aria-hidden', 'true');
                     label.innerHTML = `<span class="key-chip">♪</span><span class="label-name">${this.midiToName(midi)}</span>`;
-                    grid.appendChild(label);
+                    const rowHeader = document.createElement('div');
+                    rowHeader.className = 'grid-cell-slot';
+                    rowHeader.setAttribute('role', 'rowheader');
+                    rowHeader.setAttribute('aria-label', this.midiToName(midi));
+                    rowHeader.appendChild(label);
+                    row.appendChild(rowHeader);
 
                     for (let i = 0; i < maxSteps; i++) {
-                        const cell = document.createElement('div');
+                        const cell = document.createElement('button');
+                        cell.type = 'button';
                         const groupAlt = Math.floor(i / groupSize) % 2 === 1;
                         cell.className = 'beat-cell synth-cell' + (groupAlt ? ' g-alt' : '');
                         cell.dataset.row = r;
                         cell.dataset.beat = i;
+                        cell.setAttribute('aria-pressed', 'false');
+                        cell.setAttribute('aria-label', `${this.midiToName(midi)}, 스텝 ${i + 1}, 꺼짐`);
+                        cell.tabIndex = firstFocusableCell ? 0 : -1;
+                        firstFocusableCell = false;
                         cell.onclick = () => this.setSynthNote(i, r);
-                        grid.appendChild(cell);
+                        cell.addEventListener('focus', () => this.setGridTabStop(grid, cell, '.synth-cell'));
+                        cell.addEventListener('keydown', (event) => this.handleGridNavigation(event, cell, {
+                            selector: '.synth-cell',
+                            columns: maxSteps,
+                        }));
+                        const slot = document.createElement('div');
+                        slot.className = 'grid-cell-slot';
+                        slot.setAttribute('role', 'gridcell');
+                        slot.appendChild(cell);
+                        row.appendChild(slot);
                     }
+                    grid.appendChild(row);
                 }
                 this.updateSynthGrid();
             }
@@ -3501,8 +5030,14 @@
                 grid.querySelectorAll('.synth-cell').forEach(cell => {
                     const r = parseInt(cell.dataset.row);
                     const i = parseInt(cell.dataset.beat);
-                    cell.classList.toggle('active', this.bassPattern[i] === r);
+                    const isActive = this.bassPattern[i] === r;
+                    const noteName = this.midiToName(this.synthRows[r]);
+                    cell.classList.toggle('active', isActive);
                     cell.classList.toggle('playing', this.isPlaying && i === this.currentBeat);
+                    const pressed = String(isActive);
+                    const label = `${noteName}, 스텝 ${i + 1}, ${isActive ? '켜짐' : '꺼짐'}`;
+                    if (cell.getAttribute('aria-pressed') !== pressed) cell.setAttribute('aria-pressed', pressed);
+                    if (cell.getAttribute('aria-label') !== label) cell.setAttribute('aria-label', label);
                 });
                 grid.querySelectorAll('.step-num').forEach(h => {
                     h.classList.toggle('current', this.isPlaying && parseInt(h.dataset.step) === this.currentBeat);
@@ -3813,8 +5348,13 @@
 
             // 뮤트 상태를 라벨/셀 클래스에 반영 (그리드 재생성 없이 갱신)
             applyMuteState() {
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 document.querySelectorAll('#beatGrid .sound-label').forEach(label => {
-                    label.classList.toggle('muted', this.mutedSounds.has(label.dataset.sound));
+                    const muted = this.mutedSounds.has(label.dataset.sound);
+                    const sound = sounds.get(label.dataset.sound);
+                    label.classList.toggle('muted', muted);
+                    label.setAttribute('aria-pressed', String(muted));
+                    label.setAttribute('aria-label', `${sound ? sound.name : label.dataset.sound} 트랙 ${muted ? '뮤트 해제' : '뮤트'}`);
                 });
                 document.querySelectorAll('#beatGrid .beat-cell').forEach(cell => {
                     cell.classList.toggle('row-muted', this.mutedSounds.has(cell.dataset.sound));
@@ -3851,7 +5391,8 @@
             }
 
             flashPad(key) {
-                const pad = document.querySelector(`.pad[data-key="${key}"]`);
+                const grid = this.mode === 'normal' ? document.getElementById('drumKitGrid') : document.getElementById('soundGrid');
+                const pad = grid ? grid.querySelector(`.pad[data-key="${key}"]`) : null;
                 if (pad) {
                     pad.classList.remove('hit');
                     void pad.offsetWidth; // 애니메이션 재시작을 위한 리플로우
@@ -4252,7 +5793,9 @@
                     this.updateBeatGrid();
                     this.updatePatternDisplay();
                     document.querySelectorAll('.genre-btn').forEach(btn => {
-                        btn.classList.toggle('active', btn.dataset.genre === genre);
+                        const selected = btn.dataset.genre === genre;
+                        btn.classList.toggle('active', selected);
+                        btn.setAttribute('aria-pressed', String(selected));
                     });
                     this.updateStatus(`${genre.toUpperCase()} 패턴이 로드되었습니다!`);
                     this.queueGeneratedLoopSave();
@@ -4260,7 +5803,10 @@
             }
 
             clearBeat() {
-                document.querySelectorAll('.genre-btn.active').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.genre-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-pressed', 'false');
+                });
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 this.pattern = {};
@@ -4413,7 +5959,9 @@
                 
                 // UI 업데이트
                 document.querySelectorAll('.mode-btn').forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                    const isActive = btn.dataset.mode === mode;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-pressed', String(isActive));
                 });
                 document.getElementById('normalModeHints').style.display = mode === 'normal' ? '' : 'none';
 
@@ -4463,6 +6011,10 @@
                 const display = document.getElementById('patternDisplay');
                 const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
+                const monitorTempo = document.getElementById('monitorTempo');
+                const monitorGrid = document.getElementById('monitorGrid');
+                if (monitorTempo) monitorTempo.textContent = this.tempo;
+                if (monitorGrid) monitorGrid.textContent = maxSteps;
                 let text = '';
                 
                 sounds.forEach((sound, key) => {
@@ -4507,6 +6059,9 @@
             updateTempo(value) {
                 this.tempo = parseInt(value);
                 document.getElementById('tempoValue').textContent = value;
+                document.getElementById('tempo').setAttribute('aria-valuetext', `${value} BPM`);
+                const monitorTempo = document.getElementById('monitorTempo');
+                if (monitorTempo) monitorTempo.textContent = value;
                 this.updateSliderFill('tempo');
                 // 재생을 끊지 않는다. lookahead 이후의 다음 스텝부터 새 BPM이 적용된다.
             }
@@ -4514,6 +6069,7 @@
             updateSwing(value) {
                 this.swing = parseInt(value);
                 document.getElementById('swingValue').textContent = value;
+                document.getElementById('swing').setAttribute('aria-valuetext', `${value} 퍼센트`);
                 this.updateSliderFill('swing');
             }
 
@@ -4526,11 +6082,20 @@
 
             setupKeyboardListeners() {
                 document.addEventListener('keydown', (e) => {
-                    if (e.target instanceof Element &&
-                        e.target.closest('input, select, textarea, button, [contenteditable="true"]')) return;
+                    if (e.defaultPrevented || e.isComposing || e.altKey || e.ctrlKey || e.metaKey) return;
+                    const target = e.target instanceof Element ? e.target : null;
+                    if (target?.closest('input, select, textarea, [contenteditable="true"]')) return;
+                    const gridControl = target?.closest(
+                        '#beatGrid .sound-label, #beatGrid .beat-cell, #synthGrid .synth-cell'
+                    );
+                    if (!gridControl && target?.closest('button, a, summary, [role="button"]')) return;
                     if (e.repeat) return; // 한 번 누른 키가 OS 자동 반복으로 여러 번 발음되는 것 방지
                     
                     const key = e.key.toUpperCase();
+
+                    // 포커스된 그리드 버튼에서는 표준 Space/Enter 활성화를 보존한다.
+                    // 방향키·Home·End·P는 그리드 핸들러가 먼저 처리하고 defaultPrevented로 빠진다.
+                    if (gridControl && (e.key === ' ' || e.key === 'Enter')) return;
                     
                     if (e.key === ' ') {
                         e.preventDefault();
@@ -4564,16 +6129,18 @@
                     item.style.setProperty('--sound-color', CUSTOM_COLORS[padIndex % CUSTOM_COLORS.length]);
                     padIndex++;
                     item.innerHTML = `
-                        <span class="pad-key">${key}</span>
-                        <span class="pad-name">${sound.name}</span>
-                        <span class="pad-tag">${sound.audioBuffer ? '&#9679; 녹음 완료' : '기본 신스'}</span>
+                        <button type="button" class="custom-pad-trigger" aria-label="${sound.name} 패드 재생, 키 ${key}">
+                            <span class="pad-key">${key}</span>
+                            <span class="pad-name">${sound.name}</span>
+                            <span class="pad-tag">${sound.audioBuffer ? '&#9679; 녹음 완료' : '기본 신스'}</span>
+                        </button>
                         <button class="record-btn" onclick="recordCustomSound('${key}')">
                             <svg class="icon"><use href="#i-rec"/></svg> ${sound.audioBuffer ? '재녹음' : '녹음'}
                         </button>
                         ${this.isRecording && this.recordingSound === key ?
                             `<button class="stop-btn" onclick="stopRecording()"><svg class="icon"><use href="#i-stop"/></svg> 중지</button>` : ''}
                     `;
-                    this.attachPadTrigger(item, key, { guardButtons: true });
+                    this.attachPadTrigger(item.querySelector('.custom-pad-trigger'), key);
                     grid.appendChild(item);
                 }
             }
@@ -4827,15 +6394,18 @@
 
                 // 버튼 활성화 상태 업데이트
                 document.querySelectorAll('#grid16Btn, #grid24Btn').forEach(btn => {
-                    btn.classList.remove('active');
+                    const isActive = btn.dataset.grid === mode;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-pressed', String(isActive));
                 });
-                document.getElementById(mode === '24' ? 'grid24Btn' : 'grid16Btn').classList.add('active');
             }
 
             setDrumKit(kit) {
                 this.kit = kit;
                 document.querySelectorAll('.kit-btn').forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.kit === kit);
+                    const isActive = btn.dataset.kit === kit;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-pressed', String(isActive));
                 });
                 const names = { acoustic: '어쿠스틱', tr808: '808 클래식', electro: '일렉트로' };
                 this.updateStatus(`드럼 킷: ${names[kit] || kit} 사운드로 전환되었습니다`);
@@ -5034,6 +6604,21 @@
         let drumMachine;
 
         document.addEventListener('DOMContentLoaded', () => {
+            const patternTools = document.getElementById('patternTools');
+            if (patternTools && window.matchMedia('(max-width: 680px)').matches) {
+                patternTools.removeAttribute('open');
+            }
+            document.querySelectorAll('.mobile-section-nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    document.querySelectorAll('.mobile-section-nav a').forEach(item => {
+                        item.classList.remove('active');
+                        item.removeAttribute('aria-current');
+                    });
+                    link.classList.add('active');
+                    link.setAttribute('aria-current', 'location');
+                });
+            });
+
             drumMachine = new DrumMachine();
             window.drumMachine = drumMachine;
             if (typeof window.BeatboxPromoRecorder === 'function') {
@@ -5187,7 +6772,11 @@
         }
 
         function toggleCustomSoundForm() {
-            document.getElementById('customSoundForm').classList.toggle('open');
+            const form = document.getElementById('customSoundForm');
+            const toggle = document.getElementById('customSoundToggle');
+            const opened = form.classList.toggle('open');
+            if (toggle) toggle.setAttribute('aria-expanded', String(opened));
+            if (opened) requestAnimationFrame(() => document.getElementById('customKey').focus());
         }
 
         function startCustomRecording() {
@@ -5219,6 +6808,11 @@
             document.getElementById('customKey').value = '';
             document.getElementById('customName').value = '';
             document.getElementById('customSoundForm').classList.remove('open');
+            const toggle = document.getElementById('customSoundToggle');
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.focus();
+            }
         }
 
         function setGridMode(mode) {

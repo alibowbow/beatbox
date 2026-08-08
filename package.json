@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "test": "node tests/smoke-browser.cjs",
-    "test:promo": "FULL_PROMO=1 node tests/smoke-browser.cjs"
+    "test:promo": "FULL_PROMO=1 node tests/smoke-browser.cjs",
+    "test:visual": "node tests/capture-ui.cjs"
   },
   "devDependencies": {
     "puppeteer-core": "24.16.0"
