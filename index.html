@@ -4178,6 +4178,229 @@
                 scroll-behavior: auto !important;
             }
         }
+
+        /* ───────── 작업 레인 정보구조 보정 ───────── */
+        [data-workspace-support][hidden] {
+            display: none !important;
+        }
+
+        .workspace-section-head {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: end;
+            gap: 16px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .workspace-section-title,
+        .workspace-source-control {
+            min-width: 0;
+        }
+
+        .workspace-section-head h2 {
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            border-bottom: 0;
+        }
+
+        .workspace-section-description {
+            margin-top: 4px;
+            color: var(--text-dim);
+            font-size: 10.5px;
+            line-height: 1.45;
+        }
+
+        .workspace-source-control {
+            display: grid;
+            justify-items: end;
+            gap: 4px;
+        }
+
+        .workspace-source-label {
+            color: var(--text-dim);
+            font-family: var(--font-disp);
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+        }
+
+        .lane-source-selector {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 3px;
+            width: min(100%, 236px);
+            margin: 0;
+            padding: 3px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #0d0f11;
+        }
+
+        .lane-source-selector .mode-btn {
+            width: 100%;
+            min-width: 0;
+            min-height: 34px;
+            padding: 4px 8px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: transparent;
+            box-shadow: none;
+            color: var(--text-dim);
+            font-size: 10.5px;
+            white-space: nowrap;
+        }
+
+        .lane-source-selector .mode-btn:hover {
+            transform: none;
+            border-color: var(--line);
+            background: #171b1f;
+            box-shadow: none;
+        }
+
+        .lane-source-selector .mode-btn.active {
+            border-color: #2aa4c7;
+            background: #17303a;
+            color: var(--text-hi);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .lane-source-selector .mode-btn[data-mode="custom"].active {
+            border-color: #8069d3;
+            background: #2a2350;
+        }
+
+        .lane-source-selector .mode-btn.active .icon {
+            color: var(--cyan);
+        }
+
+        .lane-source-selector .mode-btn[data-mode="custom"].active .icon {
+            color: var(--violet);
+        }
+
+        .workspace-lane-badge {
+            align-self: center;
+            padding: 5px 8px;
+            border: 1px solid rgba(167, 139, 250, 0.35);
+            border-radius: 999px;
+            background: rgba(167, 139, 250, 0.09);
+            color: #c4b5fd;
+            font-family: var(--font-mono);
+            font-size: 8px;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+
+        .workspace-tab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .workspace-tab-copy {
+            display: grid;
+            min-width: 0;
+            gap: 1px;
+            text-align: left;
+        }
+
+        .workspace-tab-copy strong,
+        .workspace-tab-copy small {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .workspace-tab-copy strong {
+            color: inherit;
+            font-size: 10.5px;
+            line-height: 1.1;
+        }
+
+        .workspace-tab-copy small {
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+            font-size: 7px;
+            letter-spacing: 0.04em;
+            line-height: 1.1;
+        }
+
+        .workspace-tab[aria-selected="true"] .workspace-tab-copy small {
+            color: currentColor;
+            opacity: 0.72;
+        }
+
+        body[data-active-workspace="bass"] .workspace-tab[aria-selected="true"] {
+            border-color: #8069d3;
+            background: #2a2350;
+        }
+
+        body[data-active-workspace="bass"] .workspace-tab[aria-selected="true"] .icon {
+            color: var(--violet);
+        }
+
+        body[data-active-workspace="bass"] .pattern-display {
+            border-color: rgba(167, 139, 250, 0.4);
+        }
+
+        body[data-active-workspace="bass"] .live-chip {
+            color: #c4b5fd;
+        }
+
+        @media (max-width: 680px) {
+            .workspace-section-head {
+                grid-template-columns: minmax(0, 1fr);
+                align-items: start;
+                gap: 8px;
+            }
+
+            .workspace-source-control {
+                justify-items: stretch;
+            }
+
+            .lane-source-selector {
+                width: 100%;
+            }
+
+            .workspace-lane-badge {
+                align-self: start;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .workspace-tab {
+                flex-direction: column;
+                gap: 1px;
+                padding: 2px 3px;
+            }
+
+            .workspace-tab .icon {
+                width: 13px;
+                height: 13px;
+            }
+
+            .workspace-tab-copy {
+                display: block;
+                text-align: center;
+            }
+
+            .workspace-tab-copy strong {
+                font-size: 9px;
+            }
+
+            .workspace-tab-copy small {
+                display: none;
+            }
+        }
+
+        @media (pointer: coarse) {
+            .lane-source-selector .mode-btn {
+                min-height: 42px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -4294,9 +4517,9 @@
                 <button class="generate-btn" id="generateFullLoopBtn" onclick="generateFullLoop()" aria-keyshortcuts="Enter" title="드럼과 베이스를 함께 새로 생성"><svg class="icon"><use href="#i-dice"/></svg> 새 비트</button>
             </div>
 
-            <div class="workspace-tabs" role="tablist" aria-label="시퀀서 레인">
-                <button class="workspace-tab" id="drumWorkspaceTab" type="button" role="tab" aria-selected="true" aria-controls="sequencerPanel" data-workspace-tab="drums" onclick="setWorkspaceTab('drums')"><svg class="icon"><use href="#i-drum"/></svg> 드럼</button>
-                <button class="workspace-tab" id="bassWorkspaceTab" type="button" role="tab" aria-selected="false" aria-controls="synthLane" data-workspace-tab="bass" tabindex="-1" onclick="setWorkspaceTab('bass')"><svg class="icon"><use href="#i-music"/></svg> 베이스</button>
+            <div class="workspace-tabs" role="tablist" aria-label="편집 레인">
+                <button class="workspace-tab" id="drumWorkspaceTab" type="button" role="tab" aria-selected="true" aria-controls="sequencerPanel" data-workspace-tab="drums" onclick="setWorkspaceTab('drums')" aria-label="비트박스 레인 편집" title="드럼 킷과 비트박스 편집"><svg class="icon"><use href="#i-drum"/></svg><span class="workspace-tab-copy"><strong>비트박스</strong><small>DRUM / SAMPLE</small></span></button>
+                <button class="workspace-tab" id="bassWorkspaceTab" type="button" role="tab" aria-selected="false" aria-controls="synthLane" data-workspace-tab="bass" tabindex="-1" onclick="setWorkspaceTab('bass')" aria-label="베이스 레인 편집" title="베이스 라인 편집"><svg class="icon"><use href="#i-music"/></svg><span class="workspace-tab-copy"><strong>베이스</strong><small>BASS LINE</small></span></button>
             </div>
 
             <details class="transport-options" id="transportOptions" data-top-disclosure>
@@ -4304,13 +4527,6 @@
                     <svg class="icon"><use href="#i-sliders"/></svg><span>리듬 설정</span>
                 </summary>
                 <div class="transport-options-panel" id="transportOptionsPanel">
-                    <div class="transport-mode-row">
-                        <span>사운드 모드</span>
-                        <div class="mode-selector transport-mode-selector" role="group" aria-label="사운드 모드">
-                            <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')" aria-label="일반 드럼 모드" title="일반 드럼" aria-pressed="true"><svg class="icon"><use href="#i-drum"/></svg><span class="mode-label">일반 드럼</span></button>
-                            <button class="mode-btn" data-mode="custom" onclick="setMode('custom')" aria-label="커스텀 사운드 모드" title="커스텀 사운드" aria-pressed="false"><svg class="icon"><use href="#i-mic"/></svg><span class="mode-label">커스텀</span></button>
-                        </div>
-                    </div>
                     <div class="grid-mode-row">
                         <span class="transport-label" aria-hidden="true">SEQUENCE</span>
                         <div class="segmented" role="group" aria-label="시퀀서 길이">
@@ -4342,7 +4558,19 @@
         <main class="desktop-layout" id="main-content">
             <div class="main-stack">
                 <section class="control-section sequencer" id="sequencerPanel" role="tabpanel" aria-labelledby="drumWorkspaceTab" data-workspace-panel="drums">
-                    <h2 id="sequencerTitle"><svg class="icon"><use href="#i-sliders"/></svg> 드럼 시퀀서 <span class="sec-no">01 / SEQUENCER</span></h2>
+                    <div class="workspace-section-head">
+                        <div class="workspace-section-title">
+                            <h2 id="sequencerTitle"><svg class="icon"><use href="#i-sliders"/></svg> 비트박스 레인 <span class="sec-no">01 / BEAT</span></h2>
+                            <p class="workspace-section-description">드럼 킷 또는 직접 녹음한 사운드로 비트를 만듭니다.</p>
+                        </div>
+                        <div class="workspace-source-control">
+                            <span class="workspace-source-label">비트 소스</span>
+                            <div class="mode-selector lane-source-selector" role="group" aria-label="비트 소스">
+                                <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')" aria-label="드럼 킷 모드" title="드럼 킷" aria-pressed="true"><svg class="icon"><use href="#i-drum"/></svg><span class="mode-label">드럼 킷</span></button>
+                                <button class="mode-btn" data-mode="custom" onclick="setMode('custom')" aria-label="비트박스 모드" title="비트박스 사운드" aria-pressed="false"><svg class="icon"><use href="#i-mic"/></svg><span class="mode-label">비트박스</span></button>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="pattern-tools" id="patternTools" role="group" aria-label="패턴 도구">
                         <details class="pattern-quick-menu pattern-genre-menu" id="patternGenreMenu" data-top-disclosure>
@@ -4418,7 +4646,13 @@
                 </section>
 
                 <section class="control-section bass-section" id="synthLane" role="tabpanel" aria-labelledby="bassWorkspaceTab" data-workspace-panel="bass" hidden>
-                    <h2 id="synthTitle"><svg class="icon"><use href="#i-music"/></svg> 베이스 · 멜로디 <span class="sec-no">02 / BASS</span></h2>
+                    <div class="workspace-section-head bass-workspace-head">
+                        <div class="workspace-section-title">
+                            <h2 id="synthTitle"><svg class="icon"><use href="#i-music"/></svg> 베이스 레인 <span class="sec-no">02 / BASS</span></h2>
+                            <p class="workspace-section-description">비트와 별도로 낮은 음역의 베이스 라인을 설계합니다.</p>
+                        </div>
+                        <span class="workspace-lane-badge">MONOPHONIC</span>
+                    </div>
             <div class="synth-controls">
                 <div class="synth-action-row">
                     <button class="synth-panel-btn autoscroll-toggle synth-toggle active" id="synthToggle" onclick="toggleSynthLane()" aria-pressed="true" title="신스 레인 켜기/끄기">
@@ -4457,15 +4691,15 @@
 
             <div class="right-rail">
                 <section class="control-section pattern-panel" aria-labelledby="patternTitle">
-                    <h2 id="patternTitle"><svg class="icon"><use href="#i-chart"/></svg> 라이브 패턴 <span class="sec-no">03 / MONITOR</span></h2>
+                    <h2 id="patternTitle"><svg class="icon"><use href="#i-chart"/></svg> 현재 레인 <span class="sec-no">03 / MONITOR</span></h2>
                     <div class="pattern-monitor-head" aria-hidden="true">
-                        <span class="live-chip"><i></i> LIVE</span>
+                        <span class="live-chip"><i></i> <b id="monitorLaneLabel">비트박스</b></span>
                         <span><b id="monitorTempo">120</b> BPM · <b id="monitorGrid">16</b> STEP</span>
                     </div>
                     <div class="pattern-display" id="patternDisplay">패턴이 비어있습니다. 비트를 추가해보세요!</div>
                 </section>
 
-                <div class="pad-slot" id="performancePads">
+                <div class="pad-slot" id="performancePads" data-workspace-support="drums">
                     <section class="control-section custom-mode-only" aria-labelledby="customPadTitle">
                         <h2 id="customPadTitle"><svg class="icon"><use href="#i-mic"/></svg> 커스텀 패드 <span class="sec-no">04 / PADS</span></h2>
                         <div class="button-row">
@@ -6978,8 +7212,36 @@
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 const monitorTempo = document.getElementById('monitorTempo');
                 const monitorGrid = document.getElementById('monitorGrid');
+                const monitorLane = document.getElementById('monitorLaneLabel');
                 if (monitorTempo) monitorTempo.textContent = this.tempo;
                 if (monitorGrid) monitorGrid.textContent = maxSteps;
+
+                const activeWorkspace = document.body?.dataset.activeWorkspace === 'bass' ? 'bass' : 'drums';
+                if (activeWorkspace === 'bass') {
+                    if (monitorLane) monitorLane.textContent = '베이스';
+                    const scale = DrumMachine.SCALES[this.bassScale] || DrumMachine.SCALES.minorPent;
+                    const rootName = DrumMachine.NOTE_NAMES[this.bassRootNote] || 'C';
+                    const notes = (Array.isArray(this.bassPattern) ? this.bassPattern : [])
+                        .slice(0, maxSteps)
+                        .map((row, index) => {
+                            if (!Number.isInteger(row)) return null;
+                            const midi = this.synthRows[row];
+                            if (!Number.isFinite(midi)) return null;
+                            const noteName = DrumMachine.NOTE_NAMES[((midi % 12) + 12) % 12] || '?';
+                            const octave = Math.floor(midi / 12) - 1;
+                            return `${String(index + 1).padStart(2, '0')}:${noteName}${octave}`;
+                        })
+                        .filter(Boolean);
+
+                    display.dataset.workspace = 'bass';
+                    display.textContent = notes.length
+                        ? `${rootName}${this.bassOctave} · ${scale.name}\n${notes.join('  ')}`
+                        : '베이스 패턴이 비어있습니다. 칸을 눌러 음을 배치해보세요!';
+                    return;
+                }
+
+                if (monitorLane) monitorLane.textContent = this.mode === 'normal' ? '드럼' : '비트박스';
+                display.dataset.workspace = this.mode === 'normal' ? 'drums' : 'beatbox';
                 let text = '';
                 
                 sounds.forEach((sound, key) => {
@@ -7739,7 +8001,14 @@
                 panel.hidden = panel !== activePanel;
             });
 
+            document.querySelectorAll('[data-workspace-support]').forEach(panel => {
+                const visible = panel.dataset.workspaceSupport === target;
+                panel.hidden = !visible;
+                panel.setAttribute('aria-hidden', String(!visible));
+            });
+
             document.body.dataset.activeWorkspace = target;
+            if (drumMachine?.updatePatternDisplay) drumMachine.updatePatternDisplay();
             if (options.animate === false) {
                 activePanel.classList.remove('workspace-panel-enter');
             } else {

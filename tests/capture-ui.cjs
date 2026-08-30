@@ -67,6 +67,8 @@ async function capture(page, url, name, viewport) {
         const drumView = {
             drumHidden: document.getElementById('sequencerPanel').hidden,
             bassHidden: document.getElementById('synthLane').hidden,
+            supportHidden: document.getElementById('performancePads').hidden,
+            monitorLane: document.getElementById('monitorLaneLabel')?.textContent,
         };
         window.setWorkspaceTab('bass');
         const bassRegion = rect('.bass-section');
@@ -75,8 +77,9 @@ async function capture(page, url, name, viewport) {
         const bassView = {
             drumHidden: document.getElementById('sequencerPanel').hidden,
             bassHidden: document.getElementById('synthLane').hidden,
+            supportHidden: document.getElementById('performancePads').hidden,
+            monitorLane: document.getElementById('monitorLaneLabel')?.textContent,
             panelBottom: bassPanelBox.bottom,
-            padsY: rect('.drum-pads')?.y,
             patternY: rect('.pattern-panel')?.y,
         };
         window.setWorkspaceTab('drums');
@@ -397,7 +400,9 @@ async function main() {
                 `${name} drum/bass workspace tabs are incomplete`);
             assert(result.state.activeWorkspace === 'drums' &&
                     !result.state.drumView.drumHidden && result.state.drumView.bassHidden &&
-                    result.state.bassView.drumHidden && !result.state.bassView.bassHidden,
+                    !result.state.drumView.supportHidden && result.state.drumView.monitorLane === '드럼' &&
+                    result.state.bassView.drumHidden && !result.state.bassView.bassHidden &&
+                    result.state.bassView.supportHidden && result.state.bassView.monitorLane === '베이스',
                 `${name} workspace tabs do not exclusively switch panels: ${JSON.stringify(result.state)}`);
             assert(result.regions.workspaceTabs.height >= 36,
                 `${name} workspace tab bar is missing: ${JSON.stringify(result.regions.workspaceTabs)}`);
@@ -437,9 +442,8 @@ async function main() {
             assert(grid.scrollWidth > grid.clientWidth,
                 `${name} grid no longer contains its own horizontal overflow`);
         }
-        assert(mobile.state.bassView.padsY > mobile.state.bassView.panelBottom &&
-                mobile.state.bassView.patternY > mobile.state.bassView.padsY,
-            'mobile supporting sections do not remain below the active bass workspace');
+        assert(mobile.state.bassView.supportHidden && mobile.state.bassView.patternY >= 0,
+            'mobile drum/beatbox support panel leaked into the active bass workspace');
         for (const [name, result] of Object.entries({ tabletTouch, mobile })) {
             assert(result.state.topControlSizes.every(size => size.width >= 40 && size.height >= 40),
                 `${name} top controls are too small for touch: ${JSON.stringify(result.state.topControlSizes)}`);
