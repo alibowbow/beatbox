@@ -4159,6 +4159,290 @@
             }
         }
 
+        /* ───────── Clear transport / editor hierarchy ───────── */
+        .top-transport {
+            grid-template-columns: minmax(230px, 260px) minmax(112px, 126px);
+        }
+
+        .transport-primary {
+            grid-template-columns: minmax(88px, 0.82fr) minmax(128px, 1.18fr);
+        }
+
+        .transport-primary .generate-btn {
+            color: var(--text-mid);
+        }
+
+        .studio-workspace {
+            position: relative;
+            display: block;
+            min-width: 0;
+        }
+
+        .studio-workspace > .workspace-tabs {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            z-index: 45;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 3px;
+            width: min(100%, 560px);
+            min-width: 0;
+            min-height: 0;
+            padding: 3px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: #0a0c0e;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+        }
+
+        .main-stack > [data-workspace-panel] {
+            padding-top: 64px;
+        }
+
+        .studio-workspace .workspace-tab {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 9px;
+            width: 100%;
+            min-width: 0;
+            min-height: 42px;
+            padding: 5px 12px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: transparent;
+            box-shadow: none;
+            color: var(--text-dim);
+            text-align: left;
+        }
+
+        .studio-workspace .workspace-tab:hover {
+            border-color: #30363c;
+            background: #15191c;
+            box-shadow: none;
+        }
+
+        .studio-workspace .workspace-tab > .icon {
+            width: 17px;
+            height: 17px;
+            flex: none;
+        }
+
+        .studio-workspace .workspace-tab > span {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .studio-workspace .workspace-tab strong {
+            color: inherit;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .studio-workspace .workspace-tab small {
+            color: #707980;
+            font-family: var(--font-mono);
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        #drumWorkspaceTab[aria-selected="true"] {
+            border-color: #2b7f95;
+            background: #15303a;
+            color: #eefcff;
+            box-shadow: inset 0 -2px 0 var(--cyan);
+        }
+
+        #bassWorkspaceTab[aria-selected="true"] {
+            border-color: #6556a0;
+            background: #242039;
+            color: #f5f2ff;
+            box-shadow: inset 0 -2px 0 var(--violet);
+        }
+
+        #drumWorkspaceTab[aria-selected="true"] .icon {
+            color: var(--cyan);
+        }
+
+        #bassWorkspaceTab[aria-selected="true"] .icon {
+            color: var(--violet);
+        }
+
+        .control-section h2.sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            min-height: 0 !important;
+            margin: -1px !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+
+        [data-workspace-context][hidden] {
+            display: none !important;
+        }
+
+        body[data-active-workspace="bass"] .pattern-panel h2 .icon {
+            color: var(--violet);
+        }
+
+        .pattern-display.is-bass-monitor {
+            color: #c8c3ea;
+            line-height: 1.9;
+        }
+
+        .bass-preview-panel {
+            border-color: #35304f;
+            background: linear-gradient(180deg, #15131d, #101116);
+        }
+
+        .bass-preview-panel h2 .icon {
+            color: var(--violet);
+        }
+
+        .bass-preview-meta {
+            display: grid;
+            gap: 4px;
+            margin-bottom: 10px;
+            padding: 9px 10px;
+            border: 1px solid #302c45;
+            border-radius: 7px;
+            background: #0c0c12;
+        }
+
+        .bass-preview-meta span {
+            color: var(--text-dim);
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .bass-preview-meta strong {
+            color: #ddd8ff;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .bass-preview-keys {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .bass-preview-key {
+            display: grid;
+            justify-items: start;
+            align-content: center;
+            gap: 2px;
+            min-width: 0;
+            min-height: 50px;
+            padding: 7px 9px;
+            border-color: #38324f;
+            background: linear-gradient(180deg, #29243a, #191723);
+            color: #eeeaff;
+            text-align: left;
+        }
+
+        .bass-preview-key:hover {
+            border-color: #7664bd;
+            background: linear-gradient(180deg, #332c4a, #201c2e);
+        }
+
+        .bass-preview-key strong {
+            font-family: var(--font-mono);
+            font-size: 13px;
+        }
+
+        .bass-preview-key small {
+            color: #8d83b2;
+            font-size: 8px;
+            letter-spacing: 0.08em;
+        }
+
+        .bass-preview-help {
+            margin: 9px 0 0;
+            color: var(--text-dim);
+            font-size: 10px;
+            line-height: 1.55;
+        }
+
+        @media (min-width: 1180px) {
+            .command-header .top-transport {
+                grid-template-columns: 230px 112px;
+            }
+        }
+
+        @media (max-width: 1100px) and (min-width: 821px) {
+            body[data-active-workspace="bass"] .right-rail .bass-preview-panel {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .top-transport {
+                grid-template-columns: minmax(0, 1fr) 44px;
+            }
+
+            .transport-primary {
+                grid-column: auto;
+                grid-template-columns: minmax(74px, 0.78fr) minmax(112px, 1.22fr);
+            }
+
+            .studio-workspace {
+                min-width: 0;
+            }
+
+            .studio-workspace > .workspace-tabs {
+                top: 6px;
+                left: 6px;
+                width: calc(100% - 12px);
+                padding: 2px;
+            }
+
+            .main-stack > [data-workspace-panel] {
+                padding-top: 54px;
+            }
+
+            .studio-workspace .workspace-tab {
+                min-height: 40px;
+                padding: 4px 8px;
+            }
+
+            .studio-workspace .workspace-tab > span {
+                gap: 5px;
+            }
+
+            .studio-workspace .workspace-tab small {
+                font-size: 7px;
+                letter-spacing: 0.04em;
+            }
+
+            .bass-preview-keys {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .bass-preview-key {
+                min-height: 44px;
+                padding: 5px 7px;
+            }
+        }
+
+        @media (max-width: 370px) {
+            .studio-workspace .workspace-tab small {
+                display: none;
+            }
+        }
+
         @media (pointer: coarse) {
             .app-topbar {
                 min-height: 0;
@@ -4401,6 +4685,43 @@
                 min-height: 42px;
             }
         }
+
+        /* 비트 소스와 패턴 도구는 한 줄의 편집 툴바로 묶어 작업 영역 높이를 줄인다. */
+        .beat-workspace-toolbar {
+            display: grid;
+            grid-template-columns: minmax(190px, 220px) minmax(0, 1fr);
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .beat-workspace-toolbar .beat-source-control {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: center;
+            justify-items: stretch;
+            gap: 7px;
+        }
+
+        .beat-workspace-toolbar .lane-source-selector {
+            width: 100%;
+        }
+
+        .beat-workspace-toolbar .pattern-tools {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 680px) {
+            .beat-workspace-toolbar {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 6px;
+            }
+
+            .beat-workspace-toolbar .beat-source-control {
+                grid-template-columns: 58px minmax(0, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
@@ -4514,12 +4835,7 @@
         <section class="top-transport controls" id="transportControls" aria-label="재생과 템포 컨트롤" tabindex="-1">
             <div class="transport transport-primary">
                 <button class="play-btn" id="playBtn" data-playback-toggle onclick="togglePlayback()" aria-pressed="false" aria-keyshortcuts="Space"><svg class="icon"><use href="#i-play"/></svg> 재생</button>
-                <button class="generate-btn" id="generateFullLoopBtn" onclick="generateFullLoop()" aria-keyshortcuts="Enter" title="드럼과 베이스를 함께 새로 생성"><svg class="icon"><use href="#i-dice"/></svg> 새 비트</button>
-            </div>
-
-            <div class="workspace-tabs" role="tablist" aria-label="편집 레인">
-                <button class="workspace-tab" id="drumWorkspaceTab" type="button" role="tab" aria-selected="true" aria-controls="sequencerPanel" data-workspace-tab="drums" onclick="setWorkspaceTab('drums')" aria-label="비트박스 레인 편집" title="드럼 킷과 비트박스 편집"><svg class="icon"><use href="#i-drum"/></svg><span class="workspace-tab-copy"><strong>비트박스</strong><small>DRUM / SAMPLE</small></span></button>
-                <button class="workspace-tab" id="bassWorkspaceTab" type="button" role="tab" aria-selected="false" aria-controls="synthLane" data-workspace-tab="bass" tabindex="-1" onclick="setWorkspaceTab('bass')" aria-label="베이스 레인 편집" title="베이스 라인 편집"><svg class="icon"><use href="#i-music"/></svg><span class="workspace-tab-copy"><strong>베이스</strong><small>BASS LINE</small></span></button>
+                <button class="generate-btn" id="generateFullLoopBtn" onclick="generateFullLoop()" aria-keyshortcuts="Enter" title="드럼과 베이스를 함께 새로 생성"><svg class="icon"><use href="#i-dice"/></svg> 전체 새 루프</button>
             </div>
 
             <details class="transport-options" id="transportOptions" data-top-disclosure>
@@ -4555,24 +4871,32 @@
         </section>
         </div>
 
-        <main class="desktop-layout" id="main-content">
+        <main class="studio-workspace" id="main-content">
+            <div class="workspace-tabs" role="tablist" aria-label="편집할 레인">
+                <button class="workspace-tab" id="drumWorkspaceTab" type="button" role="tab" aria-selected="true" aria-controls="sequencerPanel" data-workspace-tab="drums" onclick="setWorkspaceTab('drums')" aria-label="비트 레인 편집" title="드럼 킷 또는 비트박스 사운드 편집">
+                    <svg class="icon"><use href="#i-drum"/></svg>
+                    <span class="workspace-tab-copy"><strong>비트</strong><small>DRUM / BEATBOX</small></span>
+                </button>
+                <button class="workspace-tab" id="bassWorkspaceTab" type="button" role="tab" aria-selected="false" aria-controls="synthLane" data-workspace-tab="bass" tabindex="-1" onclick="setWorkspaceTab('bass')" aria-label="베이스 레인 편집" title="베이스 라인 편집">
+                    <svg class="icon"><use href="#i-music"/></svg>
+                    <span class="workspace-tab-copy"><strong>베이스</strong><small>BASS LINE</small></span>
+                </button>
+            </div>
+
+            <div class="desktop-layout">
             <div class="main-stack">
                 <section class="control-section sequencer" id="sequencerPanel" role="tabpanel" aria-labelledby="drumWorkspaceTab" data-workspace-panel="drums">
-                    <div class="workspace-section-head">
-                        <div class="workspace-section-title">
-                            <h2 id="sequencerTitle"><svg class="icon"><use href="#i-sliders"/></svg> 비트박스 레인 <span class="sec-no">01 / BEAT</span></h2>
-                            <p class="workspace-section-description">드럼 킷 또는 직접 녹음한 사운드로 비트를 만듭니다.</p>
-                        </div>
-                        <div class="workspace-source-control">
+                    <h2 class="sr-only" id="sequencerTitle">비트 레인</h2>
+                    <div class="beat-workspace-toolbar">
+                        <div class="workspace-source-control beat-source-control">
                             <span class="workspace-source-label">비트 소스</span>
                             <div class="mode-selector lane-source-selector" role="group" aria-label="비트 소스">
                                 <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')" aria-label="드럼 킷 모드" title="드럼 킷" aria-pressed="true"><svg class="icon"><use href="#i-drum"/></svg><span class="mode-label">드럼 킷</span></button>
                                 <button class="mode-btn" data-mode="custom" onclick="setMode('custom')" aria-label="비트박스 모드" title="비트박스 사운드" aria-pressed="false"><svg class="icon"><use href="#i-mic"/></svg><span class="mode-label">비트박스</span></button>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="pattern-tools" id="patternTools" role="group" aria-label="패턴 도구">
+                        <div class="pattern-tools" id="patternTools" role="group" aria-label="패턴 도구">
                         <details class="pattern-quick-menu pattern-genre-menu" id="patternGenreMenu" data-top-disclosure>
                             <summary aria-labelledby="genreToolLabel genreToolValue" aria-disabled="false">
                                 <svg class="icon" aria-hidden="true"><use href="#i-dice"/></svg>
@@ -4627,6 +4951,7 @@
                                 </div>
                             </div>
                         </details>
+                        </div>
                     </div>
                     <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadPattern(this)">
 
@@ -4646,13 +4971,7 @@
                 </section>
 
                 <section class="control-section bass-section" id="synthLane" role="tabpanel" aria-labelledby="bassWorkspaceTab" data-workspace-panel="bass" hidden>
-                    <div class="workspace-section-head bass-workspace-head">
-                        <div class="workspace-section-title">
-                            <h2 id="synthTitle"><svg class="icon"><use href="#i-music"/></svg> 베이스 레인 <span class="sec-no">02 / BASS</span></h2>
-                            <p class="workspace-section-description">비트와 별도로 낮은 음역의 베이스 라인을 설계합니다.</p>
-                        </div>
-                        <span class="workspace-lane-badge">MONOPHONIC</span>
-                    </div>
+                    <h2 class="sr-only" id="synthTitle">베이스 레인</h2>
             <div class="synth-controls">
                 <div class="synth-action-row">
                     <button class="synth-panel-btn autoscroll-toggle synth-toggle active" id="synthToggle" onclick="toggleSynthLane()" aria-pressed="true" title="신스 레인 켜기/끄기">
@@ -4691,15 +5010,15 @@
 
             <div class="right-rail">
                 <section class="control-section pattern-panel" aria-labelledby="patternTitle">
-                    <h2 id="patternTitle"><svg class="icon"><use href="#i-chart"/></svg> 현재 레인 <span class="sec-no">03 / MONITOR</span></h2>
+                    <h2 id="patternTitle"><svg class="icon"><use href="#i-chart"/></svg> <span id="patternContextTitle">드럼 패턴</span> <span class="sec-no" id="patternContextCode">DRUM MONITOR</span></h2>
                     <div class="pattern-monitor-head" aria-hidden="true">
-                        <span class="live-chip"><i></i> <b id="monitorLaneLabel">비트박스</b></span>
-                        <span><b id="monitorTempo">120</b> BPM · <b id="monitorGrid">16</b> STEP</span>
+                        <span class="live-chip"><i></i> LIVE</span>
+                        <span id="patternContextMeta"><b id="monitorTempo">120</b> BPM · <b id="monitorGrid">16</b> STEP</span>
                     </div>
                     <div class="pattern-display" id="patternDisplay">패턴이 비어있습니다. 비트를 추가해보세요!</div>
                 </section>
 
-                <div class="pad-slot" id="performancePads" data-workspace-support="drums">
+                <div class="pad-slot" id="performancePads" data-workspace-support="drums" data-workspace-context="drums">
                     <section class="control-section custom-mode-only" aria-labelledby="customPadTitle">
                         <h2 id="customPadTitle"><svg class="icon"><use href="#i-mic"/></svg> 커스텀 패드 <span class="sec-no">04 / PADS</span></h2>
                         <div class="button-row">
@@ -4729,6 +5048,17 @@
                         <div class="drum-kit-grid" id="drumKitGrid"></div>
                     </section>
                 </div>
+
+                <section class="control-section bass-preview-panel" id="bassPreviewPanel" data-workspace-context="bass" aria-labelledby="bassPreviewTitle" hidden>
+                    <h2 id="bassPreviewTitle"><svg class="icon"><use href="#i-music"/></svg> 베이스 프리뷰 <span class="sec-no">BASS KEYS</span></h2>
+                    <div class="bass-preview-meta">
+                        <span>현재 스케일</span>
+                        <strong id="bassPreviewScale">C · 마이너 펜타토닉</strong>
+                    </div>
+                    <div class="bass-preview-keys" id="bassPreviewKeys" role="group" aria-label="현재 베이스 스케일 미리듣기"></div>
+                    <p class="bass-preview-help">음을 눌러 톤을 확인한 뒤 왼쪽 그리드에 배치하세요.</p>
+                </section>
+            </div>
             </div>
         </main>
 
@@ -4763,7 +5093,7 @@
             </div>
             <div class="hint-row" style="margin-top: 6px;">
                 <span class="hint-item"><kbd>Space</kbd> 재생/정지</span>
-                <span class="hint-item"><kbd>Enter</kbd> 드럼·베이스 새 비트</span>
+                <span class="hint-item"><kbd>Enter</kbd> 전체 새 루프</span>
                 <span class="hint-item"><kbd>Backspace</kbd> 초기화</span>
             </div>
             </div>
@@ -6093,6 +6423,29 @@
                 }
                 rows.push(root + octaves * 12); // 맨 위 옥타브 루트
                 this.synthRows = rows; // 오름차순
+                this.renderBassPreviewKeys();
+            }
+
+            renderBassPreviewKeys() {
+                const container = document.getElementById('bassPreviewKeys');
+                const label = document.getElementById('bassPreviewScale');
+                const scale = DrumMachine.SCALES[this.bassScale] || DrumMachine.SCALES.minorPent;
+                const rootName = DrumMachine.NOTE_NAMES[this.bassRootNote] || 'C';
+                if (label) label.textContent = `${rootName} · ${scale.name}`;
+                if (!container || !this.synthRows.length) return;
+
+                const previewNotes = this.synthRows.slice(0, scale.steps.length + 1);
+                container.innerHTML = '';
+                previewNotes.forEach((midi, index) => {
+                    const button = document.createElement('button');
+                    const role = index === 0 ? 'ROOT' : index === previewNotes.length - 1 ? 'OCTAVE' : 'SCALE';
+                    button.type = 'button';
+                    button.className = 'bass-preview-key';
+                    button.setAttribute('aria-label', `${this.midiToName(midi)} 베이스 음 미리듣기`);
+                    button.innerHTML = `<strong>${this.midiToName(midi)}</strong><small>${role}</small>`;
+                    button.onclick = () => this.previewSynthNote(midi);
+                    container.appendChild(button);
+                });
             }
 
             createSynthGrid() {
@@ -6176,6 +6529,7 @@
                     grid.appendChild(row);
                 }
                 this.updateSynthGrid();
+                this.updatePatternDisplay();
             }
 
             setSynthNote(step, row) {
@@ -6187,6 +6541,7 @@
                     if (this.audioContext) this.playSynthNote(this.synthRows[row]);
                 }
                 this.updateSynthGrid();
+                this.updatePatternDisplay();
             }
 
             updateSynthGrid() {
@@ -6255,6 +6610,14 @@
                 sub.start(t); sub.stop(t + dur + 0.05);
             }
 
+            async previewSynthNote(midi) {
+                if (!this.audioContext) await this.initializeAudio();
+                if (!this.audioContext || !this.masterGain) return;
+                if (this.audioContext.state === 'suspended') await this.audioContext.resume();
+                this.playSynthNote(Number(midi));
+                this.updateStatus(`베이스 프리뷰: ${this.midiToName(Number(midi))}`);
+            }
+
             populateSynthSelectors() {
                 const scaleSel = document.getElementById('synthScale');
                 if (scaleSel && !scaleSel.dataset.filled) {
@@ -6311,6 +6674,7 @@
                 // 새 스케일 행 수를 벗어난 기존 노트는 정리
                 this.bassPattern = this.bassPattern.map(v => (v != null && v < this.synthRows.length) ? v : null);
                 this.createSynthGrid();
+                this.updatePatternDisplay();
                 this.updateStatus(`신스: ${DrumMachine.SCALES[this.bassScale].name} / ${DrumMachine.NOTE_NAMES[this.bassRootNote]}${this.bassOctave}`);
             }
 
@@ -6354,6 +6718,7 @@
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
                 this.bassPattern = Array(maxSteps).fill(null);
                 this.updateSynthGrid();
+                this.updatePatternDisplay();
                 this.updateStatus('신스 레인을 초기화했습니다');
             }
 
@@ -6467,6 +6832,7 @@
                     this.syncSynthToggle();
                 }
                 this.updateSynthGrid();
+                this.updatePatternDisplay();
                 const styleNames = { rootDrive: '루트 드라이브', syncopated: '신코페이션', octaveBounce: '옥타브 바운스' };
                 this.updateStatus(`베이스라인 생성: ${styleNames[style]} 🎸`);
                 this.queueGeneratedLoopSave();
@@ -7208,40 +7574,47 @@
 
             updatePatternDisplay() {
                 const display = document.getElementById('patternDisplay');
-                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
                 const maxSteps = this.gridMode === '24' ? 24 : 16;
+                const groupSize = this.gridMode === '24' ? 3 : 4;
                 const monitorTempo = document.getElementById('monitorTempo');
                 const monitorGrid = document.getElementById('monitorGrid');
-                const monitorLane = document.getElementById('monitorLaneLabel');
+                const contextTitle = document.getElementById('patternContextTitle');
+                const contextCode = document.getElementById('patternContextCode');
                 if (monitorTempo) monitorTempo.textContent = this.tempo;
                 if (monitorGrid) monitorGrid.textContent = maxSteps;
+                if (!display) return;
 
-                const activeWorkspace = document.body?.dataset.activeWorkspace === 'bass' ? 'bass' : 'drums';
-                if (activeWorkspace === 'bass') {
-                    if (monitorLane) monitorLane.textContent = '베이스';
-                    const scale = DrumMachine.SCALES[this.bassScale] || DrumMachine.SCALES.minorPent;
-                    const rootName = DrumMachine.NOTE_NAMES[this.bassRootNote] || 'C';
-                    const notes = (Array.isArray(this.bassPattern) ? this.bassPattern : [])
-                        .slice(0, maxSteps)
-                        .map((row, index) => {
-                            if (!Number.isInteger(row)) return null;
-                            const midi = this.synthRows[row];
-                            if (!Number.isFinite(midi)) return null;
-                            const noteName = DrumMachine.NOTE_NAMES[((midi % 12) + 12) % 12] || '?';
-                            const octave = Math.floor(midi / 12) - 1;
-                            return `${String(index + 1).padStart(2, '0')}:${noteName}${octave}`;
-                        })
-                        .filter(Boolean);
+                const isBassWorkspace = document.body.dataset.activeWorkspace === 'bass';
+                display.classList.toggle('is-bass-monitor', isBassWorkspace);
+                if (isBassWorkspace) {
+                    if (contextTitle) contextTitle.textContent = '베이스 라인';
+                    if (contextCode) contextCode.textContent = 'BASS MONITOR';
+                    const hasBass = this.bassPattern.some(row => row != null);
+                    if (!hasBass) {
+                        display.textContent = '베이스라인이 비어있습니다. 음을 배치하거나 자동 생성해보세요.';
+                        return;
+                    }
 
-                    display.dataset.workspace = 'bass';
-                    display.textContent = notes.length
-                        ? `${rootName}${this.bassOctave} · ${scale.name}\n${notes.join('  ')}`
-                        : '베이스 패턴이 비어있습니다. 칸을 눌러 음을 배치해보세요!';
+                    const groups = [];
+                    for (let start = 0; start < maxSteps; start += groupSize) {
+                        const end = Math.min(start + groupSize, maxSteps);
+                        const notes = [];
+                        for (let step = start; step < end; step++) {
+                            const row = this.bassPattern[step];
+                            const midi = row == null ? null : this.synthRows[row];
+                            notes.push(midi == null ? '—' : this.midiToName(midi));
+                        }
+                        groups.push(`${String(start + 1).padStart(2, '0')}–${String(end).padStart(2, '0')}   ${notes.join('  ·  ')}`);
+                    }
+                    display.textContent = groups.join('\n');
                     return;
                 }
 
-                if (monitorLane) monitorLane.textContent = this.mode === 'normal' ? '드럼' : '비트박스';
-                display.dataset.workspace = this.mode === 'normal' ? 'drums' : 'beatbox';
+                const sounds = this.mode === 'normal' ? this.normalSounds : this.customSounds;
+                const isBeatboxSource = this.mode === 'custom';
+                if (contextTitle) contextTitle.textContent = isBeatboxSource ? '비트박스 패턴' : '드럼 패턴';
+                if (contextCode) contextCode.textContent = isBeatboxSource ? 'BEATBOX MONITOR' : 'DRUM MONITOR';
+                display.dataset.workspace = isBeatboxSource ? 'beatbox' : 'drums';
                 let text = '';
                 
                 sounds.forEach((sound, key) => {
@@ -7261,7 +7634,7 @@
                     }
                 });
                 
-                display.textContent = text || '패턴이 비어있습니다. 비트를 추가해보세요!';
+                display.textContent = text || '드럼 패턴이 비어있습니다. 비트를 추가해보세요!';
             }
 
             updateStatus(message) {
@@ -7988,6 +8361,7 @@
             const target = tab === 'bass' ? 'bass' : 'drums';
             const tabs = [...document.querySelectorAll('[data-workspace-tab]')];
             const panels = [...document.querySelectorAll('[data-workspace-panel]')];
+            const contextPanels = [...document.querySelectorAll('[data-workspace-context]')];
             const activeTab = tabs.find(button => button.dataset.workspaceTab === target);
             const activePanel = panels.find(panel => panel.dataset.workspacePanel === target);
             if (!activeTab || !activePanel) return;
@@ -7999,6 +8373,9 @@
             });
             panels.forEach(panel => {
                 panel.hidden = panel !== activePanel;
+            });
+            contextPanels.forEach(panel => {
+                panel.hidden = panel.dataset.workspaceContext !== target;
             });
 
             document.querySelectorAll('[data-workspace-support]').forEach(panel => {

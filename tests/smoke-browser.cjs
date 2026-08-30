@@ -561,11 +561,19 @@ async function main() {
                     sharedPlayVisible: getComputedStyle(document.getElementById('playBtn')).display !== 'none',
                     drumHidden: document.getElementById('sequencerPanel').hidden,
                     bassHidden: document.getElementById('synthLane').hidden,
+                    drumContextHidden: document.getElementById('performancePads').hidden,
+                    bassContextHidden: document.getElementById('bassPreviewPanel').hidden,
+                    bassPreviewKeys: document.querySelectorAll('#bassPreviewKeys .bass-preview-key').length,
+                    patternTitle: document.getElementById('patternContextTitle').textContent,
+                    tabsInsideTransport: Boolean(document.querySelector('.top-transport .workspace-tabs')),
                 };
                 setWorkspaceTab('drums');
                 return result;
             });
-            assert(mobileControls.sharedPlayVisible && mobileControls.drumHidden && !mobileControls.bassHidden,
+            assert(mobileControls.sharedPlayVisible && mobileControls.drumHidden && !mobileControls.bassHidden &&
+                    mobileControls.drumContextHidden && !mobileControls.bassContextHidden &&
+                    mobileControls.bassPreviewKeys >= 6 && mobileControls.patternTitle === '베이스 라인' &&
+                    !mobileControls.tabsInsideTransport,
                 `shared playback or bass tab visibility failed on mobile: ${JSON.stringify(mobileControls)}`);
             assert(mobileControls.buttonHeights.every(height => Math.abs(height - 36) < 0.5),
                 `mobile bass action heights differ: ${mobileControls.buttonHeights.join(',')}`);
