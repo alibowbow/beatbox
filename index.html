@@ -1311,7 +1311,7 @@
             cursor: pointer;
             transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
             position: relative;
-            min-height: 30px;
+            min-height: 32px;
         }
 
         .beat-cell.g-alt {
@@ -2395,6 +2395,60 @@
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 5px;
+        }
+
+        .preset-filter-bar {
+            position: sticky;
+            z-index: 3;
+            top: -1px;
+            display: flex;
+            gap: 4px;
+            margin: 0 0 5px;
+            padding: 6px 0;
+            overflow-x: auto;
+            overscroll-behavior-inline: contain;
+            border-bottom: 1px solid rgba(57, 65, 72, 0.72);
+            background: rgba(21, 25, 29, 0.97);
+            backdrop-filter: blur(10px);
+            scrollbar-width: none;
+        }
+
+        .preset-filter-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .preset-filter-btn {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-height: 30px;
+            padding: 4px 8px;
+            border-color: #303941;
+            border-radius: 7px;
+            background: #101418;
+            color: var(--text-dim);
+            font-size: 9.5px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .preset-filter-btn span {
+            color: #697982;
+            font-family: var(--font-mono);
+            font-size: 8px;
+        }
+
+        .preset-filter-btn.active {
+            border-color: #3d6e78;
+            background: #18262b;
+            color: #d8fbff;
+            box-shadow: inset 0 -2px 0 var(--cyan);
+        }
+
+        .preset-filter-btn.active span {
+            color: var(--cyan);
         }
 
         .music-preset-card {
@@ -4780,7 +4834,7 @@
                         <div class="preset-menu-head">
                             <div class="preset-menu-title">
                                 <strong>Preset Sessions</strong>
-                                <span>드럼·베이스·템포를 함께 불러옵니다. 감상 전 작업은 잠시 보관됩니다.</span>
+                                <span id="presetMenuDescription">완성 루프 50개 · 드럼·베이스·템포를 함께 불러옵니다. 감상 전 작업은 잠시 보관됩니다.</span>
                             </div>
                             <button type="button" class="listen-all-btn" id="listenAllBtn" aria-pressed="false">
                                 <svg class="icon"><use href="#i-headphones"/></svg> 전체 감상
@@ -4790,12 +4844,13 @@
                             <button type="button" id="listenPrevBtn" aria-label="이전 프리셋"><svg class="icon"><use href="#i-prev"/></svg></button>
                             <div class="listening-now" aria-live="off">
                                 <strong id="listeningTitle">프리셋 감상</strong>
-                                <span id="listeningMeta">1 / 9</span>
+                                <span id="listeningMeta">1 / 50</span>
                             </div>
                             <button type="button" id="listenPauseBtn" aria-label="감상 일시정지"><svg class="icon"><use href="#i-pause"/></svg></button>
                             <button type="button" id="listenNextBtn" aria-label="다음 프리셋"><svg class="icon"><use href="#i-next"/></svg></button>
                             <button type="button" class="listen-edit-btn" id="listenEditBtn">현재 곡 편집</button>
                         </div>
+                        <div class="preset-filter-bar" id="presetFilters" aria-label="프리셋 계열 필터"></div>
                         <div class="music-preset-list" id="musicPresetList" aria-label="음악 프리셋 목록"></div>
                         <p class="sr-only" id="presetLiveStatus" aria-live="polite"></p>
                     </div>
