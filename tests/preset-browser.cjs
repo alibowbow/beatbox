@@ -81,17 +81,41 @@ async function main() {
                 pattern: state.pattern,
                 synth: state.synth,
             }));
+            const drumFingerprints = normalized.map(state => JSON.stringify({
+                gridMode: state.gridMode,
+                pattern: state.pattern,
+                probability: state.probability,
+            }));
+            const bassFingerprints = normalized.map(state => JSON.stringify({
+                gridMode: state.gridMode,
+                synth: state.synth,
+            }));
             const integrity = {
                 count: library.presets.length,
                 ids: library.presets.map(preset => preset.id),
+                collections: library.presets.map(preset => preset.collection),
                 normalized: normalized.every(Boolean),
                 uniqueFingerprints: new Set(fingerprints).size,
+                uniqueDrumFingerprints: new Set(drumFingerprints).size,
+                uniqueBassFingerprints: new Set(bassFingerprints).size,
                 has80sPopPreset: library.presets.some(preset => preset.category === '80s Pop'),
                 hasContent: normalized.every(state =>
                     Object.values(state.pattern).some(row => row.some(Boolean)) &&
                     state.synth.pattern.some(row => row != null)
                 ),
             };
+
+            const filterButtons = [...document.querySelectorAll('[data-preset-filter]')];
+            document.querySelector('[data-preset-filter="club"]').click();
+            const clubFilter = {
+                buttonCount: filterButtons.length,
+                visibleCards: document.querySelectorAll('.music-preset-card').length,
+                expectedCards: library.presets.filter(preset => preset.collection === 'club').length,
+                pressed: document.querySelector('[data-preset-filter="club"]').getAttribute('aria-pressed'),
+                listLabel: document.getElementById('musicPresetList').getAttribute('aria-label'),
+            };
+            document.querySelector('[data-preset-filter="all"]').click();
+            clubFilter.restoredCards = document.querySelectorAll('.music-preset-card').length;
 
             const historyBefore = localStorage.getItem(window.BeatboxLoopLibrary.STORAGE_KEY);
             const hashBefore = location.hash;
@@ -327,6 +351,7 @@ async function main() {
             machine.stopPlayback();
             return {
                 integrity,
+                clubFilter,
                 individualLoad,
                 pendingAutoSave,
                 switchedFromCustom,
@@ -353,12 +378,23 @@ async function main() {
             };
         });
 
-        assert(result.integrity.count >= 8, `too few music presets: ${result.integrity.count}`);
+        assert(result.integrity.count >= 50, `too few music presets: ${result.integrity.count}`);
         assert(new Set(result.integrity.ids).size === result.integrity.count, 'preset IDs are not unique');
+        assert(['pop', 'chill', 'groove', 'club', 'breaks'].every(collection =>
+            result.integrity.collections.includes(collection)), 'preset collections are incomplete');
         assert(result.integrity.normalized, 'a preset failed loop-library normalization');
         assert(result.integrity.uniqueFingerprints === result.integrity.count, 'preset states are duplicated');
+        assert(result.integrity.uniqueDrumFingerprints === result.integrity.count,
+            'a music preset reuses an existing drum pattern');
+        assert(result.integrity.uniqueBassFingerprints === result.integrity.count,
+            'a music preset reuses an existing bass pattern');
         assert(result.integrity.has80sPopPreset, '80s pop preset is missing');
         assert(result.integrity.hasContent, 'a preset is missing drums or bass');
+        assert(result.clubFilter.buttonCount === 6 &&
+            result.clubFilter.visibleCards === result.clubFilter.expectedCards &&
+            result.clubFilter.pressed === 'true' && /클럽/.test(result.clubFilter.listLabel) &&
+            result.clubFilter.restoredCards === result.integrity.count,
+            `preset filters are broken: ${JSON.stringify(result.clubFilter)}`);
         assert(result.individualLoad.loaded && !result.individualLoad.playing && !result.individualLoad.listening,
             `individual preset load started playback: ${JSON.stringify(result.individualLoad)}`);
         assert(result.individualLoad.tempo === 117 && result.individualLoad.swing === 2 &&
@@ -385,7 +421,8 @@ async function main() {
             result.beforeBoundary.playing && result.beforeBoundary.listening,
             `listening did not wait for the loop boundary: ${JSON.stringify(result.beforeBoundary)}`);
         assert(result.afterBoundary.transitioned && result.afterBoundary.index === 1 &&
-            result.afterBoundary.playing && result.afterBoundary.listening && result.afterBoundary.summary === '2/9',
+            result.afterBoundary.playing && result.afterBoundary.listening &&
+            result.afterBoundary.summary === `2/${result.integrity.count}`,
             `playlist did not advance at the boundary: ${JSON.stringify(result.afterBoundary)}`);
         assert(result.workspaceRestored, 'stopping listening mode did not restore the previous workspace');
         assert(result.cardJump.index === 2 && result.cardJump.listening && result.cardJump.playing &&
